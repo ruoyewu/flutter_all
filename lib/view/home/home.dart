@@ -4,14 +4,13 @@ import 'dart:developer';
 import 'package:all/base/base_state.dart';
 import 'package:all/model/bean/app_item.dart';
 import 'package:all/model/model/home_model.dart';
+import 'package:all/model/ui_data.dart';
 import 'package:all/presenter/contract/home_contract.dart';
 import 'package:all/presenter/home_presenter.dart';
-import 'package:all/model/ui_data.dart';
 import 'package:all/utils/provider_consumer.dart';
 import 'package:all/view/home/home_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
 

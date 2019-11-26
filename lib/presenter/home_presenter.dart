@@ -1,16 +1,14 @@
 
-import 'dart:developer';
-import 'dart:ffi';
+
+import 'dart:math' as math;
 
 import 'package:all/model/bean/all_api.dart';
 import 'package:all/model/bean/app_item.dart';
 import 'package:all/model/model/home_model.dart';
 import 'package:all/model/remote_data.dart';
-import 'package:all/presenter/contract/home_contract.dart';
 import 'package:all/model/ui_data.dart';
-import 'package:all/utils/encrypt.dart';
+import 'package:all/presenter/contract/home_contract.dart';
 import 'package:flutter/animation.dart';
-import 'dart:math' as math;
 
 class HomePresenter extends IHomePresenter {
   static const int ANIMATION_DURATION = 500;
