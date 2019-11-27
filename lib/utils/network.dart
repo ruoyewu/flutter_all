@@ -1,6 +1,4 @@
 
-import 'dart:io';
-
 import 'package:all/model/ui_data.dart';
 import 'package:dio/dio.dart';
 
@@ -12,9 +10,9 @@ class Network {
   Network() {
     _dio = Dio(BaseOptions(
       baseUrl: UIData.URL_BASE,
-      connectTimeout: 5000,
-      receiveTimeout: 5000,
-      sendTimeout: 5000,
+      connectTimeout: 10000,
+      receiveTimeout: 10000,
+      sendTimeout: 10000,
       contentType: "application/x-www-form-urlencoded",
     ));
   }

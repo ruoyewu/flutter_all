@@ -4,6 +4,7 @@ class UIData {
   static const String ROUTE_USER = "/user";
   static const String ROUTE_APP = "/app";
   static const String ROUTE_ARTICLE_DETAIL = "/article_detail";
+  static const String ROUTE_WEB = "/web";
 
   static const int SIZE_FAB = 56;
   static const int OFFSET_DEFAULT = 16;

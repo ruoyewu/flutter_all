@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:all/base/base_state.dart';
 import 'package:all/model/bean/article_detail.dart';
+import 'package:all/model/bean/article_detail_content.dart';
 import 'package:all/model/bean/article_list_item.dart';
 import 'package:all/model/model/article_detail_model.dart';
 import 'package:all/presenter/article_detail_presenter.dart';
@@ -49,7 +50,22 @@ class _ArticleDetailState extends BaseState<ArticleDetailPage, IArticleDetailPre
       presenter = ArticleDetailPresenter(this, app: app, category: item.category, id: item.id);
       _firstLoad = false;
       Future.delayed(Duration(milliseconds: 500), () {
-        presenter.startLoadArticle();
+        if (app == "ifanr") {
+          presenter.articleDetailModel.update(ArticleDetail(
+            app: app,
+            category: item.category,
+            id: item.id,
+            content: ArticleDetailContent(
+              author: item.author,
+              date: item.date,
+              title: item.title,
+              subtitle: "",
+              itemList: item.content
+            )
+          ));
+        } else {
+          presenter.startLoadArticle();
+        }
       });
     }
 
@@ -61,25 +77,27 @@ class _ArticleDetailState extends BaseState<ArticleDetailPage, IArticleDetailPre
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Stack(
           children: <Widget>[
-            SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  ProviderConsumer<ArticleDetailModel>(
-                    presenter.articleDetailModel,
-                      (context, model, _) {
-                      if (model == null || model.articleDetail == null) {
-                        return Column();
+            Scrollbar(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    ProviderConsumer<ArticleDetailModel>(
+                      presenter.articleDetailModel,
+                        (context, model, _) {
+                        if (model == null || model.articleDetail == null) {
+                          return Column();
+                        }
+                        return Column(
+                          children: <Widget>[
+                            _buildHeader(model.articleDetail),
+                            _buildContent(model.articleDetail),
+                          ],
+                        );
                       }
-                      return Column(
-                        children: <Widget>[
-                          _buildHeader(model.articleDetail),
-                          _buildContent(model.articleDetail),
-                        ],
-                      );
-                    }
-                  ),
-                  _buildComment()
-                ],
+                    ),
+                    _buildComment()
+                  ],
+                ),
               ),
             ),
             _buildInfo(),

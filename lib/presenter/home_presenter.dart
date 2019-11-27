@@ -44,7 +44,9 @@ class HomePresenter extends IHomePresenter {
 
       _homeFabAnimationModel.update(
         value * (height + offset) * 2 + offset,
+        value * 0.5 + 0.5,
         value * (height + offset) + offset,
+        value * 0.5 + 0.5,
         value * math.pi * 3 / 4);
     });
   }

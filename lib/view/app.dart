@@ -3,6 +3,7 @@ import 'package:all/view/app/app.dart';
 import 'package:all/view/detail/article_detail.dart';
 import 'package:all/view/home/home.dart';
 import 'package:all/view/not_found_page.dart';
+import 'package:all/view/web/web.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.white,
         primarySwatch: Colors.blueGrey,
+        fontFamily: 'Longzhao'
       ),
 //      theme: CupertinoThemeData(
 //        primaryColor: Colors.white,
@@ -26,6 +28,7 @@ class MyApp extends StatelessWidget {
         UIData.ROUTE_HOME: (context) => HomePage(),
         UIData.ROUTE_APP: (context) => AppPage(),
         UIData.ROUTE_ARTICLE_DETAIL: (context) => ArticleDetailTestPage(),
+        UIData.ROUTE_WEB: (context) => WebPage()
       },
       onUnknownRoute: (RouteSettings rs) => MaterialPageRoute(builder: (context) => NotFoundPage()),
     );

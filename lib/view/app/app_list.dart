@@ -1,7 +1,4 @@
-import 'dart:developer';
-
 import 'package:all/base/base_state.dart';
-import 'package:all/model/bean/article_list.dart';
 import 'package:all/model/bean/article_list_item.dart';
 import 'package:all/model/model/app_model.dart';
 import 'package:all/model/ui_data.dart';
@@ -41,10 +38,30 @@ class _AppListWidgetState extends BaseState<AppListWidget, IArticleListPresenter
 
   @override
   void onItemClick(ArticleListItem item) {
-    Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL, arguments: {
-      "app": widget.app,
-      "item": item
-    });
+//    item.openType = "2";
+    final openType = ArticleOpenType.values[int.parse(item.openType)];
+    switch (openType) {
+      case ArticleOpenType.NONE:
+        break;
+      case ArticleOpenType.ARTICLE:
+        Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL, arguments: {
+          "app": widget.app,
+          "item": item
+        });
+        break;
+      case ArticleOpenType.ORIGINAL_URL:
+        Navigator.pushNamed(context, UIData.ROUTE_WEB, arguments: {
+          "title": item.title,
+          "url": item.originalUrl
+        });
+        break;
+      case ArticleOpenType.IMAGE:
+
+        break;
+      case ArticleOpenType.VIDEO:
+
+        break;
+    }
   }
 
   @override
@@ -71,6 +88,7 @@ class _AppListWidgetState extends BaseState<AppListWidget, IArticleListPresenter
   }
 
   Widget buildItem(ArticleListItem item) {
+//    log("title ${item.title}, image: ${item.image}");
     if (_isOneHeader(item)) {
       return _buildOneHeader(item);
     }

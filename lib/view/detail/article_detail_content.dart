@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:all/model/bean/article_detail_content_item.dart';
 import 'package:all/model/ui_data.dart';
 import 'package:flutter/cupertino.dart';
@@ -22,6 +20,8 @@ class ArticleDetailContentWidget extends StatelessWidget {
         itemCount: articleContentList.length,
         itemBuilder: (context, index) {
           ArticleDetailContentItem item = articleContentList[index];
+//          log("type: ${item.type}: info: ${item.info}");
+//          if (item.type == "1") item.type = "6";
           switch (itemTypeList[int.parse(item.type)]) {
             case ArticleItemType.NONE:
               return Padding(padding: const EdgeInsets.all(0),);
@@ -117,9 +117,9 @@ class ArticleDetailContentWidget extends StatelessWidget {
       child: Text(
         info,
         style: TextStyle(
-          fontSize: 15,
+          fontSize: 16,
           height: 1.6,
-          color: Colors.black54
+          color: Colors.black54,
         ),
       ),
     );
@@ -143,22 +143,25 @@ class ArticleDetailContentWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
+            width: 12,
+            height: 12,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(width: 0.5, color: Colors.blueGrey,)
+              border: Border.all(width: 2, color: Colors.blueGrey,)
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: Text(
-              info,
-              style: TextStyle(
-                fontSize: 14,
-                height: 1.5,
-                color: Colors.black45
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Text(
+                info,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                  color: Colors.black45
+                ),
               ),
             ),
           )
