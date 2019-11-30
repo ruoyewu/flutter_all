@@ -31,9 +31,15 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
 
   @override
   void startLoadArticle() {
+    int startTime = Timeline.now;
+    int endTime = startTime + 500000;
     Future<ArticleDetail> result = RemoteData.articleDetail(app, category, id);
     result.then((articleDetail) {
-      _articleDetailModel.update(articleDetail);
+      if (isDisposed) return;
+      int delay = endTime - Timeline.now;
+      Future.delayed(Duration(microseconds: delay), () {
+        _articleDetailModel.update(articleDetail);
+      });
     });
   }
 

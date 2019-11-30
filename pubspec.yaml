@@ -28,6 +28,7 @@ dependencies:
   encrypt: ^3.3.1
   dio: ^3.0.6
   webview_flutter: ^0.3.16
+  dio_cookie_manager: ^1.0.0
 
 dev_dependencies:
   flutter_test:

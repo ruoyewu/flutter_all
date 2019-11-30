@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:all/model/bean/article_list.dart';
 import 'package:all/model/model/app_model.dart';
 import 'package:all/model/remote_data.dart';
@@ -42,6 +40,7 @@ class ArticleListPresenter extends IArticleListPresenter {
   Future<void> _startLoad(bool isMore) {
     Future<ArticleList> result = RemoteData.articleList(app, category, next);
     return result.then((articleList) {
+      if (isDisposed) return;
       next = articleList.next;
       if (isMore) {
         _articleListModel.addAll(articleList);

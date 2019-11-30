@@ -16,20 +16,20 @@ class AppPage extends StatelessWidget {
             return <Widget> [
               SliverAppBar(
                 pinned: true,
-//                floating: true,
+                floating: true,
                 title: Text(item.title),
                 bottom: TabBar(
                   indicatorSize: TabBarIndicatorSize.label,
                   isScrollable: true,
                   tabs:buildTabs(item),
                 ),
-              )
+              ),
             ];
           },
           body: TabBarView(
             children: buildPages(item),
           ),
-        )
+        ),
       ),
     );
   }

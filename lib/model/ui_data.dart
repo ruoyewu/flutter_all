@@ -5,6 +5,7 @@ class UIData {
   static const String ROUTE_APP = "/app";
   static const String ROUTE_ARTICLE_DETAIL = "/article_detail";
   static const String ROUTE_WEB = "/web";
+  static const String ROUTE_LOGIN = '/login';
 
   static const int SIZE_FAB = 56;
   static const int OFFSET_DEFAULT = 16;
@@ -13,6 +14,9 @@ class UIData {
   static const String URL_API = "article/api";
   static const String URL_ARTICLE_LIST = "article/list_";
   static const String URL_ARTICLE_DETAIL = "article/detail";
+  static const String URL_LOGIN = "user/login";
+  static const String URL_USER = 'user/user';
+  static const String URL_VERIFY_CODE = 'user/verify_code';
 }
 
 enum ArticleOpenType {

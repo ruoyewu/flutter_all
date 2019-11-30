@@ -1,6 +1,8 @@
 
 import 'package:all/model/ui_data.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 class Network {
   static Network _sInstance;
@@ -14,7 +16,9 @@ class Network {
       receiveTimeout: 10000,
       sendTimeout: 10000,
       contentType: "application/x-www-form-urlencoded",
+      responseType: ResponseType.json
     ));
+    _dio.interceptors.add(CookieManager(CookieJar()));
   }
 
   static Network get sInstance {
@@ -31,6 +35,11 @@ class Network {
 
   Future<Response> post(String url, Map<String, dynamic> data) async {
     final response = await _dio.post(url, data: data);
+    return response;
+  }
+
+  Future<Response> put(String url, Map<String, dynamic> data) async {
+    final response = await _dio.put(url, data: data);
     return response;
   }
 }

@@ -49,24 +49,24 @@ class _ArticleDetailState extends BaseState<ArticleDetailPage, IArticleDetailPre
     if (_firstLoad) {
       presenter = ArticleDetailPresenter(this, app: app, category: item.category, id: item.id);
       _firstLoad = false;
-      Future.delayed(Duration(milliseconds: 500), () {
-        if (app == "ifanr") {
-          presenter.articleDetailModel.update(ArticleDetail(
-            app: app,
-            category: item.category,
-            id: item.id,
-            content: ArticleDetailContent(
-              author: item.author,
-              date: item.date,
-              title: item.title,
-              subtitle: "",
-              itemList: item.content
-            )
-          ));
-        } else {
-          presenter.startLoadArticle();
-        }
-      });
+      if(app == 'ifanr') {
+      	Future.delayed(Duration(milliseconds: 500), () {
+		      presenter.articleDetailModel.update(ArticleDetail(
+			      app: app,
+			      category: item.category,
+			      id: item.id,
+			      content: ArticleDetailContent(
+				      author: item.author,
+				      date: item.date,
+				      title: item.title,
+				      subtitle: "",
+				      itemList: item.content
+			      )
+		      ));
+	      });
+      } else {
+      	presenter.startLoadArticle();
+      }
     }
 
     return Scaffold(

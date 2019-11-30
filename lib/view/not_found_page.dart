@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class NotFoundPage extends StatelessWidget {
@@ -8,7 +10,11 @@ class NotFoundPage extends StatelessWidget {
         title: Text("page not found"),
       ),
       body: Center(
-        child: Text("no sush page,\n please ensure your route", style: TextStyle(fontSize: 20),),
+        child: Text(
+          "no sush page,\n please ensure your route",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 20),
+        ),
       ),
     );
   }

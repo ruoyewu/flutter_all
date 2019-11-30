@@ -80,28 +80,28 @@ class _HomePageState extends BaseState<HomePage, IHomePresenter>
           children: <Widget>[
             Padding(
               padding: EdgeInsets.only(right: 16, bottom: model.offsetSetting),
-              child: Transform.scale(
-                scale: model.scaleSetting,
-                child: FloatingActionButton(
-                  heroTag: "fab_setting",
-                  child: Icon(Icons.settings, color: Colors.white70,),
-                  onPressed: () {
-                    Navigator.pushNamed(context, UIData.ROUTE_SETTING);
-                  },
-                ),
+              child: FloatingActionButton(
+                heroTag: "fab_setting",
+                child: Icon(Icons.settings, color: Colors.white70,),
+                onPressed: () {
+                  Navigator.pushNamed(context, UIData.ROUTE_SETTING);
+                },
               ),
             ),
             Padding(
               padding: EdgeInsets.only(right: 16, bottom: model.offsetUser),
-              child: Transform.scale(
-                scale: model.scaleUser,
-                child: FloatingActionButton(
-                  heroTag: "fab_user",
-                  child: Icon(Icons.person, color: Colors.white70,),
-                  onPressed: () {
-                    Navigator.pushNamed(context, UIData.ROUTE_USER);
-                  },
-                ),
+              child: FloatingActionButton(
+                heroTag: "fab_user",
+                child: Icon(Icons.person, color: Colors.white70,),
+                onPressed: () {
+                  Navigator.pushNamed(context, UIData.ROUTE_LOGIN).then((result) {
+                    if (result != null && result) {
+                      log("login ok");
+                    } else {
+                      log('login fail');
+                    }
+                  });
+                },
               ),
             ),
             Padding(

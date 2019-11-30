@@ -38,6 +38,7 @@ class HomePresenter extends IHomePresenter {
   @override
   void initListener() {
     _animationFab.addListener(() {
+      if (isDisposed) return;
       var offset = UIData.OFFSET_DEFAULT;
       var height = UIData.SIZE_FAB;
       var value = _animationFab.value;
