@@ -23,9 +23,11 @@ class AppListWidget extends StatefulWidget {
   }
 }
 
-class _AppListWidgetState extends BaseState<AppListWidget, IArticleListPresenter>
-  with AutomaticKeepAliveClientMixin
-  implements IArticleListView {
+class _AppListWidgetState
+    extends BaseState<AppListWidget, IArticleListPresenter>
+    with AutomaticKeepAliveClientMixin
+    implements IArticleListView {
+  ScrollController _scrollController;
 
   @override
   void initState() {
@@ -38,28 +40,21 @@ class _AppListWidgetState extends BaseState<AppListWidget, IArticleListPresenter
 
   @override
   void onItemClick(ArticleListItem item) {
-//    item.openType = "2";
     final openType = ArticleOpenType.values[int.parse(item.openType)];
     switch (openType) {
       case ArticleOpenType.NONE:
         break;
       case ArticleOpenType.ARTICLE:
-        Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL, arguments: {
-          "app": widget.app,
-          "item": item
-        });
+        Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL,
+            arguments: {"app": widget.app, "item": item});
         break;
       case ArticleOpenType.ORIGINAL_URL:
-        Navigator.pushNamed(context, UIData.ROUTE_WEB, arguments: {
-          "title": item.title,
-          "url": item.originalUrl
-        });
+        Navigator.pushNamed(context, UIData.ROUTE_WEB,
+            arguments: {"title": item.title, "url": item.originalUrl});
         break;
       case ArticleOpenType.IMAGE:
-
         break;
       case ArticleOpenType.VIDEO:
-
         break;
     }
   }
@@ -68,23 +63,19 @@ class _AppListWidgetState extends BaseState<AppListWidget, IArticleListPresenter
   Widget build(BuildContext context) {
     super.build(context);
     return RefreshIndicator(
-      onRefresh: presenter.startRefresh,
-      child: ProviderConsumer<ArticleListModel>(
-        presenter.articleListModel,
-        (context, model, _) {
+        onRefresh: presenter.startRefresh,
+        child: ProviderConsumer<ArticleListModel>(presenter.articleListModel,
+            (context, model, _) {
           return ListView.builder(
-            itemCount: model.articleList.list.length + 1,
-            itemBuilder: (context, index) {
-              if (index < model.articleList.list.length) {
-                return buildItem(model.articleList.list[index]);
-              } else {
-                return buildLoading();
-              }
-            }
-          );
-        }
-      )
-    );
+              itemCount: model.articleList.list.length + 1,
+              itemBuilder: (context, index) {
+                if (index < model.articleList.list.length) {
+                  return buildItem(model.articleList.list[index]);
+                } else {
+                  return buildLoading();
+                }
+              });
+        }));
   }
 
   Widget buildItem(ArticleListItem item) {
@@ -142,18 +133,19 @@ class _AppListWidgetState extends BaseState<AppListWidget, IArticleListPresenter
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
-          padding: EdgeInsets.symmetric(vertical: 5),
-          width: double.infinity,
-          height: 250,
-          child: Ink.image(image: NetworkImage(item.image), fit: BoxFit.cover,)
-        ),
+            padding: EdgeInsets.symmetric(vertical: 5),
+            width: double.infinity,
+            height: 250,
+            child: Ink.image(
+              image: NetworkImage(item.image),
+              fit: BoxFit.cover,
+            )),
         Text(
           item.forward,
           overflow: TextOverflow.ellipsis,
           maxLines: 3,
           style: TextStyle(fontSize: 15, color: Colors.black54),
         ),
-
       ],
     );
   }
@@ -181,7 +173,11 @@ class _AppListWidgetState extends BaseState<AppListWidget, IArticleListPresenter
     return SizedBox(
       width: double.infinity,
       height: 50,
-      child: Text("loading", textAlign: TextAlign.center, style: TextStyle(fontSize: 15),),
+      child: Text(
+        "loading",
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 15),
+      ),
     );
   }
 
@@ -198,14 +194,19 @@ class _AppListWidgetState extends BaseState<AppListWidget, IArticleListPresenter
           children: <Widget>[
             Text(
               item.date.substring(0, 10).replaceAll("-", " / "),
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey, fontSize: 20),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueGrey,
+                  fontSize: 20),
             ),
             Container(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-              width: double.infinity,
-              height: 250,
-              child: Ink.image(image: NetworkImage(item.image), fit: BoxFit.cover,)
-            ),
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+                width: double.infinity,
+                height: 250,
+                child: Ink.image(
+                  image: NetworkImage(item.image),
+                  fit: BoxFit.cover,
+                )),
             Text(
               item.otherInfo.replaceAll("|", " | "),
               style: TextStyle(color: Colors.grey, fontSize: 13),

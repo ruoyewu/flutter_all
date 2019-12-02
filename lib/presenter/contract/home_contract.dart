@@ -17,5 +17,6 @@ abstract class IHomePresenter extends BasePresenter<IHomeView> {
   HomeListModel get homeListModel;
 
   void startFabAnimation();
-  Future<void> startRefresh();
+  startRefresh();
+  startDefaultLogin();
 }

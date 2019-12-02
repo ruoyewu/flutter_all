@@ -29,6 +29,7 @@ class _HomePageState extends BaseState<HomePage, IHomePresenter>
     super.initState();
     presenter = HomePresenter(this);
     presenter.startRefresh();
+    presenter.startDefaultLogin();
   }
 
   @override
@@ -94,13 +95,7 @@ class _HomePageState extends BaseState<HomePage, IHomePresenter>
                 heroTag: "fab_user",
                 child: Icon(Icons.person, color: Colors.white70,),
                 onPressed: () {
-                  Navigator.pushNamed(context, UIData.ROUTE_LOGIN).then((result) {
-                    if (result != null && result) {
-                      log("login ok");
-                    } else {
-                      log('login fail');
-                    }
-                  });
+                  Navigator.pushNamed(context, UIData.ROUTE_USER);
                 },
               ),
             ),

@@ -1,5 +1,6 @@
 import 'package:all/base/base_view.dart';
 import 'package:all/model/bean/net_result.dart';
+import 'package:all/model/bean/user_info.dart';
 import 'package:all/model/model/login_verify_model.dart';
 import 'package:all/model/remote_data.dart';
 import 'package:all/model/user_setting.dart';
@@ -36,9 +37,9 @@ class LoginPresenter extends ILoginPresenter {
 		result.then((result) {
 			if (isDisposed) return;
 			if (result.result) {
-				view.onLoginOk();
+				view.onLoginOk(UserInfo.fromJson(result.info));
 				UserSetting.sInstance.then((setting) {
-					setting.isUserIsLogin = true;
+					setting.isUserLogin = true;
 					setting.loginUserId = id;
 					setting.loginUserPassword = password;
 				});

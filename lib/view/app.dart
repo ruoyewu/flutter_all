@@ -4,6 +4,7 @@ import 'package:all/view/detail/article_detail.dart';
 import 'package:all/view/home/home.dart';
 import 'package:all/view/login/login.dart';
 import 'package:all/view/not_found_page.dart';
+import 'package:all/view/user/user.dart';
 import 'package:all/view/web/web.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget {
         UIData.ROUTE_APP: (context) => AppPage(),
         UIData.ROUTE_ARTICLE_DETAIL: (context) => ArticleDetailPage(),
         UIData.ROUTE_WEB: (context) => WebPage(),
+        UIData.ROUTE_USER: (context) => UserPage(),
         UIData.ROUTE_LOGIN: (context) => LoginPage(),
       },
       onUnknownRoute: (RouteSettings rs) => MaterialPageRoute(builder: (context) => NotFoundPage()),

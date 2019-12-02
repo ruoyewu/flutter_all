@@ -27,28 +27,29 @@ class LoginLoginWidget extends StatelessWidget {
 		  child: Center(
 		    child: SizedBox(
 			    width: 250,
-		      child: Column(
-		      		  mainAxisSize: MainAxisSize.min,
-		      		  mainAxisAlignment: MainAxisAlignment.center,
-		      		  children: <Widget>[
-		      			  TextField(
+		      child: SingleChildScrollView(
+		        child: Column(
+		        		  mainAxisSize: MainAxisSize.max,
+		        		  mainAxisAlignment: MainAxisAlignment.center,
+		        		  children: <Widget>[
+		        			  TextField(
 //		      				  autofocus: true,
-		      				  controller: _userIdController,
-		      				  keyboardType: TextInputType.number,
+		        				  controller: _userIdController,
+		        				  keyboardType: TextInputType.number,
 //		  				  textInputAction: TextInputAction.next,
-		      				  decoration: InputDecoration(
-		      					  labelText: "账号",
+		        				  decoration: InputDecoration(
+		        					  labelText: "账号",
 //			    				prefixIcon: Icon(Icons.person)
-		      				  ),
-		      			  ),
-		      			  TextField(
-		      				  controller: _userPasswordController,
-		      				  obscureText: true,
-		      				  decoration: InputDecoration(
-		      					  labelText: "密码",
+		        				  ),
+		        			  ),
+		        			  TextField(
+		        				  controller: _userPasswordController,
+		        				  obscureText: true,
+		        				  decoration: InputDecoration(
+		        					  labelText: "密码",
 //			    				prefixIcon: Icon(Icons.lock)
-		      				  ),
-		      			  ),
+		        				  ),
+		        			  ),
 					      Padding(
 						      padding: const EdgeInsets.only(top: 30),
 						      child: Container(
@@ -73,7 +74,8 @@ class LoginLoginWidget extends StatelessWidget {
 							      ),
 						      ),
 					      )
-		      		  ],
+		        		  ],
+		        ),
 		      ),
 		    ),
 		  ),

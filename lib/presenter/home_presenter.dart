@@ -7,11 +7,12 @@ import 'package:all/model/bean/app_item.dart';
 import 'package:all/model/model/home_model.dart';
 import 'package:all/model/remote_data.dart';
 import 'package:all/model/ui_data.dart';
+import 'package:all/model/user_setting.dart';
 import 'package:all/presenter/contract/home_contract.dart';
 import 'package:flutter/animation.dart';
 
 class HomePresenter extends IHomePresenter {
-  static const int ANIMATION_DURATION = 500;
+  static const int ANIMATION_DURATION = 300;
 
   HomeFabAnimationModel _homeFabAnimationModel;
   AnimationController _animationFab;
@@ -87,4 +88,18 @@ class HomePresenter extends IHomePresenter {
     });
   }
 
+  @override
+  startDefaultLogin() {
+    UserSetting.sInstance.then((setting) {
+      if (setting.isUserLogin) {
+        RemoteData.login(setting.loginUserId, setting.loginUserPassword).then((result) {
+          if (!result.result) {
+            setting.isUserLogin = false;
+            setting.loginUserId = '';
+            setting.loginUserPassword = '';
+          }
+        });
+      }
+    });
+  }
 }

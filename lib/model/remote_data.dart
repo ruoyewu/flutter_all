@@ -65,4 +65,43 @@ class RemoteData {
     });
     return NetResult.fromJson(response.data);
   }
+
+  static Future<NetResult> articleInfo(String article) async {
+    final response = await _network.get(UIData.URL_ARTICLE_INFO, query: {
+      'article': article
+    });
+    return NetResult.fromJson(response.data);
+  }
+
+  static Future<NetResult> praiseArticle(String article) async {
+    final response = await _network.post(UIData.URL_ARTICLE_PRAISE, {
+      'article': article
+    });
+    return NetResult.fromJson(response.data);
+  }
+
+  static Future<NetResult> collectArticle(String article, String content) async {
+    final response = await _network.post(UIData.URL_ARTICLE_COLLECT, {
+      'article': article,
+      'content': content
+    });
+    return NetResult.fromJson(response.data);
+  }
+
+  static Future<NetResult> commentArticle(String article, int parent, String comment) async {
+    final response = await _network.post(UIData.URL_ARTICLE_COMMENT, {
+      'article': article,
+      'content': comment,
+      'parent': parent
+    });
+    return NetResult.fromJson(response.data);
+  }
+
+  static Future<NetResult> artileComment(String article, int time) async {
+    final response = await _network.get(UIData.URL_ARTICLE_COMMENT, query: {
+      'article': article,
+      'time': time
+    });
+    return NetResult.fromJson(response.data);
+  }
 }

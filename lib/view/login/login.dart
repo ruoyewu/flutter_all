@@ -1,8 +1,10 @@
 import 'package:all/base/base_state.dart';
+import 'package:all/model/bean/user_info.dart';
 import 'package:all/presenter/contract/login_contract.dart';
 import 'package:all/presenter/login_presenter.dart';
 import 'package:all/view/login/login_login.dart';
 import 'package:all/view/login/login_register.dart';
+import 'package:all/view/widget/widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -32,16 +34,12 @@ class _LoginPageState extends BaseState<LoginPage, ILoginPresenter>
 
   @override
   onResultInfo(String info) {
-    final context = _snackBarContext;
-    Scaffold.of(context).hideCurrentSnackBar();
-    Scaffold.of(context).showSnackBar(SnackBar(
-      content: Text(info),
-    ));
+    Widgets.showSnackBar(_snackBarContext, info);
   }
 
   @override
-  onLoginOk() {
-    Navigator.pop(context, true);
+  onLoginOk(UserInfo userInfo) {
+    Navigator.pop(context, userInfo);
   }
 
   @override
