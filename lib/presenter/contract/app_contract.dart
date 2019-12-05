@@ -20,6 +20,5 @@ abstract class IArticleListPresenter extends BasePresenter<IArticleListView> {
 
   ArticleListModel get articleListModel;
 
-  Future<void> startRefresh();
-  Future<void> startLoadMore();
+  Future<void> startLoadMore({bool isRefresh = false});
 }

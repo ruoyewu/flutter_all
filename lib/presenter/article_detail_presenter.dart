@@ -8,11 +8,13 @@ import 'package:all/model/bean/article_comment_list_item.dart';
 import 'package:all/model/bean/article_detail.dart';
 import 'package:all/model/bean/article_info.dart';
 import 'package:all/model/bean/article_list_item.dart';
+import 'package:all/model/model/article_comment_item_model.dart';
 import 'package:all/model/model/article_comment_model.dart';
 import 'package:all/model/model/article_detail_info_model.dart';
 import 'package:all/model/model/article_detail_model.dart';
 import 'package:all/model/remote_data.dart';
 import 'package:all/model/ui_data.dart';
+import 'package:all/model/user_setting.dart';
 import 'package:all/presenter/contract/article_detail_contract.dart';
 import 'package:flutter/animation.dart';
 
@@ -80,6 +82,28 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   ArticleCommentModel get articleCommentModel => _articleCommentModel;
 
   @override
+  Future<List<String>> commentDialogTitles(ArticleCommentListItem item) async {
+    return UserSetting.sInstance.then((setting) {
+      if (setting.isUserLogin && setting.loginUserId == item.user.id) {
+        return ['复制', '举报', '评论', '删除'];
+      } else {
+        return ['复制', '举报', '评论'];
+      }
+    });
+  }
+
+  @override
+  showEditDialog(ArticleCommentListItem parent) {
+    UserSetting.sInstance.then((setting) {
+      if (setting.isUserLogin) {
+        view.onShowEditDialog(setting.loginUserName, parent);
+      } else {
+        view.onResultInfo('LOGIN FIRST', code: 401);
+      }
+    });
+  }
+
+  @override
   void startLoadArticle() {
     int startTime = Timeline.now;
     int endTime = startTime + 500000;
@@ -90,6 +114,13 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
       int delay = endTime - Timeline.now;
       Future.delayed(Duration(microseconds: delay), () {
         _articleDetailModel.update(articleDetail);
+        Future.delayed(Duration(milliseconds: 100), () {
+          UserSetting.sInstance.then((setting) {
+            if (setting.autoShowDetailBar) {
+              startAnimation();
+            }
+          });
+        });
       });
     });
   }
@@ -98,7 +129,7 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   startLoadArticleInfo() {
     RemoteData.articleInfo(article).then((result) {
       if (isDisposed) return;
-      if (result.result) {
+      if (result.successful) {
         _articleDetailInfoModel.articleInfo = ArticleInfo.fromJson(result.info);
       } else {
         view.onResultInfo(result.info);
@@ -109,7 +140,7 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   @override
   startLoadComment() {
     RemoteData.artileComment(article, _nextComment).then((result) {
-      if (result.result) {
+      if (result.successful) {
         ArticleCommentList list = ArticleCommentList.fromJson(result.info);
         _nextComment = list.next;
         _articleCommentModel.addAll(list, list.list.length == 10);
@@ -133,13 +164,13 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   startPraise() {
     RemoteData.praiseArticle(article).then((result) {
       if (isDisposed) return;
-      if (result.result) {
+      if (result.successful) {
         final info = _articleDetailInfoModel.articleInfo;
         info.praiseNum += result.info ? 1 : -1;
         info.isPraise = result.info;
         _articleDetailInfoModel.articleInfo = info;
       } else {
-        view.onResultInfo(result.info);
+        view.onResultInfo(result.info, code: result.code);
       }
     });
   }
@@ -149,11 +180,58 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
     String content = json.encode(item.toJson());
     RemoteData.collectArticle(article, content).then((result) {
       if (isDisposed) return;
-      if (result.result) {
+      if (result.successful) {
         final info = _articleDetailInfoModel.articleInfo;
         info.collectNum += result.info ? 1 : -1;
         info.isCollect = result.info;
         _articleDetailInfoModel.articleInfo = info;
+      } else {
+        view.onResultInfo(result.info, code: result.code);
+      }
+    });
+  }
+
+  @override
+  startSendComment(int parent, String comment) {
+    if (comment == null || comment.length == 0) {
+      view.onResultInfo('评论不能为空');
+      return;
+    }
+    RemoteData.commentArticle(article, parent, comment).then((result) {
+      if (isDisposed) return;
+      if (result.successful) {
+        ArticleCommentListItem item =
+            ArticleCommentListItem.fromJson(result.info);
+        ArticleCommentList list = _articleCommentModel.articleCommentList;
+        list.list.insert(0, item);
+        _articleCommentModel.articleCommentList = list;
+        view.scrollToComment();
+
+        ArticleInfo info = _articleDetailInfoModel.articleInfo;
+        info.commentNum += 1;
+        _articleDetailInfoModel.articleInfo = info;
+
+        view.onResultInfo('评论成功');
+      } else {
+        view.onResultInfo(result.info, code: result.code);
+      }
+    });
+  }
+
+  @override
+  startDeleteComment(int id) {
+    RemoteData.deleteComment(id).then((result) {
+      if (isDisposed) return;
+      if (result.successful) {
+        ArticleCommentList list = _articleCommentModel.articleCommentList;
+        list.removeWithId(id);
+        _articleCommentModel.articleCommentList = list;
+
+        ArticleInfo info = _articleDetailInfoModel.articleInfo;
+        info.commentNum -= 1;
+        _articleDetailInfoModel.articleInfo = info;
+
+        view.onResultInfo('删除成功');
       } else {
         view.onResultInfo(result.info);
       }
@@ -161,20 +239,19 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   }
 
   @override
-  startSendComment(int parent, String comment) {
-    RemoteData.commentArticle(article, parent, comment).then((result) {
-      if (isDisposed) return;
-      if (result.result) {
-        ArticleCommentListItem item =
-            ArticleCommentListItem.fromJson(result.info);
-        ArticleCommentList list = _articleCommentModel.articleCommentList;
-        list.list.insert(0, item);
-        _articleCommentModel.articleCommentList = list;
+  startPraiseComment(ArticleCommentItemModel model) {
+    RemoteData.praiseComment(model.articleCommentListItem.id).then((result) {
+      if (result.successful) {
+        ArticleCommentListItem item = model.articleCommentListItem;
+        item.isPraise = result.info;
+        item.praiseNum += result.info ? 1 : -1;
+        model.articleCommentListItem = item;
       } else {
         view.onResultInfo(result.info);
       }
     });
   }
+
 
   String get article => '${app}_${item.category}_${item.id}';
 }

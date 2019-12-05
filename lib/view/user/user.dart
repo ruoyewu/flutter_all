@@ -12,6 +12,7 @@ import 'package:all/view/user/user_collection.dart';
 import 'package:all/view/user/user_history.dart';
 import 'package:all/view/user/user_info.dart';
 import 'package:all/view/user/user_not_login.dart';
+import 'package:all/view/widget/widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -30,15 +31,15 @@ class _UserPageState extends BaseState<UserPage, IUserPresenter>
   void initState() {
     super.initState();
     presenter = UserPresenter(this);
-    presenter.startLoadUserInfo();
+    Future.delayed(Duration(milliseconds: 0), () {
+      presenter.startLoadUserInfo(
+          id: ModalRoute.of(context).settings.arguments);
+    });
   }
 
   @override
   onResultInfo(String info) {
-    Scaffold.of(_snackBarContext).hideCurrentSnackBar();
-    Scaffold.of(_snackBarContext).showSnackBar(SnackBar(
-      content: Text(info),
-    ));
+    Widgets.showSnackBar(_snackBarContext, info);
   }
 
   onLoginTap({String id}) {
@@ -49,7 +50,15 @@ class _UserPageState extends BaseState<UserPage, IUserPresenter>
         }
       });
     } else {
-
+      Widgets.showSimpleDialog(context, ['上传头像', '注销登录']).then((index) {
+        switch (index) {
+          case 0:
+            break;
+          case 1:
+            presenter.startLogout();
+            break;
+        }
+      });
     }
   }
 
@@ -96,11 +105,12 @@ class _UserPageState extends BaseState<UserPage, IUserPresenter>
                                     image: model.userInfo.avatar ?? ''),
                                 ClipRect(
                                   child: BackdropFilter(
-                                      filter:
-                                          ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                                      filter: ImageFilter.blur(
+                                          sigmaX: 8, sigmaY: 8),
                                       child: Container(
                                         color: Colors.black.withOpacity(0),
-                                        child: _userAvatarCenter(model.userInfo),
+                                        child:
+                                            _userAvatarCenter(model.userInfo),
                                       )),
                                 )
                               ],
@@ -113,7 +123,7 @@ class _UserPageState extends BaseState<UserPage, IUserPresenter>
                       ),
                     ];
                   },
-                  body: TabBarView(children: _contentView(hasUser)),
+                  body: TabBarView(children: _contentView(hasUser, hasUser ? model.userInfo.id : null)),
                 ),
               );
             }),
@@ -122,7 +132,7 @@ class _UserPageState extends BaseState<UserPage, IUserPresenter>
       ),
     );
   }
-  
+
   Widget _userAvatarCenter(UserInfo userInfo) {
     return Center(
       child: Column(
@@ -133,30 +143,23 @@ class _UserPageState extends BaseState<UserPage, IUserPresenter>
             child: CircleAvatar(
               radius: 35,
               backgroundImage: AssetImage('assets/images/ic_avatar.png'),
-              child: Image.network(
-                userInfo.avatar?? ''
-              ),
+              child: Image.network(userInfo.avatar ?? ''),
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Text(
-              userInfo.name?? '点击登录',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.black87
-              ),
+              userInfo.name ?? '点击登录',
+              style: TextStyle(fontSize: 18, color: Colors.black87),
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 5),
             child: Text(
-              userInfo.sign?? '',
+              userInfo.sign ?? '',
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Colors.black54
-              ),
+              style: TextStyle(color: Colors.black54),
             ),
           )
         ],
@@ -178,10 +181,10 @@ class _UserPageState extends BaseState<UserPage, IUserPresenter>
     ];
   }
 
-  List<Widget> _contentView(bool hasUser) {
+  List<Widget> _contentView(bool hasUser, String userId) {
     if (hasUser) {
       return [
-        UserCollectionWidget(presenter),
+        UserCollectionWidget(presenter, userId),
         UserHistoryWidget(presenter),
         UserInfoWidget(presenter),
       ];

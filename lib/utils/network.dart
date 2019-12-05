@@ -42,4 +42,9 @@ class Network {
     final response = await _dio.put(url, data: data);
     return response;
   }
+
+  Future<Response> delete(String url, Map<String, dynamic> data) async {
+    final response = await _dio.delete(url, data: data);
+    return response;
+  }
 }

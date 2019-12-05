@@ -31,17 +31,18 @@ class LoginPresenter extends ILoginPresenter {
 			return;
 		}
 		Encrypt encrypt = Encrypt.sInstance;
-		id = encrypt.encrypt(id);
 		password = encrypt.encrypt(password);
-		Future<NetResult> result = RemoteData.login(id, password);
+		Future<NetResult> result = RemoteData.login(encrypt.encrypt(id), password);
 		result.then((result) {
 			if (isDisposed) return;
-			if (result.result) {
-				view.onLoginOk(UserInfo.fromJson(result.info));
+			if (result.successful) {
+				UserInfo userInfo = UserInfo.fromJson(result.info);
+				view.onLoginOk(userInfo);
 				UserSetting.sInstance.then((setting) {
 					setting.isUserLogin = true;
 					setting.loginUserId = id;
 					setting.loginUserPassword = password;
+					setting.loginUserName = userInfo.name;
 				});
 			} else {
 				view.onResultInfo(result.info);
@@ -62,7 +63,7 @@ class LoginPresenter extends ILoginPresenter {
 		result.then((result) {
 			if (isDisposed) return;
 			view.onResultInfo(result.info);
-			if (result.result) {
+			if (result.successful) {
 				view.onRegisterOk();
 			}
 		});
@@ -75,7 +76,7 @@ class LoginPresenter extends ILoginPresenter {
 			encrypt.encrypt('86'), encrypt.encrypt('register'));
 		result.then((result) {
 			view.onResultInfo(result.info);
-			if (result.result) {
+			if (result.successful) {
 				_nextSecond(60);
 			}
 		});

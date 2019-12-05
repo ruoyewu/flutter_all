@@ -1,12 +1,13 @@
 class NetResult {
-	bool result;
+	int code;
 	dynamic info;
+	bool get successful => code == 0;
 
-	NetResult ({this.result, this.info});
+	NetResult ({this.code, this.info});
 
 	factory NetResult.fromJson(Map<String, dynamic> map) {
 		return NetResult(
-			result: map['result'],
+			code: map['code'],
 			info: map['info']
 		);
 	}

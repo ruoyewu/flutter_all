@@ -6,6 +6,16 @@ class ArticleCommentList {
 
   ArticleCommentList({this.list, this.next});
 
+  removeWithId(int id) {
+    if (list == null) return;
+    for (int i = 0; i < list.length; i++) {
+      if (list[i].id == id) {
+        list.removeAt(i);
+        return;
+      }
+    }
+  }
+
   factory ArticleCommentList.fromJson(Map<String, dynamic> json) {
     return ArticleCommentList(
       list: json['list'] != null

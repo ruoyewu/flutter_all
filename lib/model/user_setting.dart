@@ -4,6 +4,7 @@ class UserSetting {
 	static const IS_USER_LOGIN = 'is_user_login';
 	static const LOGIN_USER_ID = 'login_user_id';
 	static const LOGIN_USER_PASSWORD = 'login_user_password';
+	static const LOGIN_USER_NAME = 'login_user_name';
 	static const AUTO_SHOW_DETAIL_BAR = 'auto_show_detail_bar';
 
 	static UserSetting _sInstance;
@@ -41,6 +42,20 @@ class UserSetting {
 
 	String get loginUserPassword {
 		return _sp.getString(LOGIN_USER_PASSWORD)?? '';
+	}
+
+	String get loginUserName {
+		return _sp.get(LOGIN_USER_NAME)?? '';
+	}
+
+	set loginUserName(String name) {
+		_sp.setString(LOGIN_USER_NAME, name);
+	}
+
+	bool get autoShowDetailBar => _sp.getBool(AUTO_SHOW_DETAIL_BAR)?? true;
+
+	set autoShowDetailBar(bool show) {
+		_sp.setBool(AUTO_SHOW_DETAIL_BAR, show);
 	}
 
 	static _getSP() async {

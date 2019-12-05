@@ -1,14 +1,13 @@
-
-
 import 'dart:math' as math;
 
-import 'package:all/model/bean/all_api.dart';
 import 'package:all/model/bean/app_item.dart';
 import 'package:all/model/model/home_model.dart';
 import 'package:all/model/remote_data.dart';
 import 'package:all/model/ui_data.dart';
+import 'package:all/model/user_cache.dart';
 import 'package:all/model/user_setting.dart';
 import 'package:all/presenter/contract/home_contract.dart';
+import 'package:all/utils/encrypt.dart';
 import 'package:flutter/animation.dart';
 
 class HomePresenter extends IHomePresenter {
@@ -45,11 +44,11 @@ class HomePresenter extends IHomePresenter {
       var value = _animationFab.value;
 
       _homeFabAnimationModel.update(
-        value * (height + offset) * 2 + offset,
-        value * 0.5 + 0.5,
-        value * (height + offset) + offset,
-        value * 0.5 + 0.5,
-        value * math.pi * 3 / 4);
+          value * (height + offset) * 2 + offset,
+          value * 0.5 + 0.5,
+          value * (height + offset) + offset,
+          value * 0.5 + 0.5,
+          value * math.pi * 3 / 4);
     });
   }
 
@@ -78,12 +77,14 @@ class HomePresenter extends IHomePresenter {
 
   @override
   Future<void> startRefresh() {
-    Future<AllApi> result = RemoteData.api();
-    return result.then((allApi) {
+    return RemoteData.api().then((allApi) {
+      if (isDisposed) return;
+
       Map<String, AppItem> map = Map();
       for (AppItem item in allApi.appItemList) {
         map[item.name] = item;
       }
+      UserCache.appItemMap = map;
       _homeListModel.update(allApi.appList, map);
     });
   }
@@ -92,8 +93,10 @@ class HomePresenter extends IHomePresenter {
   startDefaultLogin() {
     UserSetting.sInstance.then((setting) {
       if (setting.isUserLogin) {
-        RemoteData.login(setting.loginUserId, setting.loginUserPassword).then((result) {
-          if (!result.result) {
+        RemoteData.login(Encrypt.sInstance.encrypt(setting.loginUserId),
+                setting.loginUserPassword)
+            .then((result) {
+          if (!result.successful) {
             setting.isUserLogin = false;
             setting.loginUserId = '';
             setting.loginUserPassword = '';

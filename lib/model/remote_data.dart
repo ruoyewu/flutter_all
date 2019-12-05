@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:all/model/bean/all_api.dart';
 import 'package:all/model/bean/article_detail.dart';
 import 'package:all/model/bean/article_list.dart';
@@ -41,10 +43,16 @@ class RemoteData {
   }
 
   static Future<NetResult> login(String id, String password) async {
+    log('id: $id, password: $password');
     final response = await _network.get(UIData.URL_LOGIN, query: {
       'id': id,
       'password': password
     });
+    return NetResult.fromJson(response.data);
+  }
+
+  static Future<NetResult> logout() async {
+    final response = await _network.get(UIData.URL_LOGOUT);
     return NetResult.fromJson(response.data);
   }
 
@@ -88,11 +96,33 @@ class RemoteData {
     return NetResult.fromJson(response.data);
   }
 
+  static Future<NetResult> articleCollection(String user, int next) async {
+    final response = await _network.get(UIData.URL_ARTICLE_COLLECT, query: {
+      'user': user,
+      'time': next
+    });
+    return NetResult.fromJson(response.data);
+  }
+
   static Future<NetResult> commentArticle(String article, int parent, String comment) async {
     final response = await _network.post(UIData.URL_ARTICLE_COMMENT, {
       'article': article,
       'content': comment,
       'parent': parent
+    });
+    return NetResult.fromJson(response.data);
+  }
+
+  static Future<NetResult> deleteComment(int id) async {
+    final response = await _network.delete(UIData.URL_ARTICLE_COMMENT, {
+      'id': id
+    });
+    return NetResult.fromJson(response.data);
+  }
+
+  static Future<NetResult> praiseComment(int id) async {
+    final response = await _network.post(UIData.URL_PRAISE_COMMENT, {
+      'comment': id
     });
     return NetResult.fromJson(response.data);
   }

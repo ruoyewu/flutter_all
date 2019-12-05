@@ -27,25 +27,18 @@ class ArticleListPresenter extends IArticleListPresenter {
   ArticleListModel get articleListModel => _articleListModel;
 
   @override
-  Future<void> startRefresh() {
-    next = "0";
-    return _startLoad(false);
-  }
-
-  @override
-  Future<void> startLoadMore() {
-    return _startLoad(true);
-  }
-
-  Future<void> _startLoad(bool isMore) {
+  Future<void> startLoadMore({bool isRefresh = false}) {
+    if (isRefresh) {
+      next = '0';
+    }
     Future<ArticleList> result = RemoteData.articleList(app, category, next);
     return result.then((articleList) {
       if (isDisposed) return;
       next = articleList.next;
-      if (isMore) {
-        _articleListModel.addAll(articleList);
-      } else {
+      if (isRefresh) {
         _articleListModel.update(articleList);
+      } else {
+        _articleListModel.addAll(articleList);
       }
     });
   }

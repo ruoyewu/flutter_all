@@ -27,8 +27,6 @@ class _AppListWidgetState
     extends BaseState<AppListWidget, IArticleListPresenter>
     with AutomaticKeepAliveClientMixin
     implements IArticleListView {
-  ScrollController _scrollController;
-
   @override
   void initState() {
     super.initState();
@@ -63,7 +61,7 @@ class _AppListWidgetState
   Widget build(BuildContext context) {
     super.build(context);
     return RefreshIndicator(
-        onRefresh: presenter.startRefresh,
+        onRefresh: () => presenter.startLoadMore(isRefresh: true),
         child: ProviderConsumer<ArticleListModel>(presenter.articleListModel,
             (context, model, _) {
           return ListView.builder(
