@@ -33,17 +33,17 @@ class Network {
     return response;
   }
 
-  Future<Response> post(String url, Map<String, dynamic> data) async {
+  Future<Response> post(String url, data) async {
     final response = await _dio.post(url, data: data);
     return response;
   }
 
-  Future<Response> put(String url, Map<String, dynamic> data) async {
+  Future<Response> put(String url, data) async {
     final response = await _dio.put(url, data: data);
     return response;
   }
 
-  Future<Response> delete(String url, Map<String, dynamic> data) async {
+  Future<Response> delete(String url, data) async {
     final response = await _dio.delete(url, data: data);
     return response;
   }

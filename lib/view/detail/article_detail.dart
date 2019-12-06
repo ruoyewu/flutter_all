@@ -13,6 +13,7 @@ import 'package:all/model/ui_data.dart';
 import 'package:all/presenter/article_detail_presenter.dart';
 import 'package:all/presenter/contract/article_detail_contract.dart';
 import 'package:all/utils/date_format.dart';
+import 'package:all/utils/image_util.dart';
 import 'package:all/utils/provider_consumer.dart';
 import 'package:all/view/detail/article_detail_content.dart';
 import 'package:all/view/widget/widget.dart';
@@ -80,7 +81,10 @@ class _ArticleDetailState
 
   @override
   scrollToComment() {
-    _scrollController.animateTo(_articleKey.currentContext.size.height,
+    final scrollSize = _articleKey.currentContext.size.height;
+    final maxScrollSize = _scrollController.position.maxScrollExtent;
+    final realScroll = scrollSize > maxScrollSize ? maxScrollSize : scrollSize;
+    _scrollController.animateTo(realScroll,
         duration: Duration(milliseconds: ANIMATION_DURATION),
         curve: Curves.easeInToLinear);
   }
@@ -152,54 +156,47 @@ class _ArticleDetailState
       presenter.startLoadArticleInfo();
     }
 
-    return WillPopScope(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(item.title),
-        ),
-        body: Builder(
-          builder: (context) {
-            _snackBarContext = context;
-            return Stack(
-              children: <Widget>[
-                Scrollbar(
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Column(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(item.title),
+      ),
+      body: Builder(
+        builder: (context) {
+          _snackBarContext = context;
+
+          List<Widget> children = List();
+          children.add(Scrollbar(
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: ProviderConsumer<ArticleDetailModel>(
+                  presenter.articleDetailModel, (context, model, _) {
+                if (model == null || model.articleDetail == null) {
+                  return Column();
+                }
+                return Column(
+                  children: <Widget>[
+                    Column(
+                      key: _articleKey,
                       children: <Widget>[
-                        ProviderConsumer<ArticleDetailModel>(
-                            presenter.articleDetailModel, (context, model, _) {
-                          if (model == null || model.articleDetail == null) {
-                            return Column();
-                          }
-                          return Column(
-                            children: <Widget>[
-                              Column(
-                                key: _articleKey,
-                                children: <Widget>[
-                                  _buildHeader(model.articleDetail),
-                                  _buildContent(model.articleDetail)
-                                ],
-                              ),
-                              ProviderConsumer<ArticleCommentModel>(
-                                  presenter.articleCommentModel,
-                                  (context, model, _) {
-                                return _buildComment(model);
-                              }),
-                            ],
-                          );
-                        })
+                        _buildHeader(model.articleDetail),
+                        _buildContent(model.articleDetail)
                       ],
                     ),
-                  ),
-                ),
-                _buildInfo(),
-              ],
-            );
-          },
-        ),
+                    ProviderConsumer<ArticleCommentModel>(
+                        presenter.articleCommentModel, (context, model, _) {
+                      return _buildComment(model);
+                    }),
+                  ],
+                );
+              }),
+            ),
+          ));
+          children.add(_buildInfo());
+          return Stack(
+            children: children,
+          );
+        },
       ),
-      onWillPop: onWillPop,
     );
   }
 
@@ -462,8 +459,8 @@ class _ArticleDetailState
                 arguments: item.user.id),
             child: CircleAvatar(
               radius: 15,
-              backgroundImage: AssetImage('assets/images/ic_avatar.png'),
-              child: Image.network(item.user.avatar),
+              backgroundImage: ImageUtil.image(item.user.avatar,
+                  placeHolder: 'assets/images/ic_avatar.png'),
             ),
           ),
           Expanded(
@@ -554,7 +551,7 @@ class _ArticleDetailState
             ),
           ),
           InkWell(
-            onTap: () => presenter.startPraiseComment(item),
+            onTap: () => presenter.showEditDialog(item.articleCommentListItem),
             child: Padding(
               padding: const EdgeInsets.all(5.0),
               child: Row(

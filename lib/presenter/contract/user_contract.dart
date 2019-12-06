@@ -20,6 +20,7 @@ abstract class IUserPresenter extends BasePresenter<IUserView> {
   String appIcon(String article);
   onDetailResult(ArticleInfo info, ArticleCollectionListItem item);
 
+  Future<String> startPickerImage(int type);
   startLoadUserInfo({String id = null});
   startLoadCollection(String user, {bool isRefresh = false});
   startLogout();

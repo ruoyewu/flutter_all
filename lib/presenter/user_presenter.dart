@@ -10,6 +10,7 @@ import 'package:all/model/user_cache.dart';
 import 'package:all/model/user_setting.dart';
 import 'package:all/presenter/contract/user_contract.dart';
 import 'package:all/utils/encrypt.dart';
+import 'package:image_picker/image_picker.dart';
 
 class UserPresenter extends IUserPresenter {
   UserPresenter(BaseView view) : super(view);
@@ -22,6 +23,32 @@ class UserPresenter extends IUserPresenter {
   void initModel() {
     _userInfoModel = UserInfoModel();
     _articleCollectionModel = ArticleCollectionModel();
+  }
+
+  @override
+  startPickerImage(int type) async {
+    ImagePicker.pickImage(
+            source: type == 0 ? ImageSource.gallery : ImageSource.camera,
+            maxHeight: 500,
+            maxWidth: 500)
+        .then((file) {
+      if (isDisposed) return;
+      if (file != null) {
+        final path = file.path;
+        UserInfo info = _userInfoModel.userInfo;
+        info.avatar = path;
+        _userInfoModel.userInfo = info;
+
+        RemoteData.uploadAvatar(path).then((result) {
+          if (isDisposed) return;
+          if (result.successful) {
+            view.onResultInfo('头像上传成功');
+          } else {
+            view.onResultInfo(result.info);
+          }
+        });
+      }
+    });
   }
 
   @override
@@ -45,7 +72,8 @@ class UserPresenter extends IUserPresenter {
     return RemoteData.articleCollection(user, _nextCollection).then((result) {
       if (isDisposed) return;
       if (result.successful) {
-        ArticleCollectionList list = ArticleCollectionList.fromJson(result.info);
+        ArticleCollectionList list =
+            ArticleCollectionList.fromJson(result.info);
         _nextCollection = list.next;
         if (isRefresh) {
           _articleCollectionModel.articleCollectionList = list;
@@ -61,7 +89,9 @@ class UserPresenter extends IUserPresenter {
   @override
   startLogout() {
     RemoteData.logout().then((result) {
-      _userInfoModel.userInfo = UserInfo();
+      _userInfoModel.refresh();
+      _articleCollectionModel.refresh();
+      _nextCollection = 0;
       UserSetting.sInstance.then((setting) {
         setting.isUserLogin = false;
       });
@@ -82,7 +112,8 @@ class UserPresenter extends IUserPresenter {
   @override
   onDetailResult(ArticleInfo info, ArticleCollectionListItem item) {
     if (info != null && !info.isCollect) {
-      ArticleCollectionList list = _articleCollectionModel.articleCollectionList;
+      ArticleCollectionList list =
+          _articleCollectionModel.articleCollectionList;
       list.list.remove(item);
       _articleCollectionModel.articleCollectionList = list;
     }

@@ -192,7 +192,7 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   }
 
   @override
-  startSendComment(int parent, String comment) {
+  startSendComment(int parent, String comment, {ArticleCommentItemModel model = null}) {
     if (comment == null || comment.length == 0) {
       view.onResultInfo('评论不能为空');
       return;
@@ -210,6 +210,12 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
         ArticleInfo info = _articleDetailInfoModel.articleInfo;
         info.commentNum += 1;
         _articleDetailInfoModel.articleInfo = info;
+
+        if (model != null) {
+          ArticleCommentListItem commentListItem = model.articleCommentListItem;
+          commentListItem.commentNum += 1;
+          model.articleCommentListItem = commentListItem;
+        }
 
         view.onResultInfo('评论成功');
       } else {

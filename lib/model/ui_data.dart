@@ -19,6 +19,7 @@ class UIData {
 
   // net
   static const String URL_BASE = "http://all.wuruoye.com/";
+//  static const String URL_BASE = "http://10.91.40.143:3421/";
   static const String URL_API = "article/api";
   static const String URL_ARTICLE_LIST = "article/list_";
   static const String URL_ARTICLE_DETAIL = "article/detail";
@@ -31,6 +32,7 @@ class UIData {
   static const String URL_ARTICLE_COMMENT = 'user/article_comment';
   static const String URL_PRAISE_COMMENT = 'user/comment_praise';
   static const String URL_VERIFY_CODE = 'user/verify_code';
+  static const String URL_AVATAR = 'user/avatar';
 
   static const int CODE_NOT_LOGIN = 401;
 }

@@ -1,11 +1,10 @@
-import 'dart:developer';
-
 import 'package:all/model/bean/all_api.dart';
 import 'package:all/model/bean/article_detail.dart';
 import 'package:all/model/bean/article_list.dart';
 import 'package:all/model/bean/net_result.dart';
 import 'package:all/model/ui_data.dart';
 import 'package:all/utils/network.dart';
+import 'package:dio/dio.dart';
 
 class RemoteData {
   static Network get _network => Network.sInstance;
@@ -15,39 +14,30 @@ class RemoteData {
     return AllApi.fromJson(response.data);
   }
 
-  static Future<ArticleList> articleList(String app, String category, String page) async {
-    final response = await _network.get(UIData.URL_ARTICLE_LIST, query: {
-      "app": app,
-      "category": category,
-      "page": page
-    });
+  static Future<ArticleList> articleList(
+      String app, String category, String page) async {
+    final response = await _network.get(UIData.URL_ARTICLE_LIST,
+        query: {"app": app, "category": category, "page": page});
     return ArticleList.fromJson(response.data);
   }
-  
-  static Future<ArticleDetail> articleDetail(String app, String category, String id) async {
-    final response = await _network.get(UIData.URL_ARTICLE_DETAIL, query: {
-      'app': app,
-      'category': category,
-      'id': id
-    });
+
+  static Future<ArticleDetail> articleDetail(
+      String app, String category, String id) async {
+    final response = await _network.get(UIData.URL_ARTICLE_DETAIL,
+        query: {'app': app, 'category': category, 'id': id});
     return ArticleDetail.fromJson(response.data);
   }
 
-  static Future<NetResult> verifyCode(String phone, String nationCode, String type) async {
-    final response = await _network.get(UIData.URL_VERIFY_CODE, query: {
-      'phone': phone,
-      'nation_code': nationCode,
-      'type': type
-    });
+  static Future<NetResult> verifyCode(
+      String phone, String nationCode, String type) async {
+    final response = await _network.get(UIData.URL_VERIFY_CODE,
+        query: {'phone': phone, 'nation_code': nationCode, 'type': type});
     return NetResult.fromJson(response.data);
   }
 
   static Future<NetResult> login(String id, String password) async {
-    log('id: $id, password: $password');
-    final response = await _network.get(UIData.URL_LOGIN, query: {
-      'id': id,
-      'password': password
-    });
+    final response = await _network
+        .get(UIData.URL_LOGIN, query: {'id': id, 'password': password});
     return NetResult.fromJson(response.data);
   }
 
@@ -56,7 +46,8 @@ class RemoteData {
     return NetResult.fromJson(response.data);
   }
 
-  static Future<NetResult> register(String id, String password, String phone, String code, String name) async {
+  static Future<NetResult> register(String id, String password, String phone,
+      String code, String name) async {
     final response = await _network.post(UIData.URL_USER, {
       'id': id,
       'password': password,
@@ -68,70 +59,63 @@ class RemoteData {
   }
 
   static Future<NetResult> getUserInfo(String id) async {
-    final response = await _network.get(UIData.URL_USER, query: {
-      'id': id
-    });
+    final response = await _network.get(UIData.URL_USER, query: {'id': id});
     return NetResult.fromJson(response.data);
   }
 
   static Future<NetResult> articleInfo(String article) async {
-    final response = await _network.get(UIData.URL_ARTICLE_INFO, query: {
-      'article': article
-    });
+    final response = await _network
+        .get(UIData.URL_ARTICLE_INFO, query: {'article': article});
     return NetResult.fromJson(response.data);
   }
 
   static Future<NetResult> praiseArticle(String article) async {
-    final response = await _network.post(UIData.URL_ARTICLE_PRAISE, {
-      'article': article
-    });
+    final response =
+        await _network.post(UIData.URL_ARTICLE_PRAISE, {'article': article});
     return NetResult.fromJson(response.data);
   }
 
-  static Future<NetResult> collectArticle(String article, String content) async {
-    final response = await _network.post(UIData.URL_ARTICLE_COLLECT, {
-      'article': article,
-      'content': content
-    });
+  static Future<NetResult> collectArticle(
+      String article, String content) async {
+    final response = await _network.post(
+        UIData.URL_ARTICLE_COLLECT, {'article': article, 'content': content});
     return NetResult.fromJson(response.data);
   }
 
   static Future<NetResult> articleCollection(String user, int next) async {
-    final response = await _network.get(UIData.URL_ARTICLE_COLLECT, query: {
-      'user': user,
-      'time': next
-    });
+    final response = await _network
+        .get(UIData.URL_ARTICLE_COLLECT, query: {'user': user, 'time': next});
     return NetResult.fromJson(response.data);
   }
 
-  static Future<NetResult> commentArticle(String article, int parent, String comment) async {
-    final response = await _network.post(UIData.URL_ARTICLE_COMMENT, {
-      'article': article,
-      'content': comment,
-      'parent': parent
-    });
+  static Future<NetResult> commentArticle(
+      String article, int parent, String comment) async {
+    final response = await _network.post(UIData.URL_ARTICLE_COMMENT,
+        {'article': article, 'content': comment, 'parent': parent});
     return NetResult.fromJson(response.data);
   }
 
   static Future<NetResult> deleteComment(int id) async {
-    final response = await _network.delete(UIData.URL_ARTICLE_COMMENT, {
-      'id': id
-    });
+    final response =
+        await _network.delete(UIData.URL_ARTICLE_COMMENT, {'id': id});
     return NetResult.fromJson(response.data);
   }
 
   static Future<NetResult> praiseComment(int id) async {
-    final response = await _network.post(UIData.URL_PRAISE_COMMENT, {
-      'comment': id
-    });
+    final response =
+        await _network.post(UIData.URL_PRAISE_COMMENT, {'comment': id});
     return NetResult.fromJson(response.data);
   }
 
   static Future<NetResult> artileComment(String article, int time) async {
-    final response = await _network.get(UIData.URL_ARTICLE_COMMENT, query: {
-      'article': article,
-      'time': time
-    });
+    final response = await _network.get(UIData.URL_ARTICLE_COMMENT,
+        query: {'article': article, 'time': time});
+    return NetResult.fromJson(response.data);
+  }
+
+  static Future<NetResult> uploadAvatar(String path) async {
+    final response = await _network.post(UIData.URL_AVATAR,
+        FormData.fromMap({'avatar': await MultipartFile.fromFile(path)}));
     return NetResult.fromJson(response.data);
   }
 }
