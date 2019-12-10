@@ -2,9 +2,7 @@ import 'dart:developer';
 
 import 'package:all/base/base_state.dart';
 import 'package:all/model/bean/article_comment_list_item.dart';
-import 'package:all/model/bean/article_detail.dart';
-import 'package:all/model/bean/article_detail_content.dart';
-import 'package:all/model/bean/article_list_item.dart';
+import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/model/article_comment_item_model.dart';
 import 'package:all/model/model/article_comment_model.dart';
 import 'package:all/model/model/article_detail_info_model.dart';
@@ -15,11 +13,12 @@ import 'package:all/presenter/contract/article_detail_contract.dart';
 import 'package:all/utils/date_format.dart';
 import 'package:all/utils/image_util.dart';
 import 'package:all/utils/provider_consumer.dart';
-import 'package:all/view/detail/article_detail_content.dart';
 import 'package:all/view/widget/widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/image_properties.dart';
 
 class ArticleDetailPage extends StatefulWidget {
   @override
@@ -72,6 +71,11 @@ class _ArticleDetailState
         }
       });
     });
+  }
+
+  onOriginalUrlTap(ArticleListItem item) {
+    Navigator.pushNamed(context, UIData.ROUTE_WEB,
+        arguments: {'url': item.subEntry[0].action.url, 'title': item.title});
   }
 
   Future<bool> onWillPop() {
@@ -128,37 +132,32 @@ class _ArticleDetailState
 
   @override
   Widget build(BuildContext context) {
-    log("build article detail page");
     super.build(context);
 
     Map arguments = ModalRoute.of(context).settings.arguments;
     ArticleListItem item = arguments["item"];
-    final app = arguments["app"];
     if (_firstLoad) {
-      presenter = ArticleDetailPresenter(this, app: app, item: item);
+      log('article id ${item.subEntry[0].id}');
+      presenter = ArticleDetailPresenter(this, item: item);
       _firstLoad = false;
-      if (app == 'ifanr') {
-        Future.delayed(Duration(milliseconds: 500), () {
-          presenter.articleDetailModel.update(ArticleDetail(
-              app: app,
-              category: item.category,
-              id: item.id,
-              content: ArticleDetailContent(
-                  author: item.author,
-                  date: item.date,
-                  title: item.title,
-                  subtitle: "",
-                  itemList: item.content)));
-        });
-      } else {
-        presenter.startLoadArticle();
-      }
+      presenter.startLoadArticle();
       presenter.startLoadArticleInfo();
     }
 
     return Scaffold(
       appBar: AppBar(
         title: Text(item.title),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, UIData.ROUTE_WEB, arguments: {
+                'url': item.subEntry[0].action.url,
+                'title': item.title
+              });
+            },
+            icon: Icon(Icons.share),
+          )
+        ],
       ),
       body: Builder(
         builder: (context) {
@@ -179,7 +178,8 @@ class _ArticleDetailState
                       key: _articleKey,
                       children: <Widget>[
                         _buildHeader(model.articleDetail),
-                        _buildContent(model.articleDetail)
+                        _buildContent(model.articleDetail),
+//                        _buildFooter(item)
                       ],
                     ),
                     ProviderConsumer<ArticleCommentModel>(
@@ -201,40 +201,97 @@ class _ArticleDetailState
   }
 
   Widget _buildHeader(ArticleDetail detail) {
+    List<Widget> children = List();
+    if (detail.title != null) {
+      children.add(Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Text(
+          detail.title,
+          style: TextStyle(fontSize: 20, color: Colors.black87),
+        ),
+      ));
+
+      
+      if (detail.snippet != null && detail.snippet != '') {
+        children.add(Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            "—— " + detail.snippet,
+            style: TextStyle(fontSize: 18, color: Colors.black54),
+          ),
+        ));
+      }
+    }
+
+    if (detail.author != null) {
+      children.add(Align(
+        alignment: Alignment.center,
+        child: Text(
+          detail.author.name,
+          style: TextStyle(fontSize: 14, color: Colors.black45),
+        ),
+      ));
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Text(
-              detail.content.title,
-              style: TextStyle(fontSize: 20, color: Colors.black87),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: detail.content.subtitle != ""
-                ? Text(
-                    "—— " + detail.content.subtitle,
-                    style: TextStyle(fontSize: 18, color: Colors.black54),
-                  )
-                : null,
-          ),
-          Align(
-            alignment: Alignment.center,
-            child: Text(
-              detail.content.author,
-              style: TextStyle(fontSize: 14, color: Colors.black45),
-            ),
-          )
-        ],
-      ),
+      child: Column(children: children),
     );
   }
 
   Widget _buildContent(ArticleDetail detail) {
-    return ArticleDetailContentWidget(detail.content.itemList);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      child: Builder(
+        builder: (context) {
+          return Html(
+            data: detail.detail.articleDetail.contentHtml,
+            useRichText: false,
+            blockSpacing: 0,
+            shrinkToFit: true,
+            renderNewlines: false,
+            defaultTextStyle: TextStyle(
+              fontSize: 17,
+              height: 1.6,
+              color: Colors.black,
+            ),
+            linkStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
+            imageProperties: ImageProperties(
+                width: double.infinity, height: 0, fit: BoxFit.fitWidth),
+            onImageTap: (source) {
+              Widgets.showSnackBar(context, source);
+            },
+            onLinkTap: (url) {
+              Navigator.pushNamed(context, UIData.ROUTE_WEB,
+                  arguments: {'title': detail.title, 'url': detail.action.url});
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildFooter(ArticleListItem item) {
+    List<Widget> children = List();
+    if (item.subEntry[0].action != null) {
+      children.add(GestureDetector(
+        onTap: () => onOriginalUrlTap(item),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Text('阅读原文',
+              style: TextStyle(
+                fontSize: 14,
+                color: UIData.COLOR_MOUNTAIN_MIST,
+              )),
+        ),
+      ));
+    }
+
+    return Column(
+      children: children,
+    );
   }
 
   Widget _buildInfo() {

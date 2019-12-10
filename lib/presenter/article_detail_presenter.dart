@@ -5,9 +5,8 @@ import 'dart:math' as math;
 import 'package:all/base/base_view.dart';
 import 'package:all/model/bean/article_comment_list.dart';
 import 'package:all/model/bean/article_comment_list_item.dart';
-import 'package:all/model/bean/article_detail.dart';
 import 'package:all/model/bean/article_info.dart';
-import 'package:all/model/bean/article_list_item.dart';
+import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/model/article_comment_item_model.dart';
 import 'package:all/model/model/article_comment_model.dart';
 import 'package:all/model/model/article_detail_info_model.dart';
@@ -21,10 +20,10 @@ import 'package:flutter/animation.dart';
 class ArticleDetailPresenter extends IArticleDetailPresenter {
   static const ANIMATION_DURATION = 200;
 
-  ArticleDetailPresenter(BaseView view, {this.item, this.app}) : super(view);
+  ArticleDetailPresenter(BaseView view, {this.item}) : super(view);
 
   ArticleListItem item;
-  final app;
+
   int _nextComment = 0;
 
   ArticleDetailModel _articleDetailModel;
@@ -107,21 +106,22 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   void startLoadArticle() {
     int startTime = Timeline.now;
     int endTime = startTime + 500000;
-    Future<ArticleDetail> result =
-        RemoteData.articleDetail(app, item.category, item.id);
-    result.then((articleDetail) {
+    RemoteData.articleDetail(item.subEntry[0].id, '').then((result) {
       if (isDisposed) return;
-      int delay = endTime - Timeline.now;
-      Future.delayed(Duration(microseconds: delay), () {
-        _articleDetailModel.update(articleDetail);
-        Future.delayed(Duration(milliseconds: 100), () {
-          UserSetting.sInstance.then((setting) {
-            if (setting.autoShowDetailBar) {
-              startAnimation();
-            }
+      if (result.isSuccessful) {
+        int delay = endTime - Timeline.now;
+        Future.delayed(Duration(microseconds: delay), () {
+          _articleDetailModel.articleDetail =
+              ArticleDetail.fromJson(result.entityList[0]);
+          Future.delayed(Duration(milliseconds: 100), () {
+            UserSetting.sInstance.then((setting) {
+              if (setting.autoShowDetailBar) {
+                startAnimation();
+              }
+            });
           });
         });
-      });
+      }
     });
   }
 
@@ -192,7 +192,8 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   }
 
   @override
-  startSendComment(int parent, String comment, {ArticleCommentItemModel model = null}) {
+  startSendComment(int parent, String comment,
+      {ArticleCommentItemModel model = null}) {
     if (comment == null || comment.length == 0) {
       view.onResultInfo('评论不能为空');
       return;
@@ -258,6 +259,5 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
     });
   }
 
-
-  String get article => '${app}_${item.category}_${item.id}';
+  String get article => '${item.id}_${item.subEntry[0].id}';
 }

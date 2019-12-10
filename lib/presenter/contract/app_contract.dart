@@ -1,6 +1,6 @@
 import 'package:all/base/base_presenter.dart';
 import 'package:all/base/base_view.dart';
-import 'package:all/model/bean/article_list_item.dart';
+import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/model/app_model.dart';
 
 abstract class IAppView extends BaseView {

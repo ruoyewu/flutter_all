@@ -1,8 +1,10 @@
+import 'dart:convert';
+
 import 'package:all/model/bean/all_api.dart';
-import 'package:all/model/bean/article_detail.dart';
-import 'package:all/model/bean/article_list.dart';
 import 'package:all/model/bean/net_result.dart';
+import 'package:all/model/bean/qingmang_result.dart';
 import 'package:all/model/ui_data.dart';
+import 'package:all/model/url.dart';
 import 'package:all/utils/network.dart';
 import 'package:dio/dio.dart';
 
@@ -14,19 +16,19 @@ class RemoteData {
     return AllApi.fromJson(response.data);
   }
 
-  static Future<ArticleList> articleList(
-      String app, String category, String page) async {
-    final response = await _network.get(UIData.URL_ARTICLE_LIST,
-        query: {"app": app, "category": category, "page": page});
-    return ArticleList.fromJson(response.data);
-  }
+//  static Future<ArticleList> articleList(
+//      String app, String category, String page) async {
+//    final response = await _network.get(UIData.URL_ARTICLE_LIST,
+//        query: {"app": app, "category": category, "page": page});
+//    return ArticleList.fromJson(response.data);
+//  }
 
-  static Future<ArticleDetail> articleDetail(
-      String app, String category, String id) async {
-    final response = await _network.get(UIData.URL_ARTICLE_DETAIL,
-        query: {'app': app, 'category': category, 'id': id});
-    return ArticleDetail.fromJson(response.data);
-  }
+//  static Future<ArticleDetail> articleDetail(
+//      String app, String category, String id) async {
+//    final response = await _network.get(UIData.URL_ARTICLE_DETAIL,
+//        query: {'app': app, 'category': category, 'id': id});
+//    return ArticleDetail.fromJson(response.data);
+//  }
 
   static Future<NetResult> verifyCode(
       String phone, String nationCode, String type) async {
@@ -117,5 +119,35 @@ class RemoteData {
     final response = await _network.post(UIData.URL_AVATAR,
         FormData.fromMap({'avatar': await MultipartFile.fromFile(path)}));
     return NetResult.fromJson(response.data);
+  }
+  
+  static Future<Result> searchApp(String search) async {
+    final response = await _network.get(Url.SEARCH, query: {
+      'query': search,
+      'appOnly': true
+    });
+    return Result.fromJson(json.decode(response.data));
+  }
+
+  static Future<Result> articleList(int start, int max, int providerId) async {
+    final response = await _network.get(Url.ARTICLE, query: {
+      'start': start,
+      'max': max,
+      'providerId': providerId
+    });
+    return Result.fromJson(json.decode(response.data));
+  }
+
+  static Future<Result> articleDetail(int id, String template) async {
+    final response = await _network.get(Url.ARTICLE, query: {
+      'docid': id,
+      'template': template
+    });
+    return Result.fromJson(json.decode(response.data));
+  }
+
+  static Future<Result> request(String url) async {
+    final response = await _network.get(url);
+    return Result.fromJson(json.decode(response.data));
   }
 }

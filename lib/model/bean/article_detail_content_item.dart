@@ -1,4 +1,5 @@
 
+@deprecated
 class ArticleDetailContentItem {
     String info;
     String type;

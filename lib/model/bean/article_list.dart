@@ -1,5 +1,6 @@
 import 'article_list_item.dart';
 
+@deprecated
 class ArticleList {
     String category;
     String name;

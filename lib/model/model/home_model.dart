@@ -1,4 +1,4 @@
-import 'package:all/model/bean/app_item.dart';
+import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:flutter/cupertino.dart';
 
 class HomeFabAnimationModel with ChangeNotifier {
@@ -18,8 +18,8 @@ class HomeFabAnimationModel with ChangeNotifier {
 
   double get scaleUser => _scaleUser;
 
-
-  update(double offsetSetting, double scaleSetting, double offsetUser, double scaleUser, double rotateAdd) {
+  update(double offsetSetting, double scaleSetting, double offsetUser,
+      double scaleUser, double rotateAdd) {
     _scaleUser = scaleUser;
     _offsetUser = offsetUser;
     _scaleSetting = scaleSetting;
@@ -30,16 +30,12 @@ class HomeFabAnimationModel with ChangeNotifier {
 }
 
 class HomeListModel with ChangeNotifier {
-  List<String> _appNameList = List();
-  Map<String, AppItem> _appItemMap = Map();
+  List<AppItem> _appItemList = List();
 
-  List<String> get appNameList => _appNameList;
+  List<AppItem> get appItemList => _appItemList;
 
-  Map<String, AppItem> get appItemMap => _appItemMap;
-
-  update(List<String> appNameList, Map<String, AppItem> appItemMap) {
-    _appItemMap = appItemMap;
-    _appNameList = appNameList;
+  set appItemList(List<AppItem> value) {
+    _appItemList = value;
     notifyListeners();
   }
 }

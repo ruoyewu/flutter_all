@@ -7,6 +7,7 @@ class UIData {
   static const String ROUTE_APP = "/app";
   static const String ROUTE_ARTICLE_DETAIL = "/article_detail";
   static const String ROUTE_WEB = "/web";
+  static const String ROUTE_HTML = "/html";
   static const String ROUTE_LOGIN = '/login';
 
   static const int SIZE_FAB = 56;

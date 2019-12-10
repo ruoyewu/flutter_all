@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSetting {
@@ -6,6 +9,7 @@ class UserSetting {
 	static const LOGIN_USER_PASSWORD = 'login_user_password';
 	static const LOGIN_USER_NAME = 'login_user_name';
 	static const AUTO_SHOW_DETAIL_BAR = 'auto_show_detail_bar';
+	static const USER_APP = 'user_app';
 
 	static UserSetting _sInstance;
 	SharedPreferences _sp;
@@ -56,6 +60,12 @@ class UserSetting {
 
 	set autoShowDetailBar(bool show) {
 		_sp.setBool(AUTO_SHOW_DETAIL_BAR, show);
+	}
+
+	List<AppItem> get savedAppItem => (json.decode(_sp.get(USER_APP)?? '[]') as List).map((item) => AppItem.fromJson(item)).toList();
+
+	set savedAppItem(List<AppItem> appItems) {
+		_sp.setString(USER_APP, json.encode(appItems));
 	}
 
 	static _getSP() async {

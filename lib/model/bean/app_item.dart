@@ -1,4 +1,4 @@
-
+@deprecated
 class AppItem {
     List<String> categories;
     List<String> titles;

@@ -27,9 +27,11 @@ dependencies:
   provider: ^3.1.0+1
   encrypt: ^3.3.1
   dio: ^3.0.6
-  webview_flutter: ^0.3.16
+  webview_flutter: ^0.3.17
   dio_cookie_manager: ^1.0.0
   image_picker: ^0.6.2+1
+  flutter_html: ^0.11.0
+  video_player: ^0.10.4+1
 
 dev_dependencies:
   flutter_test:

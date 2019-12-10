@@ -1,6 +1,7 @@
 
 import 'article_detail_content_item.dart';
 
+@deprecated
 class ArticleListItem {
     String age;
     String author;

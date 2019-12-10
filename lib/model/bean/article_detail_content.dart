@@ -1,6 +1,7 @@
 
 import 'package:all/model/bean/article_detail_content_item.dart';
 
+@deprecated
 class ArticleDetailContent {
     String author;
     List<ArticleDetailContentItem> itemList;

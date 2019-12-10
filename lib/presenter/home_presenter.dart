@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 
-import 'package:all/model/bean/app_item.dart';
+import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/model/home_model.dart';
+import 'package:all/model/model/search_app_model.dart';
 import 'package:all/model/remote_data.dart';
 import 'package:all/model/ui_data.dart';
-import 'package:all/model/user_cache.dart';
 import 'package:all/model/user_setting.dart';
 import 'package:all/presenter/contract/home_contract.dart';
 import 'package:all/utils/encrypt.dart';
@@ -14,6 +14,8 @@ class HomePresenter extends IHomePresenter {
   static const int ANIMATION_DURATION = 300;
 
   HomeFabAnimationModel _homeFabAnimationModel;
+  SearchAppModel _searchAppModel;
+
   AnimationController _animationFab;
   bool _isAnimationFabForward = true;
 
@@ -25,6 +27,7 @@ class HomePresenter extends IHomePresenter {
   void initModel() {
     _homeFabAnimationModel = HomeFabAnimationModel();
     _homeListModel = HomeListModel();
+    _searchAppModel = SearchAppModel();
   }
 
   @override
@@ -66,6 +69,9 @@ class HomePresenter extends IHomePresenter {
   HomeListModel get homeListModel => _homeListModel;
 
   @override
+  SearchAppModel get searchAppModel => _searchAppModel;
+
+  @override
   void startFabAnimation() {
     if (_isAnimationFabForward) {
       _animationFab.animateTo(1, curve: Curves.decelerate);
@@ -77,15 +83,8 @@ class HomePresenter extends IHomePresenter {
 
   @override
   Future<void> startRefresh() {
-    return RemoteData.api().then((allApi) {
-      if (isDisposed) return;
-
-      Map<String, AppItem> map = Map();
-      for (AppItem item in allApi.appItemList) {
-        map[item.name] = item;
-      }
-      UserCache.appItemMap = map;
-      _homeListModel.update(allApi.appList, map);
+    return UserSetting.sInstance.then((setting) {
+      _homeListModel.appItemList = setting.savedAppItem;
     });
   }
 
@@ -103,6 +102,25 @@ class HomePresenter extends IHomePresenter {
           }
         });
       }
+    });
+  }
+
+  @override
+  startSearch(String search) {
+    _searchAppModel.searchAppList = List();
+    RemoteData.searchApp(search).then((result) {
+      if (result.isSuccessful) {
+        _searchAppModel.searchAppList = result.entityList.map((entry) => AppItem.fromJson(entry)).toList();
+      }
+    });
+  }
+
+  @override
+  startAddAppItem(AppItem appItem) {
+    UserSetting.sInstance.then((setting) {
+      List<AppItem> list = setting.savedAppItem;
+      list.add(appItem);
+      setting.savedAppItem = list;
     });
   }
 }

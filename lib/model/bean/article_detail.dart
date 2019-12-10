@@ -1,6 +1,7 @@
 
 import 'package:all/model/bean/article_detail_content.dart';
 
+@deprecated
 class ArticleDetail {
     ArticleDetailContent content;
     String app;

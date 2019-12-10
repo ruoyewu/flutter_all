@@ -1,21 +1,24 @@
 import 'package:all/base/base_state.dart';
-import 'package:all/model/bean/article_list_item.dart';
+import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/model/app_model.dart';
 import 'package:all/model/ui_data.dart';
 import 'package:all/presenter/article_list_presenter.dart';
 import 'package:all/presenter/contract/app_contract.dart';
+import 'package:all/utils/date_format.dart';
 import 'package:all/utils/provider_consumer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AppListWidget extends StatefulWidget {
   AppListWidget({
-    @required this.app,
-    @required this.categoryName,
+//    @required this.app,
+//    @required this.categoryName,
+    @required this.channel
   });
 
-  final app;
-  final categoryName;
+//  final app;
+//  final categoryName;
+  final channel;
 
   @override
   State<StatefulWidget> createState() {
@@ -30,7 +33,7 @@ class _AppListWidgetState
   @override
   void initState() {
     super.initState();
-    presenter = ArticleListPresenter(this, widget.app, widget.categoryName);
+    presenter = ArticleListPresenter(this, widget.channel);
   }
 
   @override
@@ -38,23 +41,13 @@ class _AppListWidgetState
 
   @override
   void onItemClick(ArticleListItem item) {
-    final openType = ArticleOpenType.values[int.parse(item.openType)];
-    switch (openType) {
-      case ArticleOpenType.NONE:
-        break;
-      case ArticleOpenType.ARTICLE:
-        Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL,
-            arguments: {"app": widget.app, "item": item});
-        break;
-      case ArticleOpenType.ORIGINAL_URL:
-        Navigator.pushNamed(context, UIData.ROUTE_WEB,
-            arguments: {"title": item.title, "url": item.originalUrl});
-        break;
-      case ArticleOpenType.IMAGE:
-        break;
-      case ArticleOpenType.VIDEO:
-        break;
-    }
+//    Navigator.pushNamed(context, UIData.ROUTE_WEB, arguments: {
+//      'title': item.title,
+//      'url': item.subEntry[0].action.url
+//    });
+    Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL, arguments: {
+      'item': item
+    });
   }
 
   @override
@@ -65,10 +58,10 @@ class _AppListWidgetState
         child: ProviderConsumer<ArticleListModel>(presenter.articleListModel,
             (context, model, _) {
           return ListView.builder(
-              itemCount: model.articleList.list.length + 1,
+              itemCount: model.articleList.length + 1,
               itemBuilder: (context, index) {
-                if (index < model.articleList.list.length) {
-                  return buildItem(model.articleList.list[index]);
+                if (index < model.articleList.length) {
+                  return buildItem(model.articleList[index]);
                 } else {
                   return buildLoading();
                 }
@@ -78,9 +71,9 @@ class _AppListWidgetState
 
   Widget buildItem(ArticleListItem item) {
 //    log("title ${item.title}, image: ${item.image}");
-    if (_isOneHeader(item)) {
-      return _buildOneHeader(item);
-    }
+//    if (_isOneHeader(item)) {
+//      return _buildOneHeader(item);
+//    }
     return InkWell(
       onTap: () => onItemClick(item),
       child: Container(
@@ -99,52 +92,63 @@ class _AppListWidgetState
   }
 
   Widget itemHeader(ArticleListItem item) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(bottom: 5),
-          child: Align(
-            alignment: Alignment.center,
-            child: Text(
-              "-  " + item.type + "  -",
-              style: TextStyle(fontSize: 14, color: Colors.blueGrey),
-            ),
+    List<Widget> children = List();
+    if (item.subEntry[0].tag != null && item.subEntry[0].tag.length > 0) {
+      children.add(Padding(
+        padding: const EdgeInsets.only(bottom: 5),
+        child: Align(
+          alignment: Alignment.center,
+          child: Text(
+            "-  " + item.subEntry[0].tag[0].tagName + "  -",
+            style: TextStyle(fontSize: 14, color: Colors.blueGrey),
           ),
         ),
-        Text(
-          item.title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 18, color: Colors.black87),
-        ),
-        Text(
-          "- " + item.author,
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-      ],
+      ));
+    }
+    if (item.subEntry[0].title != null) {
+      children.add(Text(
+        item.subEntry[0].title,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(fontSize: 18, color: Colors.black87),
+      ));
+    }
+    if (item.subEntry[0].author != null) {
+      children.add(Text(
+        "- " + (item.subEntry[0].author == null ? '' : item.subEntry[0].author.name),
+        style: TextStyle(fontSize: 14, color: Colors.grey),
+      ));
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
     );
   }
 
   Widget itemBody(ArticleListItem item) {
+    List<Widget> children = List();
+    if (item.subEntry[0].cover != null || item.subEntry[0].image != null) {
+      String image = item.subEntry[0].cover == null ? item.subEntry[0].image[0].url : item.subEntry[0].cover[0].url;
+      children.add(Container(
+        padding: EdgeInsets.symmetric(vertical: 5),
+        width: double.infinity,
+        height: 250,
+        child: Ink.image(
+          image: NetworkImage(image),
+          fit: BoxFit.cover,
+        )));
+    }
+    if (item.subEntry[0].snippet != null) {
+      children.add(Text(
+        item.subEntry[0].snippet,
+        overflow: TextOverflow.ellipsis,
+        maxLines: 3,
+        style: TextStyle(fontSize: 15, color: Colors.black54),
+      ));
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Container(
-            padding: EdgeInsets.symmetric(vertical: 5),
-            width: double.infinity,
-            height: 250,
-            child: Ink.image(
-              image: NetworkImage(item.image),
-              fit: BoxFit.cover,
-            )),
-        Text(
-          item.forward,
-          overflow: TextOverflow.ellipsis,
-          maxLines: 3,
-          style: TextStyle(fontSize: 15, color: Colors.black54),
-        ),
-      ],
+      children: children,
     );
   }
 
@@ -156,7 +160,8 @@ class _AppListWidgetState
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              item.age == "" ? item.date : item.age,
+//              item.age == "" ? item.date : item.age,
+            DateUtil.formatMillis(item.subEntry[0].datePublished, 'YYYY/MM/dd HH:mm:ss'),
               textAlign: TextAlign.end,
               style: TextStyle(fontSize: 13, color: Colors.grey),
             ),
@@ -180,50 +185,51 @@ class _AppListWidgetState
   }
 
   bool _isOneHeader(ArticleListItem item) {
-    return widget.app == "one" && item.category == "0";
+//    return widget.app == "one" && item.category == "0";
+  return false;
   }
 
-  Widget _buildOneHeader(ArticleListItem item) {
-    return InkWell(
-      onTap: () {},
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Column(
-          children: <Widget>[
-            Text(
-              item.date.substring(0, 10).replaceAll("-", " / "),
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueGrey,
-                  fontSize: 20),
-            ),
-            Container(
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-                width: double.infinity,
-                height: 250,
-                child: Ink.image(
-                  image: NetworkImage(item.image),
-                  fit: BoxFit.cover,
-                )),
-            Text(
-              item.otherInfo.replaceAll("|", " | "),
-              style: TextStyle(color: Colors.grey, fontSize: 13),
-            ),
-            Container(
-              alignment: Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-              child: Text(
-                item.forward,
-                style: TextStyle(color: Colors.black87, fontSize: 16),
-              ),
-            ),
-            Text(
-              item.title,
-              style: TextStyle(color: Colors.black54, fontSize: 12),
-            )
-          ],
-        ),
-      ),
-    );
-  }
+//  Widget _buildOneHeader(ArticleListItem item) {
+//    return InkWell(
+//      onTap: () {},
+//      child: Padding(
+//        padding: const EdgeInsets.symmetric(vertical: 10),
+//        child: Column(
+//          children: <Widget>[
+//            Text(
+//              item.date.substring(0, 10).replaceAll("-", " / "),
+//              style: TextStyle(
+//                  fontWeight: FontWeight.bold,
+//                  color: Colors.blueGrey,
+//                  fontSize: 20),
+//            ),
+//            Container(
+//                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+//                width: double.infinity,
+//                height: 250,
+//                child: Ink.image(
+//                  image: NetworkImage(item.image),
+//                  fit: BoxFit.cover,
+//                )),
+//            Text(
+//              item.otherInfo.replaceAll("|", " | "),
+//              style: TextStyle(color: Colors.grey, fontSize: 13),
+//            ),
+//            Container(
+//              alignment: Alignment.centerLeft,
+//              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+//              child: Text(
+//                item.forward,
+//                style: TextStyle(color: Colors.black87, fontSize: 16),
+//              ),
+//            ),
+//            Text(
+//              item.title,
+//              style: TextStyle(color: Colors.black54, fontSize: 12),
+//            )
+//          ],
+//        ),
+//      ),
+//    );
+//  }
 }
