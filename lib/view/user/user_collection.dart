@@ -15,7 +15,6 @@ class UserCollectionWidget extends StatelessWidget {
 
   onCollectionItemTap(BuildContext context, ArticleCollectionListItem item) {
     Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL, arguments: {
-      'app': item.article.split('_')[0],
       'item': item.content
     }).then((result) {
       presenter.onDetailResult(result, item);
@@ -53,14 +52,14 @@ class UserCollectionWidget extends StatelessWidget {
       width: 45,
       height: 45,
       child: ClipOval(
-        child: Image.network(presenter.appIcon(item.article),),
+        child: Image.network(item.content.icon,),
       ),
     ));
     children.add(Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Text(
-          item.content.title,
+          item.content.subEntry[0].title,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
@@ -70,11 +69,11 @@ class UserCollectionWidget extends StatelessWidget {
         ),
       ),
     ));
-    if (item.content.image != '') {
+    if (item.content.subEntry[0].cover != '') {
       children.add(SizedBox(
         width: 80,
         height: 80,
-        child: Image.network(item.content.image, fit: BoxFit.cover,),
+        child: Image.network(item.content.subEntry[0].cover[0].url, fit: BoxFit.cover,),
       ));
     }
     return InkWell(

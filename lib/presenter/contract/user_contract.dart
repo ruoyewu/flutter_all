@@ -8,7 +8,7 @@ import 'package:all/model/model/user_info_model.dart';
 abstract class IUserView extends BaseView {
   onResultInfo(String info);
 
-
+  onShowUserDialog();
 }
 
 abstract class IUserPresenter extends BasePresenter<IUserView> {
@@ -17,10 +17,10 @@ abstract class IUserPresenter extends BasePresenter<IUserView> {
   UserInfoModel get userInfoModel;
   ArticleCollectionModel get articleCollectionModel;
 
-  String appIcon(String article);
   onDetailResult(ArticleInfo info, ArticleCollectionListItem item);
 
   Future<String> startPickerImage(int type);
+  startUserAvatarTap(String id);
   startLoadUserInfo({String id = null});
   startLoadCollection(String user, {bool isRefresh = false});
   startLogout();

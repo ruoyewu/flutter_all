@@ -108,6 +108,16 @@ class HomePresenter extends IHomePresenter {
   }
 
   @override
+  startRemoveAppItem(AppItem item) {
+    UserSetting.sInstance.then((setting) {
+      final list = _homeListModel.appItemList;
+      list.remove(item);
+      _homeListModel.appItemList = list;
+      setting.savedAppItem = list.map((item) => item.detail.appDetail.packageName).toList();
+    });
+  }
+
+  @override
   startDefaultLogin() {
     UserSetting.sInstance.then((setting) {
       if (setting.isUserLogin) {

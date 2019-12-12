@@ -1,6 +1,6 @@
 import 'dart:convert' show jsonDecode, jsonEncode;
 
-import 'article_list_item.dart';
+import 'package:all/model/bean/qingmang_bean.dart';
 
 class ArticleCollectionListItem {
 	String article;

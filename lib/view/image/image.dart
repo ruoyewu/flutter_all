@@ -22,10 +22,14 @@ class _ImageWidgetState extends State<ImagePage>
   Function _scrollToPositionFunction;
 
   AnimationController _animationController;
+  double _dragStartX = 0;
   double _startTranslateY = 0;
+  double _startTranslateX = 0;
   double _startOpacity = 0;
   double _translateY = 0;
+  double _translateX = 0;
   double _opacity = 1;
+  double _scale = 1;
 
   @override
   void initState() {
@@ -38,8 +42,9 @@ class _ImageWidgetState extends State<ImagePage>
       setState(() {
         double value = _animationController.value;
         _translateY = _startTranslateY * (1 - value);
+        _translateX = _startTranslateX * (1 - value);
         _opacity = value * (1 - _startOpacity) + _startOpacity;
-        log('animation value: $_opacity');
+        _scale = _opacity / 4 + 0.75;
       });
     });
 //    SystemChrome.setEnabledSystemUIOverlays([]);
@@ -81,23 +86,32 @@ class _ImageWidgetState extends State<ImagePage>
     if (_pageController == null) {
       _pageController = PageController(initialPage: _imageList.indexOf(_image));
     }
-
-//    PhotoViewGallery
-
     return Scaffold(
       backgroundColor: Colors.black.withOpacity(_opacity),
       body: GestureDetector(
+        onVerticalDragStart: (details) {
+          _dragStartX = details.globalPosition.dx;
+        },
         onVerticalDragUpdate: (details) {
           setState(() {
             _translateY = computeTranslate(_translateY, details.delta.dy);
+            _translateX = details.localPosition.dx - _dragStartX;
             _opacity = 1 - _clip(_abs(_translateY) / MAX_OFFSET);
+            _scale = _opacity / 4 + 0.75;
           });
+        },
+        onLongPressMoveUpdate: (details) {
+          log('${details.localPosition.dx}');
+        },
+        onPanUpdate: (details) {
+          log('${details.localPosition.dx}');
         },
         onVerticalDragEnd: (details) {
           if (_abs(_translateY) > MAX_OFFSET) {
             Navigator.pop(context);
           } else {
             _startTranslateY = _translateY;
+            _startTranslateX = _translateX;
             _startOpacity = _opacity;
             _animationController.value = 0;
             _animationController.animateTo(1, curve: Curves.decelerate);
@@ -106,36 +120,39 @@ class _ImageWidgetState extends State<ImagePage>
         onVerticalDragDown: (details) {
           _animationController.stop();
         },
-        child: Transform.translate(
-          offset: Offset(0, _translateY),
-          child: PhotoViewGestureDetectorScope(
-            axis: Axis.horizontal,
-            child: PageView.builder(
-                controller: _pageController,
-                itemCount: _imageList.length,
-                physics: BouncingScrollPhysics(),
-                onPageChanged: (index) {
-                  if (_imagePositionList != null &&
-                      _scrollToPositionFunction != null) {
-                    _scrollToPositionFunction(_imagePositionList[index]);
-                  }
-                },
-                itemBuilder: (context, index) {
-                  return ClipRect(
-                    child: PhotoView(
-                      backgroundDecoration: BoxDecoration(
-                        color: Colors.transparent
+        child: Transform.scale(
+          scale: _scale,
+          child: Transform.translate(
+            offset: Offset(_translateX, _translateY),
+            child: PhotoViewGestureDetectorScope(
+              axis: Axis.horizontal,
+              child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: _imageList.length,
+                  physics: BouncingScrollPhysics(),
+                  onPageChanged: (index) {
+                    if (_imagePositionList != null &&
+                        _scrollToPositionFunction != null) {
+                      _scrollToPositionFunction(_imagePositionList[index]);
+                    }
+                  },
+                  itemBuilder: (context, index) {
+                    return ClipRect(
+                      child: PhotoView(
+                        backgroundDecoration: BoxDecoration(
+                          color: Colors.transparent
+                        ),
+                        imageProvider: NetworkImage(_imageList[index]),
+                        heroAttributes: PhotoViewHeroAttributes(
+                          tag: _imageList[index]
+                        ),
+                        onTapUp: (context, details, _) {
+                          Navigator.pop(context);
+                        },
                       ),
-                      imageProvider: NetworkImage(_imageList[index]),
-                      heroAttributes: PhotoViewHeroAttributes(
-                        tag: _imageList[index]
-                      ),
-                      onTapUp: (context, details, _) {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  );
-                }),
+                    );
+                  }),
+            ),
           ),
         ),
       ),

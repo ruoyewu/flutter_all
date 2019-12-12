@@ -52,6 +52,15 @@ class UserPresenter extends IUserPresenter {
   }
 
   @override
+  startUserAvatarTap(String id) {
+    UserSetting.sInstance.then((setting) {
+      if (setting.isUserLogin && setting.loginUserId == id) {
+        view.onShowUserDialog();
+      }
+    });
+  }
+
+  @override
   startLoadUserInfo({String id = null}) {
     if (id == null) {
       UserSetting.sInstance.then((setting) {
@@ -94,6 +103,9 @@ class UserPresenter extends IUserPresenter {
       _nextCollection = 0;
       UserSetting.sInstance.then((setting) {
         setting.isUserLogin = false;
+        setting.loginUserId = '';
+        setting.loginUserName = '';
+        setting.loginUserPassword = '';
       });
     });
   }

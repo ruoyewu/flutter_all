@@ -1,6 +1,7 @@
 
 import 'package:all/base/base_presenter.dart';
 import 'package:all/base/base_view.dart';
+import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/model/home_model.dart';
 import 'package:all/model/model/search_app_item_model.dart';
 import 'package:all/model/model/search_app_model.dart';
@@ -24,6 +25,7 @@ abstract class IHomePresenter extends BasePresenter<IHomeView> {
 
   void startFabAnimation();
   startRefresh();
+  startRemoveAppItem(AppItem item);
   startDefaultLogin();
   startSearch(String search);
   startAddAppItem(SearchAppItemModel model);

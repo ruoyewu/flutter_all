@@ -42,6 +42,22 @@ class _UserPageState extends BaseState<UserPage, IUserPresenter>
     Widgets.showSnackBar(_snackBarContext, info);
   }
 
+  @override
+  onShowUserDialog() {
+    Widgets.showSimpleDialog(context, ['上传头像', '注销登录']).then((index) {
+      switch (index) {
+        case 0:
+          Widgets.showSimpleDialog(context, ['相册选取', '相机拍摄']).then((index) {
+            presenter.startPickerImage(index);
+          });
+          break;
+        case 1:
+          presenter.startLogout();
+          break;
+      }
+    });
+  }
+
   onLoginTap({String id}) {
     if (id == null) {
       Navigator.pushNamed(context, UIData.ROUTE_LOGIN).then((result) {
@@ -50,18 +66,7 @@ class _UserPageState extends BaseState<UserPage, IUserPresenter>
         }
       });
     } else {
-      Widgets.showSimpleDialog(context, ['上传头像', '注销登录']).then((index) {
-        switch (index) {
-          case 0:
-            Widgets.showSimpleDialog(context, ['相册选取', '相机拍摄']).then((index) {
-              presenter.startPickerImage(index);
-            });
-            break;
-          case 1:
-            presenter.startLogout();
-            break;
-        }
-      });
+      presenter.startUserAvatarTap(id);
     }
   }
 

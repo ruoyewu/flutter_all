@@ -6,7 +6,6 @@ import 'package:all/view/image/image.dart';
 import 'package:all/view/login/login.dart';
 import 'package:all/view/not_found_page.dart';
 import 'package:all/view/user/user.dart';
-import 'package:all/view/web/html.dart';
 import 'package:all/view/web/web.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,29 +20,8 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
         primarySwatch: Colors.blueGrey,
         primaryColorDark: Colors.grey,
-        fontFamily: 'Longzhao',
+        fontFamily: 'Siyuansong',
       ),
-//      theme: CupertinoThemeData(
-//        primaryColor: Colors.white,
-//        primaryContrastingColor: Colors.blueGrey,
-//        textTheme: CupertinoTextThemeData(
-//          textStyle: TextStyle(
-//            fontFamily: 'Longzhao',
-//            fontSize: 17.0,
-//            letterSpacing: 0.4,
-//            color: CupertinoColors.label,
-//            decoration: TextDecoration.none,
-//          ),
-//          navTitleTextStyle: TextStyle(
-//            inherit: false,
-//            fontFamily: 'Longzhao',
-//            fontSize: 18.0,
-//            fontWeight: FontWeight.w600,
-//            letterSpacing: 0.6,
-//            color: CupertinoColors.label,
-//          )
-//        )
-//      ),
       home: HomePage(),
       routes: <String, WidgetBuilder>{
         UIData.ROUTE_HOME: (context) => HomePage(),
@@ -52,7 +30,6 @@ class MyApp extends StatelessWidget {
         UIData.ROUTE_WEB: (context) => WebPage(),
         UIData.ROUTE_USER: (context) => UserPage(),
         UIData.ROUTE_LOGIN: (context) => LoginPage(),
-        UIData.ROUTE_HTML: (context) => HtmlPage(),
         UIData.ROUTE_IMAGE: (context) => ImagePage(),
       },
       onUnknownRoute: (RouteSettings rs) =>

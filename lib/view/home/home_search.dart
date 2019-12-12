@@ -9,7 +9,7 @@ import 'package:all/view/widget/widget.dart';
 import 'package:flutter/material.dart';
 
 class HomeSearchWidget extends SearchDelegate<String> {
-  HomeSearchWidget(this.presenter);
+  HomeSearchWidget(this.presenter) : super(searchFieldLabel: '请输入搜索内容...');
 
   IHomePresenter presenter;
 
@@ -42,13 +42,14 @@ class HomeSearchWidget extends SearchDelegate<String> {
     presenter.startSearch(query);
     presenter.startAddSearchHistory(query);
 
-    return ProviderConsumer<SearchAppModel>(presenter.searchAppModel,
-        (context, model, _) {
-      if (model.searchAppList == null) {
-        return HeartLoadingPage();
-      }
-      return Scrollbar(
-        child: SingleChildScrollView(
+    return SizedBox.expand(
+      child: ProviderConsumer<SearchAppModel>(presenter.searchAppModel,
+          (context, model, _) {
+        if (model.searchAppList == null) {
+          return HeartLoadingPage();
+        }
+        return Scrollbar(
+            child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -76,26 +77,28 @@ class HomeSearchWidget extends SearchDelegate<String> {
                               arguments: itemModel.appItem);
                         },
                         child: ListTile(
-                          title: Text(itemModel.appItem.title),
-                          leading: CircleAvatar(
-                            backgroundImage:
-                                NetworkImage(itemModel.appItem.icon),
-                          ),
-                          trailing: InkWell(
-                            onTap: () {
-                              presenter.startAddAppItem(itemModel);
-                            },
-                            child: SizedBox(
-                              height: 30,
-                              width: 60,
-                              child: DecoratedBox(
-                                decoration: Widgets.buttonBoxDecoration,
-                                child: Icon(itemModel.appItem.userSaved
-                                  ? Icons.clear
-                                  : Icons.check)),
+                            title: Text(itemModel.appItem.title),
+                            leading: CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(itemModel.appItem.icon),
                             ),
-                          )
-                        ),
+                            trailing: InkWell(
+                              onTap: () {
+                                presenter.startAddAppItem(itemModel);
+                              },
+                              child: SizedBox(
+                                height: 30,
+                                width: 60,
+                                child: DecoratedBox(
+                                    decoration: Widgets.buttonBoxDecoration,
+                                    child: Icon(
+                                      itemModel.appItem.userSaved
+                                          ? Icons.clear
+                                          : Icons.check,
+                                      color: UIData.COLOR_MOUNTAIN_MIST,
+                                    )),
+                              ),
+                            )),
                       );
                     });
                   } else {
@@ -105,60 +108,63 @@ class HomeSearchWidget extends SearchDelegate<String> {
               )
             ],
           ),
-        ),
-      );
-    });
+        ));
+      }),
+    );
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
     presenter.startRefreshSearchHistory();
 
-    return ProviderConsumer<SearchHistoryModel>(presenter.searchHistoryModel,
-        (context, model, _) {
-      if (model.list != null) {
-        final itemCount = model.list.length > 0 ? model.list.length + 1 : 0;
-        return SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                child: Text(
-                  '搜索历史',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: UIData.COLOR_MONSOON),
+    return SizedBox.expand(
+      child: ProviderConsumer<SearchHistoryModel>(presenter.searchHistoryModel,
+          (context, model, _) {
+        if (model.list != null) {
+          final itemCount = model.list.length > 0 ? model.list.length + 1 : 0;
+          return SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                  child: Text(
+                    '搜索历史',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: UIData.COLOR_MONSOON),
+                  ),
                 ),
-              ),
-              ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: itemCount,
-                  itemBuilder: (context, index) {
-                    if (index < model.list.length) {
-                      return InkWell(
-                        onTap: () {
-                          query = model.list[index];
-                          showResults(context);
+                ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: itemCount,
+                    itemBuilder: (context, index) {
+                      if (index < model.list.length) {
+                        return InkWell(
+                          onTap: () {
+                            query = model.list[index];
+                            showResults(context);
 //                        buildResults(context);
-                        },
-                        child: ListTile(
-                          title: Text(model.list[index]),
-                        ),
-                      );
-                    } else {
-                      return _buildClearHistory();
-                    }
-                  }),
-            ],
-          ),
-        );
-      } else {
-        return HeartLoadingPage();
-      }
-    });
+                          },
+                          child: ListTile(
+                            title: Text(model.list[index]),
+                          ),
+                        );
+                      } else {
+                        return _buildClearHistory();
+                      }
+                    }),
+              ],
+            ),
+          );
+        } else {
+          return HeartLoadingPage();
+        }
+      }),
+    );
   }
 
   Widget _buildClearHistory() {

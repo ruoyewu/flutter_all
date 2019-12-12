@@ -80,6 +80,7 @@ class _HomePageState extends BaseState<HomePage, IHomePresenter>
         (context, model, _) => RefreshIndicator(
               onRefresh: presenter.startRefresh,
               child: HomeListWidget(
+                presenter,
                 model.appItemList,
                 onItemTap: (AppItem item) {
                   Navigator.pushNamed(context, UIData.ROUTE_APP,

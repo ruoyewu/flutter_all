@@ -155,10 +155,9 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
       children.add(_buildNormalText(text));
     }
 
-    Widget result = RichText(
-      text: TextSpan(
-          children: children, style: TextStyle(fontFamily: 'longzhao')),
-    );
+    Widget result = Text.rich(TextSpan(
+      children: children,
+    ));
 
     if (item.text.lineType != null && item.text.lineType == 'aside') {
       result = Align(

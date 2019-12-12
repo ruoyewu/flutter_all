@@ -1,3 +1,4 @@
+import 'package:all/model/ui_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -33,6 +34,28 @@ class Widgets {
 		Scaffold.of(context)
 			..hideCurrentSnackBar()
 			..showSnackBar(defaultButtonSnackBar(info, buttonTitle, onTap));
+	}
+
+	static Future<T> showAlertDialog<T>(context, {String title, String info}) async {
+		return showDialog(context: context, builder: (context) {
+			return AlertDialog(
+				title: title != null ? Text(title) : null,
+				actions: <Widget>[
+					RawMaterialButton(
+						onPressed: () {
+							Navigator.pop(context, 1);
+						},
+						child: Text('取消', style: TextStyle(color: UIData.COLOR_MONSOON),),
+					),
+					RawMaterialButton(
+						onPressed: () {
+							Navigator.pop(context, 0);
+						},
+						child: Text('确定', style: TextStyle(color: Colors.blueGrey),),
+					),
+				],
+			);
+		});
 	}
 
 	static Future<T> showSimpleDialog<T>(context, List<String> titles) async {

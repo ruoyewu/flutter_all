@@ -151,6 +151,7 @@ class _ArticleDetailState
     }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(item.subEntry[0].title?? item.title),
         actions: <Widget>[
@@ -671,7 +672,8 @@ class _ArticleDetailState
       data: ThemeData(
           primaryColor: Colors.blueGrey,
           primarySwatch: Colors.blueGrey,
-          fontFamily: 'Longzhao'),
+//          fontFamily: 'Longzhao'
+      ),
       child: TextField(
         controller: _commentEditController,
         minLines: 5,
