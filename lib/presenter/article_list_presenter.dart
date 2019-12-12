@@ -32,7 +32,7 @@ class ArticleListPresenter extends IArticleListPresenter {
   Future<void> startLoadMore({bool isRefresh = false}) {
     if (isRefresh || nextUrl == null) {
       return RemoteData.articleList(0, 10, channel.id).then((result) {
-        if (result.isSuccessful) {
+        if (result.hasData) {
           List<ArticleListItem> list = result.entityList.map((entry) => ArticleListItem.fromJson(entry)).toList();
           _articleListModel.articleList = list;
           nextUrl = result.nextUrl;

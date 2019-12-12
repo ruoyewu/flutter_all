@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSetting {
@@ -10,6 +7,7 @@ class UserSetting {
 	static const LOGIN_USER_NAME = 'login_user_name';
 	static const AUTO_SHOW_DETAIL_BAR = 'auto_show_detail_bar';
 	static const USER_APP = 'user_app';
+	static const SEARCH_HISTORY = 'search_history';
 
 	static UserSetting _sInstance;
 	SharedPreferences _sp;
@@ -62,10 +60,16 @@ class UserSetting {
 		_sp.setBool(AUTO_SHOW_DETAIL_BAR, show);
 	}
 
-	List<AppItem> get savedAppItem => (json.decode(_sp.get(USER_APP)?? '[]') as List).map((item) => AppItem.fromJson(item)).toList();
+	List<String> get savedAppItem => _sp.getStringList(USER_APP)?? [];
 
-	set savedAppItem(List<AppItem> appItems) {
-		_sp.setString(USER_APP, json.encode(appItems));
+	set savedAppItem(List<String> appItems) {
+		_sp.setStringList(USER_APP, appItems);
+	}
+
+	List<String> get searchHistory => _sp.getStringList(SEARCH_HISTORY)?? [];
+
+	set searchHistory(List<String> items) {
+		_sp.setStringList(SEARCH_HISTORY, items);
 	}
 
 	static _getSP() async {

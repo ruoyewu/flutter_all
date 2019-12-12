@@ -11,6 +11,7 @@ abstract class IArticleDetailView extends BaseView {
   TickerProvider get tickerProvider;
 
   scrollToComment();
+  scrollToPosition(double y);
 
   onResultInfo(String info, {int code});
 

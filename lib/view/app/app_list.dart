@@ -10,14 +10,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AppListWidget extends StatefulWidget {
-  AppListWidget({
-//    @required this.app,
-//    @required this.categoryName,
-    @required this.channel
-  });
+  AppListWidget({@required this.channel});
 
-//  final app;
-//  final categoryName;
   final channel;
 
   @override
@@ -41,13 +35,8 @@ class _AppListWidgetState
 
   @override
   void onItemClick(ArticleListItem item) {
-//    Navigator.pushNamed(context, UIData.ROUTE_WEB, arguments: {
-//      'title': item.title,
-//      'url': item.subEntry[0].action.url
-//    });
-    Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL, arguments: {
-      'item': item
-    });
+    Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL,
+        arguments: {'item': item});
   }
 
   @override
@@ -70,10 +59,6 @@ class _AppListWidgetState
   }
 
   Widget buildItem(ArticleListItem item) {
-//    log("title ${item.title}, image: ${item.image}");
-//    if (_isOneHeader(item)) {
-//      return _buildOneHeader(item);
-//    }
     return InkWell(
       onTap: () => onItemClick(item),
       child: Container(
@@ -115,7 +100,10 @@ class _AppListWidgetState
     }
     if (item.subEntry[0].author != null) {
       children.add(Text(
-        "- " + (item.subEntry[0].author == null ? '' : item.subEntry[0].author.name),
+        "- " +
+            (item.subEntry[0].author == null
+                ? ''
+                : item.subEntry[0].author.name),
         style: TextStyle(fontSize: 14, color: Colors.grey),
       ));
     }
@@ -127,16 +115,21 @@ class _AppListWidgetState
 
   Widget itemBody(ArticleListItem item) {
     List<Widget> children = List();
+//    if (item.subEntry[0].isShortVideo || (item.subEntry[0].video != null)) {
+//      children.add(_buildVideo(item.subEntry[0].video[0]));
+//    } else
     if (item.subEntry[0].cover != null || item.subEntry[0].image != null) {
-      String image = item.subEntry[0].cover == null ? item.subEntry[0].image[0].url : item.subEntry[0].cover[0].url;
+      String image = item.subEntry[0].cover == null
+          ? item.subEntry[0].image[0].url
+          : item.subEntry[0].cover[0].url;
       children.add(Container(
-        padding: EdgeInsets.symmetric(vertical: 5),
-        width: double.infinity,
-        height: 250,
-        child: Ink.image(
-          image: NetworkImage(image),
-          fit: BoxFit.cover,
-        )));
+          padding: EdgeInsets.symmetric(vertical: 5),
+          width: double.infinity,
+          height: 250,
+          child: Ink.image(
+            image: NetworkImage(image),
+            fit: BoxFit.cover,
+          )));
     }
     if (item.subEntry[0].snippet != null) {
       children.add(Text(
@@ -160,8 +153,8 @@ class _AppListWidgetState
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-//              item.age == "" ? item.date : item.age,
-            DateUtil.formatMillis(item.subEntry[0].datePublished, 'YYYY/MM/dd HH:mm:ss'),
+              DateUtil.formatMillis(
+                  item.subEntry[0].datePublished, 'YYYY/MM/dd HH:mm:ss'),
               textAlign: TextAlign.end,
               style: TextStyle(fontSize: 13, color: Colors.grey),
             ),
@@ -183,53 +176,4 @@ class _AppListWidgetState
       ),
     );
   }
-
-  bool _isOneHeader(ArticleListItem item) {
-//    return widget.app == "one" && item.category == "0";
-  return false;
-  }
-
-//  Widget _buildOneHeader(ArticleListItem item) {
-//    return InkWell(
-//      onTap: () {},
-//      child: Padding(
-//        padding: const EdgeInsets.symmetric(vertical: 10),
-//        child: Column(
-//          children: <Widget>[
-//            Text(
-//              item.date.substring(0, 10).replaceAll("-", " / "),
-//              style: TextStyle(
-//                  fontWeight: FontWeight.bold,
-//                  color: Colors.blueGrey,
-//                  fontSize: 20),
-//            ),
-//            Container(
-//                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-//                width: double.infinity,
-//                height: 250,
-//                child: Ink.image(
-//                  image: NetworkImage(item.image),
-//                  fit: BoxFit.cover,
-//                )),
-//            Text(
-//              item.otherInfo.replaceAll("|", " | "),
-//              style: TextStyle(color: Colors.grey, fontSize: 13),
-//            ),
-//            Container(
-//              alignment: Alignment.centerLeft,
-//              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-//              child: Text(
-//                item.forward,
-//                style: TextStyle(color: Colors.black87, fontSize: 16),
-//              ),
-//            ),
-//            Text(
-//              item.title,
-//              style: TextStyle(color: Colors.black54, fontSize: 12),
-//            )
-//          ],
-//        ),
-//      ),
-//    );
-//  }
 }

@@ -12,6 +12,7 @@ class AppItem {
   String tagLine;
   String templateType;
   String title;
+  bool userSaved = false;
 
   AppItem(
       {this.channel,
@@ -506,6 +507,7 @@ class SubEntry {
   int id;
   String idString;
   List<ResultImage> image;
+  List<ResultVideo> video;
   int imageTotalCount;
   bool isImage;
   bool isShortVideo;
@@ -529,6 +531,7 @@ class SubEntry {
       this.id,
       this.idString,
       this.image,
+      this.video,
       this.imageTotalCount,
       this.isImage,
       this.isShortVideo,
@@ -560,6 +563,9 @@ class SubEntry {
       idString: json['id_string'],
       image: json['image'] != null
           ? (json['image'] as List).map((i) => ResultImage.fromJson(i)).toList()
+          : null,
+      video: json['video'] != null
+          ? (json['video'] as List).map((i) => ResultVideo.fromJson(i)).toList()
           : null,
       imageTotalCount: json['image_total_count'],
       isImage: json['is_image'],
@@ -605,6 +611,9 @@ class SubEntry {
     }
     if (this.image != null) {
       data['image'] = this.image.map((v) => v.toJson()).toList();
+    }
+    if (this.video != null) {
+      data['video'] = this.video.map((v) => v.toJson()).toList();
     }
     if (this.tag != null) {
       data['tag'] = this.tag.map((v) => v.toJson()).toList();
@@ -779,21 +788,22 @@ class ArticleListItem {
   String templateType;
   String title;
 
-  ArticleListItem(
-      {this.channel,
-      this.contentType,
-      this.detail,
-      this.followCount,
-      this.icon,
-      this.iconImage,
-      this.id,
-      this.idString,
-      this.subEntry,
-      this.subscribed,
-      this.supportRipple,
-      this.tagLine,
-      this.templateType,
-      this.title,});
+  ArticleListItem({
+    this.channel,
+    this.contentType,
+    this.detail,
+    this.followCount,
+    this.icon,
+    this.iconImage,
+    this.id,
+    this.idString,
+    this.subEntry,
+    this.subscribed,
+    this.supportRipple,
+    this.tagLine,
+    this.templateType,
+    this.title,
+  });
 
   factory ArticleListItem.fromJson(Map<String, dynamic> json) {
     return ArticleListItem(
@@ -1107,4 +1117,218 @@ class ArticleDetail {
     }
     return data;
   }
+}
+
+class ResultVideo {
+  List<String> cover;
+  int duration;
+  int height;
+  String url;
+  int width;
+
+  ResultVideo({this.cover, this.duration, this.height, this.url, this.width});
+
+  factory ResultVideo.fromJson(Map<String, dynamic> json) {
+    return ResultVideo(
+      cover:
+          json['cover'] != null ? new List<String>.from(json['cover']) : null,
+      duration: json['duration'],
+      height: json['height'],
+      url: json['url'],
+      width: json['width'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['duration'] = this.duration;
+    data['height'] = this.height;
+    data['url'] = this.url;
+    data['width'] = this.width;
+    if (this.cover != null) {
+      data['cover'] = this.cover;
+    }
+    return data;
+  }
+}
+
+class ArticleContentItem {
+  String id;
+  ResultText text;
+  ResultContentImage image;
+  ResultMedia media;
+  Li li;
+  int blockQuote;
+  int type;
+
+  ArticleContentItem({this.id, this.text, this.type, this.image, this.media, this.li, this.blockQuote});
+
+  factory ArticleContentItem.fromJson(Map<String, dynamic> json) {
+    return ArticleContentItem(
+      id: json['id'],
+      text: json['text'] != null ? ResultText.fromJson(json['text']) : null,
+      image: json['image'] != null ? ResultContentImage.fromJson(json['image']) : null,
+      media: json['media'] != null ? ResultMedia.fromJson(json['media']) : null,
+      type: json['type'],
+      li: json['li'] != null ? Li.fromJson(json['li']) : null,
+      blockQuote: json['blockquote']
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['type'] = this.type;
+    data['blockquote'] = this.blockQuote;
+    if (this.text != null) {
+      data['text'] = this.text.toJson();
+    }
+    if (this.image != null) {
+      data['image'] = this.image.toJson();
+    }
+    if (this.li != null) {
+      data['li'] = li.toJson();
+    }
+    if (this.media != null) {
+      data['media'] = this.media.toJson();
+    }
+    return data;
+  }
+}
+
+class ResultText {
+  List<Markup> markups;
+  String lineType;
+  String text;
+
+  ResultText({this.markups, this.text, this.lineType});
+
+  factory ResultText.fromJson(Map<String, dynamic> json) {
+    return ResultText(
+      markups: json['markups'] != null
+          ? (json['markups'] as List).map((i) => Markup.fromJson(i)).toList()
+          : null,
+      lineType: json['linetype'],
+      text: json['text'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['text'] = this.text;
+    data['linetype'] = this.lineType;
+    if (this.markups != null) {
+      data['markups'] = this.markups.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class Markup {
+  int end;
+  int height;
+  String source;
+  int start;
+  String tag;
+  int width;
+
+  Markup(
+      {this.end, this.height, this.source, this.start, this.tag, this.width});
+
+  factory Markup.fromJson(Map<String, dynamic> json) {
+    return Markup(
+      end: json['end'],
+      height: json['height'],
+      source: json['source'],
+      start: json['start'],
+      tag: json['tag'],
+      width: json['width'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['end'] = this.end;
+    data['height'] = this.height;
+    data['source'] = this.source;
+    data['start'] = this.start;
+    data['tag'] = this.tag;
+    data['width'] = this.width;
+    return data;
+  }
+}
+
+class ResultContentImage {
+    int height;
+    bool isInline;
+    String source;
+    int width;
+
+    ResultContentImage({this.height, this.isInline, this.source, this.width});
+
+    factory ResultContentImage.fromJson(Map<String, dynamic> json) {
+        return ResultContentImage(
+            height: json['height'],
+            isInline: json['isInline'],
+            source: json['source'],
+            width: json['width'],
+        );
+    }
+
+    Map<String, dynamic> toJson() {
+        final Map<String, dynamic> data = new Map<String, dynamic>();
+        data['height'] = this.height;
+        data['isInline'] = this.isInline;
+        data['source'] = this.source;
+        data['width'] = this.width;
+        return data;
+    }
+}
+
+class Li {
+    int level;
+    int order;
+    String type;
+
+    Li({this.level, this.order, this.type});
+
+    factory Li.fromJson(Map<String, dynamic> json) {
+        return Li(
+            level: json['level'],
+            order: json['order'],
+            type: json['type'],
+        );
+    }
+
+    Map<String, dynamic> toJson() {
+        final Map<String, dynamic> data = new Map<String, dynamic>();
+        data['level'] = this.level;
+        data['order'] = this.order;
+        data['type'] = this.type;
+        return data;
+    }
+}
+
+class ResultMedia {
+    String cover;
+    String source;
+    String title;
+
+    ResultMedia({this.cover, this.source, this.title});
+
+    factory ResultMedia.fromJson(Map<String, dynamic> json) {
+        return ResultMedia(
+            cover: json['cover'],
+            source: json['source'],
+            title: json['title'],
+        );
+    }
+
+    Map<String, dynamic> toJson() {
+        final Map<String, dynamic> data = new Map<String, dynamic>();
+        data['cover'] = this.cover;
+        data['source'] = this.source;
+        data['title'] = this.title;
+        return data;
+    }
 }

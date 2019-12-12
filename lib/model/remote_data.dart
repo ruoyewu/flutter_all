@@ -150,4 +150,11 @@ class RemoteData {
     final response = await _network.get(url);
     return Result.fromJson(json.decode(response.data));
   }
+
+  static Future<Result> appDetail(String pns) async {
+    final response = await _network.get(Url.APP_DETAIL, query: {
+      'pns': pns
+    });
+    return Result.fromJson(json.decode(response.data));
+  }
 }

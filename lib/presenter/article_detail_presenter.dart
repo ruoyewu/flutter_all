@@ -106,7 +106,7 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   void startLoadArticle() {
     int startTime = Timeline.now;
     int endTime = startTime + 500000;
-    RemoteData.articleDetail(item.subEntry[0].id, '').then((result) {
+    RemoteData.articleDetail(item.subEntry[0].id, 'raml').then((result) {
       if (isDisposed) return;
       if (result.isSuccessful) {
         int delay = endTime - Timeline.now;

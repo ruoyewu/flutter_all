@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:all/base/base_state.dart';
@@ -13,12 +14,12 @@ import 'package:all/presenter/contract/article_detail_contract.dart';
 import 'package:all/utils/date_format.dart';
 import 'package:all/utils/image_util.dart';
 import 'package:all/utils/provider_consumer.dart';
+import 'package:all/view/detail/article_detail_content.dart';
+import 'package:all/view/image/image.dart';
 import 'package:all/view/widget/widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_html/image_properties.dart';
 
 class ArticleDetailPage extends StatefulWidget {
   @override
@@ -94,6 +95,11 @@ class _ArticleDetailState
   }
 
   @override
+  scrollToPosition(double y) {
+    _scrollController.animateTo(y, duration: Duration(milliseconds: 100), curve: Curves.easeInToLinear);
+  }
+
+  @override
   onResultInfo(String info, {int code}) {
     if (code == 401) {
       Widgets.showButtonSnackBar(_snackBarContext, info, '登录', () {
@@ -146,13 +152,13 @@ class _ArticleDetailState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(item.title),
+        title: Text(item.subEntry[0].title?? item.title),
         actions: <Widget>[
           IconButton(
             onPressed: () {
               Navigator.pushNamed(context, UIData.ROUTE_WEB, arguments: {
                 'url': item.subEntry[0].action.url,
-                'title': item.title
+                'title': item.subEntry[0].title
               });
             },
             icon: Icon(Icons.share),
@@ -204,14 +210,13 @@ class _ArticleDetailState
     List<Widget> children = List();
     if (detail.title != null) {
       children.add(Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         child: Text(
           detail.title,
           style: TextStyle(fontSize: 20, color: Colors.black87),
         ),
       ));
 
-      
       if (detail.snippet != null && detail.snippet != '') {
         children.add(Align(
           alignment: Alignment.centerRight,
@@ -233,39 +238,42 @@ class _ArticleDetailState
       ));
     }
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       child: Column(children: children),
     );
   }
 
   Widget _buildContent(ArticleDetail detail) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Builder(
         builder: (context) {
-          return Html(
-            data: detail.detail.articleDetail.contentHtml,
-            useRichText: false,
-            blockSpacing: 0,
-            shrinkToFit: true,
-            renderNewlines: false,
-            defaultTextStyle: TextStyle(
-              fontSize: 17,
-              height: 1.6,
-              color: Colors.black,
-            ),
-            linkStyle: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-            ),
-            imageProperties: ImageProperties(
-                width: double.infinity, height: 0, fit: BoxFit.fitWidth),
-            onImageTap: (source) {
-              Widgets.showSnackBar(context, source);
+          return ArticleDetailContentWidget(
+            (json.decode(detail.detail.articleDetail.contentHtml) as List).map((item) => ArticleContentItem.fromJson(item)),
+            onImagePress: (list, url, positionList) {
+            Navigator.of(context).push(PageRouteBuilder(
+              opaque: false,
+              pageBuilder: (context, _1, _2) {
+                return ImagePage();
+              },
+              settings: RouteSettings(
+                name: UIData.ROUTE_IMAGE,
+                arguments: {
+                  'imageList': list,
+                  'image': url,
+                  'position': positionList,
+                  'scrollFunction': this.scrollToPosition,
+                }
+              )
+            )).then((_) {
+//              SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
+            });
             },
-            onLinkTap: (url) {
-              Navigator.pushNamed(context, UIData.ROUTE_WEB,
-                  arguments: {'title': detail.title, 'url': detail.action.url});
+            onLinkPress: (url) {
+              Navigator.pushNamed(context, UIData.ROUTE_WEB, arguments: {
+                'title': detail.title,
+                'url': url
+              });
             },
           );
         },
