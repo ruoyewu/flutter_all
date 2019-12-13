@@ -1,17 +1,18 @@
 import 'package:all/base/base_state.dart';
 import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/model/app_model.dart';
-import 'package:all/model/ui_data.dart';
 import 'package:all/presenter/article_list_presenter.dart';
 import 'package:all/presenter/contract/app_contract.dart';
 import 'package:all/utils/date_format.dart';
 import 'package:all/utils/provider_consumer.dart';
+import 'package:all/view/app/app.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AppListWidget extends StatefulWidget {
-  AppListWidget({@required this.channel});
+  AppListWidget({@required this.channel, @required this.onArticleItemTap});
 
+  OnArticleItemTap onArticleItemTap;
   final channel;
 
   @override
@@ -34,12 +35,6 @@ class _AppListWidgetState
   bool get wantKeepAlive => true;
 
   @override
-  void onItemClick(ArticleListItem item) {
-    Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL,
-        arguments: {'item': item});
-  }
-
-  @override
   Widget build(BuildContext context) {
     super.build(context);
     return RefreshIndicator(
@@ -60,7 +55,7 @@ class _AppListWidgetState
 
   Widget buildItem(ArticleListItem item) {
     return InkWell(
-      onTap: () => onItemClick(item),
+      onTap: () => widget.onArticleItemTap(item),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -115,21 +110,20 @@ class _AppListWidgetState
 
   Widget itemBody(ArticleListItem item) {
     List<Widget> children = List();
-//    if (item.subEntry[0].isShortVideo || (item.subEntry[0].video != null)) {
-//      children.add(_buildVideo(item.subEntry[0].video[0]));
-//    } else
     if (item.subEntry[0].cover != null || item.subEntry[0].image != null) {
       String image = item.subEntry[0].cover == null
           ? item.subEntry[0].image[0].url
           : item.subEntry[0].cover[0].url;
-      children.add(Container(
-          padding: EdgeInsets.symmetric(vertical: 5),
-          width: double.infinity,
-          height: 250,
-          child: Ink.image(
-            image: NetworkImage(image),
-            fit: BoxFit.cover,
-          )));
+      children.add(AspectRatio(
+        aspectRatio: 16/9,
+        child: Container(
+            padding: EdgeInsets.symmetric(vertical: 5),
+            width: double.infinity,
+            child: Ink.image(
+              image: NetworkImage(image),
+              fit: BoxFit.cover,
+            )),
+      ));
     }
     if (item.subEntry[0].snippet != null) {
       children.add(Text(

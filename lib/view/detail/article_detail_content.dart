@@ -242,9 +242,10 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
 
   InlineSpan _buildImageSpan(String url, int width, int height) {
     _imageList.add(url);
-    final key = _imageKeyMap.containsKey(url)
-        ? _imageKeyMap[url]
-        : GlobalKey(debugLabel: url);
+    final tag = url + _imageList.length.toString();
+    final key = _imageKeyMap.containsKey(tag)
+        ? _imageKeyMap[tag]
+        : GlobalObjectKey(tag);
     _imageKeyMap[url] = key;
 
     return WidgetSpan(
@@ -252,7 +253,7 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
             key: key,
             onTap: () => onImageTap(url),
             child: Hero(
-                tag: url,
+                tag: tag,
                 child: Image.network(
                   url,
                   height: height.toDouble(),
@@ -263,9 +264,10 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
   Widget _buildImage(ArticleContentItem item) {
     final image = item.image.source;
     _imageList.add(image);
-    var key = _imageKeyMap.containsKey(image)
-        ? _imageKeyMap[image]
-        : GlobalKey(debugLabel: image);
+    final tag = image + _imageList.length.toString();
+    final key = _imageKeyMap.containsKey(tag)
+        ? _imageKeyMap[tag]
+        : GlobalObjectKey(tag);
     _imageKeyMap[image] = key;
     if (item.image.isInline != null && item.image.isInline) {
       log("build inline image");
@@ -281,7 +283,7 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
           child: SizedBox(
             width: double.infinity,
             child: Hero(
-              tag: item.image.source,
+              tag: tag,
               child: Image.network(
                 image,
                 fit: BoxFit.cover,

@@ -1,6 +1,5 @@
 import 'package:all/base/base_presenter.dart';
 import 'package:all/base/base_view.dart';
-import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/model/app_model.dart';
 
 abstract class IAppView extends BaseView {
@@ -12,7 +11,7 @@ abstract class IAppPresenter extends BasePresenter<IAppView> {
 }
 
 abstract class IArticleListView extends BaseView {
-  void onItemClick(ArticleListItem item);
+//  void onItemClick(ArticleListItem item);
 }
 
 abstract class IArticleListPresenter extends BasePresenter<IArticleListView> {

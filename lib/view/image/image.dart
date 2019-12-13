@@ -40,14 +40,9 @@ class _ImageWidgetState extends State<ImagePage>
     );
     _animationController.addListener(() {
       setState(() {
-        double value = _animationController.value;
-        _translateY = _startTranslateY * (1 - value);
-        _translateX = _startTranslateX * (1 - value);
-        _opacity = value * (1 - _startOpacity) + _startOpacity;
-        _scale = _opacity / 4 + 0.75;
+        _onValueChanged(_animationController.value);
       });
     });
-//    SystemChrome.setEnabledSystemUIOverlays([]);
   }
 
   @override
@@ -56,21 +51,15 @@ class _ImageWidgetState extends State<ImagePage>
     _pageController.dispose();
   }
 
-  double _abs(double value) {
-    return value > 0 ? value : -value;
+  void _onValueChanged(double value) {
+    _translateY = _startTranslateY * (1 - value);
+    _translateX = _startTranslateX * (1 - value);
+    _opacity = (value * (1 - _startOpacity) + _startOpacity + 0.2).clamp(0, 1).toDouble();
+    _scale = _opacity / 4 + 0.75;
   }
 
-  double _clip(double value, {double max = 1, double min = 0}) {
-    if (value > max) {
-      return max;
-    } else if (value < min) {
-      return min;
-    }
-    return value;
-  }
-
-  double computeTranslate(double translate, double delta) {
-    double proportion = _clip(_abs(translate)/MAX_OFFSET);
+  double _computeTranslate(double translate, double delta) {
+    double proportion = (translate.abs()/MAX_OFFSET).clamp(0, 1).toDouble();
     delta = delta * (1.1 - proportion * proportion);
     return translate + delta;
   }
@@ -94,9 +83,9 @@ class _ImageWidgetState extends State<ImagePage>
         },
         onVerticalDragUpdate: (details) {
           setState(() {
-            _translateY = computeTranslate(_translateY, details.delta.dy);
+            _translateY = _computeTranslate(_translateY, details.delta.dy);
             _translateX = details.localPosition.dx - _dragStartX;
-            _opacity = 1 - _clip(_abs(_translateY) / MAX_OFFSET);
+            _opacity = (1.2 - (_translateY.abs() / MAX_OFFSET).clamp(0, 1)).clamp(0, 1).toDouble();
             _scale = _opacity / 4 + 0.75;
           });
         },
@@ -107,7 +96,7 @@ class _ImageWidgetState extends State<ImagePage>
           log('${details.localPosition.dx}');
         },
         onVerticalDragEnd: (details) {
-          if (_abs(_translateY) > MAX_OFFSET) {
+          if (_translateY.abs() > MAX_OFFSET) {
             Navigator.pop(context);
           } else {
             _startTranslateY = _translateY;
@@ -144,7 +133,7 @@ class _ImageWidgetState extends State<ImagePage>
                         ),
                         imageProvider: NetworkImage(_imageList[index]),
                         heroAttributes: PhotoViewHeroAttributes(
-                          tag: _imageList[index]
+                          tag: _imageList[index] + (index + 1).toString(),
                         ),
                         onTapUp: (context, details, _) {
                           Navigator.pop(context);

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:all/base/base_state.dart';
 import 'package:all/model/bean/article_comment_list_item.dart';
@@ -16,12 +17,17 @@ import 'package:all/utils/image_util.dart';
 import 'package:all/utils/provider_consumer.dart';
 import 'package:all/view/detail/article_detail_content.dart';
 import 'package:all/view/image/image.dart';
+import 'package:all/view/widget/heart_loading.dart';
 import 'package:all/view/widget/widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class ArticleDetailPage extends StatefulWidget {
+  ArticleDetailPage({this.item});
+
+  ArticleListItem item;
+
   @override
   State<StatefulWidget> createState() {
     return _ArticleDetailState();
@@ -32,6 +38,7 @@ class _ArticleDetailState
     extends BaseState<ArticleDetailPage, IArticleDetailPresenter>
     with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin
     implements IArticleDetailView {
+  static const MAX_WIDTH = 800.0;
   static const ANIMATION_DURATION = 300;
 
   ScrollController _scrollController;
@@ -96,7 +103,8 @@ class _ArticleDetailState
 
   @override
   scrollToPosition(double y) {
-    _scrollController.animateTo(y, duration: Duration(milliseconds: 100), curve: Curves.easeInToLinear);
+    _scrollController.animateTo(y,
+        duration: Duration(milliseconds: 100), curve: Curves.easeInToLinear);
   }
 
   @override
@@ -140,69 +148,104 @@ class _ArticleDetailState
   Widget build(BuildContext context) {
     super.build(context);
 
-    Map arguments = ModalRoute.of(context).settings.arguments;
-    ArticleListItem item = arguments["item"];
+    ArticleListItem item = null;
+    bool shouldRebuild = false;
+    if (ModalRoute.of(context).settings.name != UIData.ROUTE_ARTICLE_DETAIL) {
+      item = widget.item;
+      shouldRebuild = true;
+    } else {
+      Map arguments = ModalRoute.of(context).settings.arguments;
+      item = arguments["item"];
+    }
+    if (item == null) {
+      return Scaffold(
+        body: HeartLoadingPage(),
+      );
+    }
+
     if (_firstLoad) {
       log('article id ${item.subEntry[0].id}');
       presenter = ArticleDetailPresenter(this, item: item);
       _firstLoad = false;
       presenter.startLoadArticle();
       presenter.startLoadArticleInfo();
+    } else if (shouldRebuild) {
+      (presenter as ArticleDetailPresenter).item = item;
+      (presenter as ArticleDetailPresenter).nextComment = 0;
+      presenter.articleCommentModel.articleCommentList.list.clear();
+      presenter.startLoadArticle();
+      presenter.startLoadArticleInfo();
+      presenter.startLoadComment();
     }
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(item.subEntry[0].title?? item.title),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, UIData.ROUTE_WEB, arguments: {
-                'url': item.subEntry[0].action.url,
-                'title': item.subEntry[0].title
-              });
-            },
-            icon: Icon(Icons.share),
-          )
-        ],
-      ),
-      body: Builder(
-        builder: (context) {
-          _snackBarContext = context;
-
-          List<Widget> children = List();
-          children.add(Scrollbar(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: ProviderConsumer<ArticleDetailModel>(
-                  presenter.articleDetailModel, (context, model, _) {
-                if (model == null || model.articleDetail == null) {
-                  return Column();
-                }
-                return Column(
-                  children: <Widget>[
-                    Column(
-                      key: _articleKey,
-                      children: <Widget>[
-                        _buildHeader(model.articleDetail),
-                        _buildContent(model.articleDetail),
-//                        _buildFooter(item)
-                      ],
-                    ),
-                    ProviderConsumer<ArticleCommentModel>(
-                        presenter.articleCommentModel, (context, model, _) {
-                      return _buildComment(model);
-                    }),
-                  ],
-                );
-              }),
+      appBar: shouldRebuild
+          ? null
+          : AppBar(
+              title: Text(item.subEntry[0].title ?? item.title),
+              actions: <Widget>[
+                if (Platform.isAndroid || Platform.isIOS)
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, UIData.ROUTE_WEB,
+                          arguments: {
+                            'url': item.subEntry[0].action.url,
+                            'title': item.subEntry[0].title
+                          });
+                    },
+                    icon: Icon(Icons.share),
+                  )
+              ],
             ),
-          ));
-          children.add(_buildInfo());
-          return Stack(
-            children: children,
-          );
-        },
+      body: Align(
+        alignment: Alignment.center,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MAX_WIDTH
+          ),
+          child: Builder(
+            builder: (context) {
+              _snackBarContext = context;
+
+              List<Widget> children = List();
+              children.add(Scrollbar(
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: ProviderConsumer<ArticleDetailModel>(
+                      presenter.articleDetailModel, (context, model, _) {
+                    if (model == null || model.articleDetail == null) {
+                      return Column();
+                    }
+                    if (shouldRebuild) {
+                      scrollToPosition(0);
+                    }
+                    return Column(
+                      children: <Widget>[
+                        Column(
+                          key: _articleKey,
+                          children: <Widget>[
+                            _buildHeader(model.articleDetail),
+                            _buildContent(model.articleDetail),
+//                        _buildFooter(item)
+                          ],
+                        ),
+                        ProviderConsumer<ArticleCommentModel>(
+                            presenter.articleCommentModel, (context, model, _) {
+                          return _buildComment(model);
+                        }),
+                      ],
+                    );
+                  }),
+                ),
+              ));
+              children.add(_buildInfo());
+              return Stack(
+                children: children,
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -250,31 +293,29 @@ class _ArticleDetailState
       child: Builder(
         builder: (context) {
           return ArticleDetailContentWidget(
-            (json.decode(detail.detail.articleDetail.contentHtml) as List).map((item) => ArticleContentItem.fromJson(item)),
+            (json.decode(detail.detail.articleDetail.contentHtml) as List)
+                .map((item) => ArticleContentItem.fromJson(item)),
             onImagePress: (list, url, positionList) {
-            Navigator.of(context).push(PageRouteBuilder(
-              opaque: false,
-              pageBuilder: (context, _1, _2) {
-                return ImagePage();
-              },
-              settings: RouteSettings(
-                name: UIData.ROUTE_IMAGE,
-                arguments: {
-                  'imageList': list,
-                  'image': url,
-                  'position': positionList,
-                  'scrollFunction': this.scrollToPosition,
-                }
-              )
-            )).then((_) {
+              Navigator.of(context)
+                  .push(PageRouteBuilder(
+                      opaque: false,
+                      pageBuilder: (context, _1, _2) {
+                        return ImagePage();
+                      },
+                      settings:
+                          RouteSettings(name: UIData.ROUTE_IMAGE, arguments: {
+                        'imageList': list,
+                        'image': url,
+                        'position': positionList,
+                        'scrollFunction': this.scrollToPosition,
+                      })))
+                  .then((_) {
 //              SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
-            });
+              });
             },
             onLinkPress: (url) {
-              Navigator.pushNamed(context, UIData.ROUTE_WEB, arguments: {
-                'title': detail.title,
-                'url': url
-              });
+              Navigator.pushNamed(context, UIData.ROUTE_WEB,
+                  arguments: {'title': detail.title, 'url': url});
             },
           );
         },
@@ -670,8 +711,8 @@ class _ArticleDetailState
     }
     children.add(Theme(
       data: ThemeData(
-          primaryColor: Colors.blueGrey,
-          primarySwatch: Colors.blueGrey,
+        primaryColor: Colors.blueGrey,
+        primarySwatch: Colors.blueGrey,
 //          fontFamily: 'Longzhao'
       ),
       child: TextField(

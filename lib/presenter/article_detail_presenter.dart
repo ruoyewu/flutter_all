@@ -24,7 +24,7 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
 
   ArticleListItem item;
 
-  int _nextComment = 0;
+  int nextComment = 0;
 
   ArticleDetailModel _articleDetailModel;
   ArticleDetailInfoModel _articleDetailInfoModel;
@@ -116,7 +116,7 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
           Future.delayed(Duration(milliseconds: 100), () {
             UserSetting.sInstance.then((setting) {
               if (setting.autoShowDetailBar) {
-                startAnimation();
+                startAnimation(isOpen: true);
               }
             });
           });
@@ -139,10 +139,10 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
 
   @override
   startLoadComment() {
-    RemoteData.artileComment(article, _nextComment).then((result) {
+    RemoteData.artileComment(article, nextComment).then((result) {
       if (result.successful) {
         ArticleCommentList list = ArticleCommentList.fromJson(result.info);
-        _nextComment = list.next;
+        nextComment = list.next;
         _articleCommentModel.addAll(list, list.list.length == 10);
       } else {
         view.onResultInfo(result.info);
@@ -151,8 +151,8 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   }
 
   @override
-  startAnimation() {
-    if (_isAnimationForward) {
+  startAnimation({bool isOpen = false}) {
+    if (_isAnimationForward || isOpen) {
       _animationController.animateTo(1);
     } else {
       _animationController.animateTo(0);
