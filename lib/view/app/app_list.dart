@@ -10,7 +10,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AppListWidget extends StatefulWidget {
-  AppListWidget({@required this.channel, @required this.onArticleItemTap});
+  AppListWidget(
+      {@required this.channel, @required this.onArticleItemTap, Key key})
+      : super(key: key);
 
   OnArticleItemTap onArticleItemTap;
   final channel;
@@ -115,7 +117,7 @@ class _AppListWidgetState
           ? item.subEntry[0].image[0].url
           : item.subEntry[0].cover[0].url;
       children.add(AspectRatio(
-        aspectRatio: 16/9,
+        aspectRatio: 16 / 9,
         child: Container(
             padding: EdgeInsets.symmetric(vertical: 5),
             width: double.infinity,

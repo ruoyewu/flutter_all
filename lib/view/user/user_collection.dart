@@ -1,4 +1,3 @@
-
 import 'package:all/model/bean/article_collection_list_item.dart';
 import 'package:all/model/model/article_collection_model.dart';
 import 'package:all/model/ui_data.dart';
@@ -14,9 +13,8 @@ class UserCollectionWidget extends StatelessWidget {
   String user;
 
   onCollectionItemTap(BuildContext context, ArticleCollectionListItem item) {
-    Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL, arguments: {
-      'item': item.content
-    }).then((result) {
+    Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL,
+        arguments: {'item': item.content}).then((result) {
       presenter.onDetailResult(result, item);
     });
   }
@@ -24,10 +22,9 @@ class UserCollectionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () => presenter.startLoadCollection(user, isRefresh: true),
-      child: ProviderConsumer<ArticleCollectionModel>(
-        presenter.articleCollectionModel,
-        (context, model, _) {
+        onRefresh: () => presenter.startLoadCollection(user, isRefresh: true),
+        child: ProviderConsumer<ArticleCollectionModel>(
+            presenter.articleCollectionModel, (context, model, _) {
           final hasMore = model.hasMore;
           final list = model.articleCollectionList.list;
           final count = hasMore ? list.length + 1 : list.length;
@@ -41,18 +38,19 @@ class UserCollectionWidget extends StatelessWidget {
               }
             },
           );
-        }
-      )
-    );
+        }));
   }
 
-  Widget _buildCollectionItem(BuildContext context, ArticleCollectionListItem item) {
+  Widget _buildCollectionItem(
+      BuildContext context, ArticleCollectionListItem item) {
     List<Widget> children = List();
     children.add(SizedBox(
       width: 45,
       height: 45,
       child: ClipOval(
-        child: Image.network(item.content.icon,),
+        child: Image.network(
+          item.content.icon,
+        ),
       ),
     ));
     children.add(Expanded(
@@ -62,18 +60,18 @@ class UserCollectionWidget extends StatelessWidget {
           item.content.subEntry[0].title,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 16,
-            color: UIData.COLOR_MONSOON
-          ),
+          style: TextStyle(fontSize: 16, color: UIData.COLOR_MONSOON),
         ),
       ),
     ));
-    if (item.content.subEntry[0].cover != '') {
+    if (item.content.subEntry[0].cover != null) {
       children.add(SizedBox(
         width: 80,
         height: 80,
-        child: Image.network(item.content.subEntry[0].cover[0].url, fit: BoxFit.cover,),
+        child: Image.network(
+          item.content.subEntry[0].cover[0].url,
+          fit: BoxFit.cover,
+        ),
       ));
     }
     return InkWell(

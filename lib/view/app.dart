@@ -5,6 +5,7 @@ import 'package:all/view/home/home.dart';
 import 'package:all/view/image/image.dart';
 import 'package:all/view/login/login.dart';
 import 'package:all/view/not_found_page.dart';
+import 'package:all/view/setting/setting.dart';
 import 'package:all/view/user/user.dart';
 import 'package:all/view/web/web.dart';
 import 'package:flutter/cupertino.dart';
@@ -22,6 +23,15 @@ class MyApp extends StatelessWidget {
         primaryColorDark: Colors.grey,
         fontFamily: 'Siyuansong',
       ),
+//    theme: CupertinoThemeData(
+//      primaryColor: Colors.white,
+//      primaryContrastingColor: Colors.blueGrey,
+//      textTheme: CupertinoTextThemeData(
+//        textStyle: TextStyle(
+//          fontFamily: 'siyuansong'
+//        )
+//      )
+//    ),
       home: HomePage(),
       routes: <String, WidgetBuilder>{
         UIData.ROUTE_HOME: (context) => HomePage(),
@@ -29,6 +39,7 @@ class MyApp extends StatelessWidget {
         UIData.ROUTE_ARTICLE_DETAIL: (context) => ArticleDetailPage(),
         UIData.ROUTE_WEB: (context) => WebPage(),
         UIData.ROUTE_USER: (context) => UserPage(),
+        UIData.ROUTE_SETTING: (context) => SettingPage(),
         UIData.ROUTE_LOGIN: (context) => LoginPage(),
         UIData.ROUTE_IMAGE: (context) => ImagePage(),
       },

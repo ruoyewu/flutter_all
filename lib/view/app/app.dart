@@ -6,6 +6,7 @@ import 'package:all/view/app/app_list.dart';
 import 'package:all/view/detail/article_detail.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 typedef OnArticleItemTap = Function(ArticleListItem);
 
@@ -19,9 +20,8 @@ class AppPage extends StatelessWidget {
       builder: (context, constraints) {
         if (constraints.maxWidth < 500) {
           return _buildPage(item, (item) {
-            Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL, arguments: {
-              'item': item
-            });
+            Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL,
+                arguments: {'item': item});
           });
         } else {
           return Stack(
@@ -37,11 +37,11 @@ class AppPage extends StatelessWidget {
                 child: SizedBox(
                   width: constraints.maxWidth - 350,
                   child: ProviderConsumer<ArticleListItemModel>(
-                    _articleListItemModel,
-                      (cotext, model, _) {
-                      return ArticleDetailPage(item: _articleListItemModel.articleListItem,);
-                    }
-                  ),
+                      _articleListItemModel, (cotext, model, _) {
+                    return ArticleDetailPage(
+                      item: _articleListItemModel.articleListItem,
+                    );
+                  }),
                 ),
               )
             ],
@@ -52,31 +52,34 @@ class AppPage extends StatelessWidget {
   }
 
   Widget _buildPage(AppItem item, OnArticleItemTap onArticleItemTap) {
-    return DefaultTabController(
-      key: ValueKey(item),
-      length: item.channel.length,
-      child: Scaffold(
-        body: NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) {
-            return <Widget>[
-              SliverAppBar(
-                pinned: true,
-                floating: false,
-                title: Text(item.title),
-                bottom: TabBar(
-                  indicatorSize: TabBarIndicatorSize.label,
-                  isScrollable: true,
-                  tabs: buildTabs(item),
-                ),
-              ),
-            ];
-          },
-          body: TabBarView(
-            children: buildPages(item, onArticleItemTap),
-          ),
-        ),
+    int channelCount = item.channel.length;
+    Widget widget = Scaffold(
+      appBar: AppBar(
+        title: Text(item.title),
+        bottom: channelCount > 1
+            ? TabBar(
+                indicatorSize: TabBarIndicatorSize.label,
+                isScrollable: true,
+                tabs: buildTabs(item),
+              )
+            : null,
       ),
+      body: channelCount > 1
+          ? TabBarView(
+              children: buildPages(item, onArticleItemTap),
+            )
+          : AppListWidget(
+              channel: item.channel[0],
+              onArticleItemTap: onArticleItemTap,
+            ),
     );
+    if (channelCount > 1) {
+      widget = DefaultTabController(
+        length: channelCount,
+        child: widget,
+      );
+    }
+    return widget;
   }
 
   List<Widget> buildTabs(AppItem item) {
@@ -90,8 +93,9 @@ class AppPage extends StatelessWidget {
   List<Widget> buildPages(AppItem item, OnArticleItemTap onArticleItemTap) {
     return item.channel
         .map((channel) => AppListWidget(
+              key: ValueKey(channel),
               channel: channel,
-            onArticleItemTap: onArticleItemTap,
+              onArticleItemTap: onArticleItemTap,
             ))
         .toList();
   }

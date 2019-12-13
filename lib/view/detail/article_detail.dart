@@ -151,8 +151,8 @@ class _ArticleDetailState
     ArticleListItem item = null;
     bool shouldRebuild = false;
     if (ModalRoute.of(context).settings.name != UIData.ROUTE_ARTICLE_DETAIL) {
-      item = widget.item;
       shouldRebuild = true;
+      item = widget.item;
     } else {
       Map arguments = ModalRoute.of(context).settings.arguments;
       item = arguments["item"];
@@ -201,9 +201,7 @@ class _ArticleDetailState
       body: Align(
         alignment: Alignment.center,
         child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: MAX_WIDTH
-          ),
+          constraints: BoxConstraints(maxWidth: MAX_WIDTH),
           child: Builder(
             builder: (context) {
               _snackBarContext = context;

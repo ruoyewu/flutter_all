@@ -105,7 +105,9 @@ class _HomePageState extends BaseState<HomePage, IHomePresenter>
                   Icons.settings,
                   color: Colors.white70,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, UIData.ROUTE_SETTING);
+                },
               ),
             ),
             Padding(
