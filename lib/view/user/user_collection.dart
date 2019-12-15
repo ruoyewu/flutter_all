@@ -1,6 +1,7 @@
 import 'package:all/model/bean/article_collection_list_item.dart';
 import 'package:all/model/model/article_collection_model.dart';
 import 'package:all/model/ui_data.dart';
+import 'package:all/model/user_color.dart';
 import 'package:all/presenter/contract/user_contract.dart';
 import 'package:all/utils/provider_consumer.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,7 +15,7 @@ class UserCollectionWidget extends StatelessWidget {
 
   onCollectionItemTap(BuildContext context, ArticleCollectionListItem item) {
     Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL,
-        arguments: {'item': item.content}).then((result) {
+        arguments: {'list': [item.content], 'index': 0}).then((result) {
       presenter.onDetailResult(result, item);
     });
   }
@@ -60,7 +61,7 @@ class UserCollectionWidget extends StatelessWidget {
           item.content.subEntry[0].title,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 16, color: UIData.COLOR_MONSOON),
+          style: TextStyle(fontSize: 16, color: UserColor.COLOR_MONSOON),
         ),
       ),
     ));

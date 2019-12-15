@@ -25,7 +25,7 @@ class HeartLoadingPage extends StatelessWidget {
 
 class HeartLoadingBar extends StatelessWidget {
   HeartLoadingBar(
-      {this.size = const Size(50, 50),
+      {this.size = const Size(30, 30),
       this.color = Colors.blueGrey,
       this.duration = const Duration(seconds: 1),
       this.isLoading = true,

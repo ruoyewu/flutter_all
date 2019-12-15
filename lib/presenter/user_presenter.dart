@@ -6,7 +6,6 @@ import 'package:all/model/bean/user_info.dart';
 import 'package:all/model/model/article_collection_model.dart';
 import 'package:all/model/model/user_info_model.dart';
 import 'package:all/model/remote_data.dart';
-import 'package:all/model/user_cache.dart';
 import 'package:all/model/user_setting.dart';
 import 'package:all/presenter/contract/user_contract.dart';
 import 'package:all/utils/encrypt.dart';
@@ -115,11 +114,6 @@ class UserPresenter extends IUserPresenter {
 
   @override
   ArticleCollectionModel get articleCollectionModel => _articleCollectionModel;
-
-  @override
-  String appIcon(String article) {
-    return UserCache.appItemMap[article.split('_')[0]].icon;
-  }
 
   @override
   onDetailResult(ArticleInfo info, ArticleCollectionListItem item) {

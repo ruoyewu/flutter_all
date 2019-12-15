@@ -19,6 +19,7 @@ class _ImageWidgetState extends State<ImagePage>
   List<String> _imageList;
   List<double> _imagePositionList;
   String _image;
+  String _suffix;
   Function _scrollToPositionFunction;
 
   AnimationController _animationController;
@@ -71,6 +72,7 @@ class _ImageWidgetState extends State<ImagePage>
     _image = arguments['image'] ?? '';
     _scrollToPositionFunction = arguments['scrollFunction'];
     _imagePositionList = arguments['position'];
+    _suffix = arguments['suffix']?? '';
 
     if (_pageController == null) {
       _pageController = PageController(initialPage: _imageList.indexOf(_image));
@@ -133,7 +135,7 @@ class _ImageWidgetState extends State<ImagePage>
                         ),
                         imageProvider: NetworkImage(_imageList[index]),
                         heroAttributes: PhotoViewHeroAttributes(
-                          tag: _imageList[index] + (index + 1).toString(),
+                          tag: '${_imageList[index]}_${index}_${_suffix}',
                         ),
                         onTapUp: (context, details, _) {
                           Navigator.pop(context);

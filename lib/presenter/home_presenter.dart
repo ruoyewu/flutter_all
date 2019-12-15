@@ -3,9 +3,6 @@ import 'dart:math' as math;
 
 import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/model/home_model.dart';
-import 'package:all/model/model/search_app_item_model.dart';
-import 'package:all/model/model/search_app_model.dart';
-import 'package:all/model/model/search_history_model.dart';
 import 'package:all/model/remote_data.dart';
 import 'package:all/model/ui_data.dart';
 import 'package:all/model/user_setting.dart';
@@ -17,14 +14,10 @@ class HomePresenter extends IHomePresenter {
   static const int ANIMATION_DURATION = 300;
 
   HomeFabAnimationModel _homeFabAnimationModel;
-  SearchAppModel _searchAppModel;
   HomeListModel _homeListModel;
-  SearchHistoryModel _searchHistoryModel;
 
   AnimationController _animationFab;
   bool _isAnimationFabForward = true;
-  String _lastSearch;
-
 
   HomePresenter(IHomeView view) : super(view);
 
@@ -32,8 +25,6 @@ class HomePresenter extends IHomePresenter {
   void initModel() {
     _homeFabAnimationModel = HomeFabAnimationModel();
     _homeListModel = HomeListModel();
-    _searchAppModel = SearchAppModel();
-    _searchHistoryModel = SearchHistoryModel();
   }
 
   @override
@@ -66,8 +57,6 @@ class HomePresenter extends IHomePresenter {
     super.dispose();
     _animationFab.dispose();
     _homeListModel.dispose();
-    _searchHistoryModel.dispose();
-    searchAppModel.dispose();
   }
 
   @override
@@ -75,12 +64,6 @@ class HomePresenter extends IHomePresenter {
 
   @override
   HomeListModel get homeListModel => _homeListModel;
-
-  @override
-  SearchAppModel get searchAppModel => _searchAppModel;
-
-  @override
-  SearchHistoryModel get searchHistoryModel => _searchHistoryModel;
 
   @override
   void startFabAnimation() {
@@ -100,7 +83,8 @@ class HomePresenter extends IHomePresenter {
       log('$pns');
       return RemoteData.appDetail(pns).then((result) {
         if (result.hasData) {
-          final list = result.entityList.map((item) => AppItem.fromJson(item)).toList();
+          final list =
+              result.entityList.map((item) => AppItem.fromJson(item)).toList();
           homeListModel.appItemList = list;
         }
       });
@@ -113,7 +97,8 @@ class HomePresenter extends IHomePresenter {
       final list = _homeListModel.appItemList;
       list.remove(item);
       _homeListModel.appItemList = list;
-      setting.savedAppItem = list.map((item) => item.detail.appDetail.packageName).toList();
+      setting.savedAppItem =
+          list.map((item) => item.detail.appDetail.packageName).toList();
     });
   }
 
@@ -134,70 +119,4 @@ class HomePresenter extends IHomePresenter {
     });
   }
 
-  @override
-  startSearch(String search) {
-    if (_lastSearch == search) return;
-    _lastSearch = search;
-    _searchAppModel.searchAppList = null;
-    RemoteData.searchApp(search).then((result) {
-      if (result.hasData) {
-        UserSetting.sInstance.then((setting) {
-          final set = setting.savedAppItem.toSet();
-          _searchAppModel.searchAppList = result.entityList.map((entry)  {
-            AppItem item = AppItem.fromJson(entry);
-            item.userSaved = set.contains(item.detail.appDetail.packageName);
-            return item;
-          }).toList();
-
-//          _searchAppModel.searchAppList.forEach((item) {
-//            log('package name: ${item.detail.appDetail.packageName}');
-//          });
-        });
-      }
-    });
-  }
-
-  @override
-  startAddAppItem(SearchAppItemModel model) {
-    UserSetting.sInstance.then((setting) {
-      List<String> list = setting.savedAppItem;
-      if (!model.appItem.userSaved) {
-        list.add(model.appItem.detail.appDetail.packageName);
-      } else {
-        list.remove(model.appItem.detail.appDetail.packageName);
-      }
-      setting.savedAppItem = list;
-      model.appItem.userSaved = !model.appItem.userSaved;
-      model.update();
-    });
-  }
-
-  @override
-  startRefreshSearchHistory() {
-    UserSetting.sInstance.then((setting) {
-      _searchHistoryModel.list = setting.searchHistory;
-    });
-  }
-
-  @override
-  startAddSearchHistory(String search) {
-    if (search == null || search.isEmpty) return;
-    UserSetting.sInstance.then((setting) {
-      List<String> list = setting.searchHistory;
-      final index = list.indexOf(search);
-      if (index >= 0) {
-        list.removeAt(index);
-      }
-      list.insert(0, search);
-      setting.searchHistory = list;
-    });
-  }
-
-  @override
-  startClearHistory() {
-    UserSetting.sInstance.then((setting) {
-      setting.searchHistory = [];
-      _searchHistoryModel.list = [];
-    });
-  }
 }

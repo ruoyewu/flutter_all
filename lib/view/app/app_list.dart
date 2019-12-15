@@ -1,11 +1,13 @@
 import 'package:all/base/base_state.dart';
 import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/model/app_model.dart';
+import 'package:all/model/user_theme.dart';
 import 'package:all/presenter/article_list_presenter.dart';
 import 'package:all/presenter/contract/app_contract.dart';
 import 'package:all/utils/date_format.dart';
 import 'package:all/utils/provider_consumer.dart';
 import 'package:all/view/app/app.dart';
+import 'package:all/view/widget/heart_loading.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -27,6 +29,8 @@ class _AppListWidgetState
     extends BaseState<AppListWidget, IArticleListPresenter>
     with AutomaticKeepAliveClientMixin
     implements IArticleListView {
+  UserTextTheme _userTextTheme;
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +42,7 @@ class _AppListWidgetState
 
   @override
   Widget build(BuildContext context) {
+    _userTextTheme = UserTextTheme.auto(context);
     super.build(context);
     return RefreshIndicator(
         onRefresh: () => presenter.startLoadMore(isRefresh: true),
@@ -49,7 +54,7 @@ class _AppListWidgetState
                 if (index < model.articleList.length) {
                   return buildItem(model.articleList[index]);
                 } else {
-                  return buildLoading();
+                  return buildLoading(model.hasMore);
                 }
               });
         }));
@@ -57,7 +62,7 @@ class _AppListWidgetState
 
   Widget buildItem(ArticleListItem item) {
     return InkWell(
-      onTap: () => widget.onArticleItemTap(item),
+      onTap: () => widget.onArticleItemTap(item, list: presenter.articleListModel.articleList),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -82,7 +87,7 @@ class _AppListWidgetState
           alignment: Alignment.center,
           child: Text(
             "-  " + item.subEntry[0].tag[0].tagName + "  -",
-            style: TextStyle(fontSize: 14, color: Colors.blueGrey),
+            style: _userTextTheme.itemTag
           ),
         ),
       ));
@@ -92,7 +97,7 @@ class _AppListWidgetState
         item.subEntry[0].title,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(fontSize: 18, color: Colors.black87),
+        style: _userTextTheme.itemTitle
       ));
     }
     if (item.subEntry[0].author != null) {
@@ -101,7 +106,7 @@ class _AppListWidgetState
             (item.subEntry[0].author == null
                 ? ''
                 : item.subEntry[0].author.name),
-        style: TextStyle(fontSize: 14, color: Colors.grey),
+        style: _userTextTheme.itemAuthor
       ));
     }
     return Column(
@@ -132,7 +137,7 @@ class _AppListWidgetState
         item.subEntry[0].snippet,
         overflow: TextOverflow.ellipsis,
         maxLines: 3,
-        style: TextStyle(fontSize: 15, color: Colors.black54),
+        style: _userTextTheme.itemForward
       ));
     }
     return Column(
@@ -152,7 +157,7 @@ class _AppListWidgetState
               DateUtil.formatMillis(
                   item.subEntry[0].datePublished, 'YYYY/MM/dd HH:mm:ss'),
               textAlign: TextAlign.end,
-              style: TextStyle(fontSize: 13, color: Colors.grey),
+              style: _userTextTheme.itemTime
             ),
           )
         ],
@@ -160,16 +165,10 @@ class _AppListWidgetState
     );
   }
 
-  Widget buildLoading() {
-    presenter.startLoadMore();
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: Text(
-        "loading",
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 15),
-      ),
-    );
+  Widget buildLoading(bool hasMore) {
+    if (hasMore) {
+      presenter.startLoadMore();
+    }
+    return HeartLoadingBar(isLoading: hasMore,);
   }
 }

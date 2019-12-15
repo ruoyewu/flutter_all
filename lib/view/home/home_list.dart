@@ -1,4 +1,5 @@
 import 'package:all/model/bean/qingmang_bean.dart';
+import 'package:all/model/user_theme.dart';
 import 'package:all/presenter/contract/home_contract.dart';
 import 'package:all/view/widget/widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,9 +13,11 @@ class HomeListWidget extends StatelessWidget {
   IHomePresenter presenter;
   final List<AppItem> appItemList;
   final OnItemTapCallback onItemTap;
+  UserTextTheme _userTextTheme;
 
   @override
   Widget build(BuildContext context) {
+    _userTextTheme = UserTextTheme.auto(context);
     return ListView.builder(
         itemCount: appItemList.length,
         itemBuilder: (context, index) {
@@ -57,7 +60,7 @@ class HomeListWidget extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: ListTile(
-                title: Text(item.title),
+                title: Text(item.title, style: _userTextTheme.title,),
                 leading: CircleAvatar(
                   backgroundImage: NetworkImage(item.icon),
                 )),

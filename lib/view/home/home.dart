@@ -4,15 +4,16 @@ import 'package:all/base/base_state.dart';
 import 'package:all/model/bean/qingmang_bean.dart' hide ResultIcons;
 import 'package:all/model/model/home_model.dart';
 import 'package:all/model/ui_data.dart';
+import 'package:all/model/user_color.dart';
 import 'package:all/presenter/contract/home_contract.dart';
 import 'package:all/presenter/home_presenter.dart';
 import 'package:all/utils/provider_consumer.dart';
 import 'package:all/view/home/home_list.dart';
+import 'package:all/view/search/search.dart';
+import 'package:all/view/user/user.dart';
 import 'package:all/view/widget/widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import 'home_search.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -24,8 +25,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends BaseState<HomePage, IHomePresenter>
     with SingleTickerProviderStateMixin
     implements IHomeView {
-
   BuildContext _snackbarContext;
+  int _showIndex = 0;
 
   @override
   void initState() {
@@ -50,44 +51,84 @@ class _HomePageState extends BaseState<HomePage, IHomePresenter>
 
   @override
   Widget build(BuildContext context) {
+    UserColor userColor = UserColor.auto(context);
     return Scaffold(
-        appBar: AppBar(
-          title: Text("ALL"),
-          actions: <Widget>[
-            IconButton(
-              onPressed: () {
-                showSearch<String>(
-                        context: context, delegate: HomeSearchWidget(presenter))
-                    .then((result) {
-                  presenter.startRefresh();
-                });
-              },
-              icon: Icon(Icons.search),
-            ),
-          ],
+        bottomNavigationBar: BottomNavigationBar(
+          elevation: 3,
+          backgroundColor: userColor.highlightBackgroundColor,
+          currentIndex: _showIndex,
+          showUnselectedLabels: false,
+          showSelectedLabels: false,
+          items: _bottomItems(),
+          selectedIconTheme: IconThemeData(color: Colors.blueGrey, size: 28),
+          unselectedIconTheme: IconThemeData(size: 24),
+          onTap: (index) {
+            setState(() {
+              _showIndex = index;
+            });
+          },
         ),
-        body: Stack(
-          children: <Widget>[
-            container(context),
-            buttons(context),
-          ],
-        ));
+        body: Stack(children: <Widget>[
+          IndexedStack(
+            index: _showIndex,
+            children: <Widget>[container(context), SearchPage(), UserPage()],
+          ),
+//          Align(
+//            alignment: Alignment.bottomCenter,
+//            child: ClipRect(
+//              child: BackdropFilter(
+//                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+//                child: Opacity(
+//                  opacity: 0.8,
+//                  child: BottomNavigationBar(
+//                    currentIndex: _showIndex,
+//                    showUnselectedLabels: false,
+//                    showSelectedLabels: false,
+//                    items: _bottomItems(),
+//                    selectedIconTheme: IconThemeData(
+//                      color: Colors.blueGrey,
+//                    ),
+//                    selectedLabelStyle: TextStyle(color: Colors.blueGrey),
+//                    onTap: (index) {
+//                      setState(() {
+//                        _showIndex = index;
+//                      });
+//                    },
+//                  ),
+//                ),
+//              ),
+//            ),
+//          )
+        ]));
   }
 
   Widget container(BuildContext context) {
-    return ProviderConsumer<HomeListModel>(
-        presenter.homeListModel,
-        (context, model, _) => RefreshIndicator(
-              onRefresh: presenter.startRefresh,
-              child: HomeListWidget(
-                presenter,
-                model.appItemList,
-                onItemTap: (AppItem item) {
-                  Navigator.pushNamed(context, UIData.ROUTE_APP,
-                      arguments: item);
-                },
-              ),
-            ));
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("ALL"),
+      ),
+      body: ProviderConsumer<HomeListModel>(
+          presenter.homeListModel,
+          (context, model, _) => RefreshIndicator(
+                onRefresh: presenter.startRefresh,
+                child: HomeListWidget(
+                  presenter,
+                  model.appItemList,
+                  onItemTap: (AppItem item) {
+                    Navigator.pushNamed(context, UIData.ROUTE_APP,
+                        arguments: item);
+                  },
+                ),
+              )),
+    );
+  }
+
+  List<BottomNavigationBarItem> _bottomItems() {
+    return [
+      BottomNavigationBarItem(icon: Icon(Icons.home), title: Text('首页')),
+      BottomNavigationBarItem(icon: Icon(Icons.search), title: Text('发现')),
+      BottomNavigationBarItem(icon: Icon(Icons.person), title: Text('用户')),
+    ];
   }
 
   Widget buttons(BuildContext context) {
@@ -131,7 +172,7 @@ class _HomePageState extends BaseState<HomePage, IHomePresenter>
                   heroTag: "fab_add",
                   child: Icon(
                     Icons.add,
-                    color: Colors.white70,
+//                    color: Colors.white70,
                   ),
                   onPressed: this.presenter.startFabAnimation,
                 ),

@@ -1,20 +1,20 @@
 import 'dart:convert';
 
-import 'package:all/model/bean/all_api.dart';
 import 'package:all/model/bean/net_result.dart';
 import 'package:all/model/bean/qingmang_result.dart';
 import 'package:all/model/ui_data.dart';
 import 'package:all/model/url.dart';
+import 'package:all/utils/decive_utils.dart';
 import 'package:all/utils/network.dart';
 import 'package:dio/dio.dart';
 
 class RemoteData {
   static Network get _network => Network.sInstance;
 
-  static Future<AllApi> api() async {
-    final response = await _network.get(UIData.URL_API);
-    return AllApi.fromJson(response.data);
-  }
+//  static Future<AllApi> api() async {
+//    final response = await _network.get(UIData.URL_API);
+//    return AllApi.fromJson(response.data);
+//  }
 
 //  static Future<ArticleList> articleList(
 //      String app, String category, String page) async {
@@ -40,6 +40,7 @@ class RemoteData {
   static Future<NetResult> login(String id, String password) async {
     final response = await _network
         .get(UIData.URL_LOGIN, query: {'id': id, 'password': password});
+    response.headers;
     return NetResult.fromJson(response.data);
   }
 
@@ -122,7 +123,7 @@ class RemoteData {
   }
   
   static Future<Result> searchApp(String search) async {
-    final response = await _network.get(Url.SEARCH, query: {
+    final response = await _network.get(DeviceUtil.isWeb ? URL.PROXY_SEARCH : URL.SEARCH, query: {
       'query': search,
       'appOnly': true
     });
@@ -130,7 +131,7 @@ class RemoteData {
   }
 
   static Future<Result> articleList(int start, int max, int providerId) async {
-    final response = await _network.get(Url.ARTICLE, query: {
+    final response = await _network.get(DeviceUtil.isWeb ? URL.PROXY_ARTICLE : URL.ARTICLE, query: {
       'start': start,
       'max': max,
       'providerId': providerId
@@ -138,8 +139,8 @@ class RemoteData {
     return Result.fromJson(json.decode(response.data));
   }
 
-  static Future<Result> articleDetail(int id, String template) async {
-    final response = await _network.get(Url.ARTICLE, query: {
+  static Future<Result> articleDetail(String id, String template) async {
+    final response = await _network.get(DeviceUtil.isWeb ? URL.PROXY_ARTICLE : URL.PROXY_ARTICLE, query: {
       'docid': id,
       'template': template
     });
@@ -152,7 +153,7 @@ class RemoteData {
   }
 
   static Future<Result> appDetail(String pns) async {
-    final response = await _network.get(Url.APP_DETAIL, query: {
+    final response = await _network.get(DeviceUtil.isWeb ? URL.PROXY_APP_DETAIL : URL.APP_DETAIL, query: {
       'pns': pns
     });
     return Result.fromJson(json.decode(response.data));

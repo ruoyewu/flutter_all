@@ -1,4 +1,5 @@
 import 'package:all/model/ui_data.dart';
+import 'package:all/model/user_theme.dart';
 import 'package:all/view/app/app.dart';
 import 'package:all/view/detail/article_detail.dart';
 import 'package:all/view/home/home.dart';
@@ -12,31 +13,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primaryColor: Colors.white,
-        primarySwatch: Colors.blueGrey,
-        primaryColorDark: Colors.grey,
-        fontFamily: 'Siyuansong',
-      ),
-//    theme: CupertinoThemeData(
-//      primaryColor: Colors.white,
-//      primaryContrastingColor: Colors.blueGrey,
-//      textTheme: CupertinoTextThemeData(
-//        textStyle: TextStyle(
-//          fontFamily: 'siyuansong'
-//        )
-//      )
-//    ),
+      title: 'All',
+      theme: UserTheme.light(),
+      darkTheme: UserTheme.dark(),
       home: HomePage(),
       routes: <String, WidgetBuilder>{
         UIData.ROUTE_HOME: (context) => HomePage(),
         UIData.ROUTE_APP: (context) => AppPage(),
-        UIData.ROUTE_ARTICLE_DETAIL: (context) => ArticleDetailPage(),
+        UIData.ROUTE_ARTICLE_DETAIL: (context) => ArticleDetailListPage(),
         UIData.ROUTE_WEB: (context) => WebPage(),
         UIData.ROUTE_USER: (context) => UserPage(),
         UIData.ROUTE_SETTING: (context) => SettingPage(),

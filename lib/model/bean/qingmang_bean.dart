@@ -1199,9 +1199,10 @@ class ArticleContentItem {
 class ResultText {
   List<Markup> markups;
   String lineType;
+  String alignment;
   String text;
 
-  ResultText({this.markups, this.text, this.lineType});
+  ResultText({this.markups, this.text, this.lineType, this.alignment});
 
   factory ResultText.fromJson(Map<String, dynamic> json) {
     return ResultText(
@@ -1210,6 +1211,7 @@ class ResultText {
           : null,
       lineType: json['linetype'],
       text: json['text'],
+      alignment: json['align']
     );
   }
 
@@ -1217,6 +1219,7 @@ class ResultText {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['text'] = this.text;
     data['linetype'] = this.lineType;
+    data['align'] = this.alignment;
     if (this.markups != null) {
       data['markups'] = this.markups.map((v) => v.toJson()).toList();
     }

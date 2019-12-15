@@ -8,7 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-typedef OnArticleItemTap = Function(ArticleListItem);
+typedef OnArticleItemTap = Function(ArticleListItem, {List<ArticleListItem> list});
 
 class AppPage extends StatelessWidget {
   ArticleListItemModel _articleListItemModel = ArticleListItemModel();
@@ -19,16 +19,16 @@ class AppPage extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth < 500) {
-          return _buildPage(item, (item) {
+          return _buildPage(item, (item, {list}) {
             Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL,
-                arguments: {'item': item});
+                arguments: {'index': list.indexOf(item), 'list': list});
           });
         } else {
           return Stack(
             children: <Widget>[
               SizedBox(
                 width: 350,
-                child: _buildPage(item, (item) {
+                child: _buildPage(item, (item, {list}) {
                   _articleListItemModel.articleListItem = item;
                 }),
               ),
@@ -40,6 +40,7 @@ class AppPage extends StatelessWidget {
                       _articleListItemModel, (cotext, model, _) {
                     return ArticleDetailPage(
                       item: _articleListItemModel.articleListItem,
+                      showTitle: false,
                     );
                   }),
                 ),

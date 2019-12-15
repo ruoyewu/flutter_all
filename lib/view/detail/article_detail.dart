@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:all/base/base_state.dart';
 import 'package:all/model/bean/article_comment_list_item.dart';
@@ -10,6 +9,8 @@ import 'package:all/model/model/article_comment_model.dart';
 import 'package:all/model/model/article_detail_info_model.dart';
 import 'package:all/model/model/article_detail_model.dart';
 import 'package:all/model/ui_data.dart';
+import 'package:all/model/user_color.dart';
+import 'package:all/model/user_theme.dart';
 import 'package:all/presenter/article_detail_presenter.dart';
 import 'package:all/presenter/contract/article_detail_contract.dart';
 import 'package:all/utils/date_format.dart';
@@ -23,10 +24,31 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+class ArticleDetailListPage extends StatelessWidget {
+  ArticleDetailListPage();
+
+  @override
+  Widget build(BuildContext context) {
+    Map arguments = ModalRoute.of(context).settings.arguments;
+    final list = arguments['list'];
+    final index = arguments['index'];
+
+    return PageView.builder(
+        controller: PageController(initialPage: index),
+        itemCount: list.length,
+        itemBuilder: (context, index) {
+          return ArticleDetailPage(
+            item: list[index],
+          );
+        });
+  }
+}
+
 class ArticleDetailPage extends StatefulWidget {
-  ArticleDetailPage({this.item});
+  ArticleDetailPage({this.item, this.showTitle = true});
 
   ArticleListItem item;
+  bool showTitle;
 
   @override
   State<StatefulWidget> createState() {
@@ -46,6 +68,7 @@ class _ArticleDetailState
   GlobalKey _articleKey;
   BuildContext _snackBarContext;
   bool _firstLoad = true;
+  UserColor _userColor;
 
   @override
   bool get wantKeepAlive => true;
@@ -147,15 +170,20 @@ class _ArticleDetailState
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    _userColor = UserColor.auto(context);
 
     ArticleListItem item = null;
     bool shouldRebuild = false;
-    if (ModalRoute.of(context).settings.name != UIData.ROUTE_ARTICLE_DETAIL) {
+    if (widget.item != null) {
       shouldRebuild = true;
       item = widget.item;
     } else {
-      Map arguments = ModalRoute.of(context).settings.arguments;
-      item = arguments["item"];
+      try {
+        Map arguments = ModalRoute.of(context).settings.arguments;
+        item = arguments["item"];
+      } catch (e) {
+        print(e);
+      }
     }
     if (item == null) {
       return Scaffold(
@@ -164,7 +192,6 @@ class _ArticleDetailState
     }
 
     if (_firstLoad) {
-      log('article id ${item.subEntry[0].id}');
       presenter = ArticleDetailPresenter(this, item: item);
       _firstLoad = false;
       presenter.startLoadArticle();
@@ -172,32 +199,32 @@ class _ArticleDetailState
     } else if (shouldRebuild) {
       (presenter as ArticleDetailPresenter).item = item;
       (presenter as ArticleDetailPresenter).nextComment = 0;
-      presenter.articleCommentModel.articleCommentList.list.clear();
+      presenter.articleCommentModel.articleCommentList.list?.clear();
       presenter.startLoadArticle();
       presenter.startLoadArticleInfo();
       presenter.startLoadComment();
     }
+    log('article id ${item.subEntry[0].id}');
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: shouldRebuild
-          ? null
-          : AppBar(
+      appBar: widget.showTitle
+          ? AppBar(
               title: Text(item.subEntry[0].title ?? item.title),
               actions: <Widget>[
-                if (Platform.isAndroid || Platform.isIOS)
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, UIData.ROUTE_WEB,
-                          arguments: {
-                            'url': item.subEntry[0].action.url,
-                            'title': item.subEntry[0].title
-                          });
-                    },
-                    icon: Icon(Icons.share),
-                  )
+//                if (Platform == null || Platform.isAndroid || Platform.isIOS)
+                IconButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, UIData.ROUTE_WEB, arguments: {
+                      'url': item.subEntry[0].action.url,
+                      'title': item.subEntry[0].title
+                    });
+                  },
+                  icon: Icon(Icons.share),
+                )
               ],
-            ),
+            )
+          : null,
+      bottomNavigationBar: _buildBottom(),
       body: Align(
         alignment: Alignment.center,
         child: ConstrainedBox(
@@ -237,7 +264,7 @@ class _ArticleDetailState
                   }),
                 ),
               ));
-              children.add(_buildInfo());
+//              children.add(_buildInfo());
               return Stack(
                 children: children,
               );
@@ -255,19 +282,19 @@ class _ArticleDetailState
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         child: Text(
           detail.title,
-          style: TextStyle(fontSize: 20, color: Colors.black87),
+          style: TextStyle(fontSize: 18,),
         ),
       ));
 
-      if (detail.snippet != null && detail.snippet != '') {
-        children.add(Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            "—— " + detail.snippet,
-            style: TextStyle(fontSize: 18, color: Colors.black54),
-          ),
-        ));
-      }
+//      if (detail.snippet != null && detail.snippet != '') {
+//        children.add(Align(
+//          alignment: Alignment.centerRight,
+//          child: Text(
+//            detail.snippet,
+//            style: TextStyle(fontSize: 16, color: Colors.black54),
+//          ),
+//        ));
+//      }
     }
 
     if (detail.author != null) {
@@ -275,7 +302,7 @@ class _ArticleDetailState
         alignment: Alignment.center,
         child: Text(
           detail.author.name,
-          style: TextStyle(fontSize: 14, color: Colors.black45),
+          style: TextStyle(fontSize: 14, ),
         ),
       ));
     }
@@ -306,6 +333,7 @@ class _ArticleDetailState
                         'image': url,
                         'position': positionList,
                         'scrollFunction': this.scrollToPosition,
+                        'suffix': detail.idString
                       })))
                   .then((_) {
 //              SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
@@ -315,6 +343,7 @@ class _ArticleDetailState
               Navigator.pushNamed(context, UIData.ROUTE_WEB,
                   arguments: {'title': detail.title, 'url': url});
             },
+            articleId: detail.idString,
           );
         },
       ),
@@ -331,7 +360,7 @@ class _ArticleDetailState
           child: Text('阅读原文',
               style: TextStyle(
                 fontSize: 14,
-                color: UIData.COLOR_MOUNTAIN_MIST,
+                color: UserColor.COLOR_MOUNTAIN_MIST,
               )),
         ),
       ));
@@ -339,6 +368,68 @@ class _ArticleDetailState
 
     return Column(
       children: children,
+    );
+  }
+  
+  Widget _buildBottom() {
+    final userTextTheme = UserTextTheme.auto(context);
+    return Material(
+      elevation: 5,
+      color: _userColor.highlightBackgroundColor,
+      child: SafeArea(
+        top: false,
+        child: Container(
+          height: 50,
+          child: ProviderConsumer<ArticleDetailInfoModel> (
+            presenter.articleDetailInfoModel,
+            (context, model, _) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  IconButton(
+                    onPressed: () => presenter.showEditDialog(null),
+                    icon: Icon(
+                      Icons.comment,
+                      color: _userColor.selectColor,
+                    ),
+                  ),
+                  Text(
+                    model.articleInfo.commentNum.toString(),
+                    style: userTextTheme.little,
+                  ),
+                  IconButton(
+                    onPressed: presenter.startCollect,
+                    icon: Icon(
+                      model.articleInfo.isCollect
+                        ? Icons.bookmark : Icons.bookmark_border,
+                      color: _userColor.selectColor,
+                    ),
+                  ),
+                  Text(
+                    model.articleInfo.collectNum.toString(),
+                    style: userTextTheme.little,
+                  ),
+                  IconButton(
+                    onPressed: presenter.startPraise,
+                    icon: Icon(model.articleInfo.isPraise
+                      ? Icons.favorite : Icons.favorite_border,
+                      color: _userColor.selectColor
+                    ),
+                  ),
+                  SizedBox(
+                    width: 25,
+                    child: Text(
+                      model.articleInfo.praiseNum.toString(),
+                      maxLines: 1,
+                      style: userTextTheme.little,
+                    ),
+                  )
+                ],
+              );
+            }
+          ),
+        ),
+      ),
     );
   }
 
@@ -434,7 +525,7 @@ class _ArticleDetailState
             Padding(
               padding: EdgeInsets.only(right: 16, bottom: model.offsetEdit),
               child: FloatingActionButton(
-                heroTag: 'hero_article_detail_b',
+                heroTag: 'hero_article_detail_b_${model.hashCode}',
                 onPressed: () => presenter.showEditDialog(null),
                 elevation: model.elevation,
                 child: Icon(
@@ -446,7 +537,7 @@ class _ArticleDetailState
             Padding(
               padding: EdgeInsets.only(right: 16, bottom: model.offsetCollect),
               child: FloatingActionButton(
-                heroTag: 'hero_article_detail_c',
+                heroTag: 'hero_article_detail_c_${model.hashCode}',
                 onPressed: presenter.startCollect,
                 elevation: model.elevation,
                 child: Icon(
@@ -454,7 +545,7 @@ class _ArticleDetailState
                       ? Icons.bookmark
                       : Icons.bookmark_border,
                   color: model.articleInfo.isCollect
-                      ? UIData.COLOR_CRAIL
+                      ? UserColor.COLOR_CRAIL
                       : Colors.white70,
                 ),
               ),
@@ -462,7 +553,7 @@ class _ArticleDetailState
             Padding(
               padding: EdgeInsets.only(right: 16, bottom: model.offsetFavorite),
               child: FloatingActionButton(
-                  heroTag: 'hero_article_detail_d',
+                  heroTag: 'hero_article_detail_d_${model.hashCode}',
                   onPressed: presenter.startPraise,
                   elevation: model.elevation,
                   child: Icon(
@@ -470,7 +561,7 @@ class _ArticleDetailState
                         ? Icons.favorite
                         : Icons.favorite_border,
                     color: model.articleInfo.isPraise
-                        ? UIData.COLOR_CRAIL
+                        ? UserColor.COLOR_CRAIL
                         : Colors.white70,
                   )),
             ),
@@ -479,7 +570,7 @@ class _ArticleDetailState
               child: Transform.rotate(
                 angle: model.rotateAdd,
                 child: FloatingActionButton(
-                  heroTag: 'hero_article_detail_add',
+                  heroTag: 'hero_article_detail_add_${model.hashCode}',
                   onPressed: presenter.startAnimation,
 //                  onPressed: () {
 //                    log(_key.currentContext.size.height.toString());
@@ -574,7 +665,7 @@ class _ArticleDetailState
               child: Text(
                 item.user.name,
                 style: TextStyle(
-                  color: UIData.COLOR_MOUNTAIN_MIST,
+                  color: UserColor.COLOR_MOUNTAIN_MIST,
                   fontSize: 15,
                 ),
               ),
@@ -582,7 +673,7 @@ class _ArticleDetailState
           ),
           Text(
             DateUtil.formatMillis(item.time, 'YYYY/MM/dd HH:mm:ss'),
-            style: TextStyle(color: UIData.COLOR_MOUNTAIN_MIST, fontSize: 13),
+            style: TextStyle(color: UserColor.COLOR_MOUNTAIN_MIST, fontSize: 13),
           )
         ],
       ),
@@ -600,7 +691,7 @@ class _ArticleDetailState
           '${item.parent.user.name} : ${item.parent.content}',
           maxLines: 10,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: UIData.COLOR_MOUNTAIN_MIST, fontSize: 14),
+          style: TextStyle(color: UserColor.COLOR_MOUNTAIN_MIST, fontSize: 14),
         ),
       ));
     }
@@ -608,7 +699,7 @@ class _ArticleDetailState
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Text(
         item.content,
-        style: TextStyle(color: UIData.COLOR_MONSOON, fontSize: 14),
+        style: TextStyle(color: UserColor.COLOR_MONSOON, fontSize: 14),
       ),
     ));
     return Column(
@@ -637,8 +728,8 @@ class _ArticleDetailState
                           ? Icons.favorite
                           : Icons.favorite_border,
                       color: item.articleCommentListItem.isPraise
-                          ? UIData.COLOR_CRAIL
-                          : UIData.COLOR_MOUNTAIN_MIST,
+                          ? UserColor.COLOR_CRAIL
+                          : UserColor.COLOR_MOUNTAIN_MIST,
                       size: 20),
                   Padding(
                     padding: const EdgeInsets.only(left: 5),
@@ -663,7 +754,7 @@ class _ArticleDetailState
                 mainAxisAlignment: MainAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Icon(Icons.edit, color: UIData.COLOR_MOUNTAIN_MIST, size: 20),
+                  Icon(Icons.edit, color: UserColor.COLOR_MOUNTAIN_MIST, size: 20),
                   Padding(
                     padding: const EdgeInsets.only(left: 5),
                     child: SizedBox(
@@ -697,13 +788,13 @@ class _ArticleDetailState
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.all(Radius.circular(5)),
-          border: Border.all(color: UIData.COLOR_MERCURY, width: 1),
+          border: Border.all(color: UserColor.COLOR_MERCURY, width: 1),
         ),
         child: Text(
           '${parent.user.name} : ${parent.content}',
           maxLines: 5,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: UIData.COLOR_MOUNTAIN_MIST, fontSize: 14),
+          style: TextStyle(color: UserColor.COLOR_MOUNTAIN_MIST, fontSize: 14),
         ),
       ));
     }
@@ -717,7 +808,7 @@ class _ArticleDetailState
         controller: _commentEditController,
         minLines: 5,
         maxLines: 8,
-        style: TextStyle(color: UIData.COLOR_MONSOON, height: 1.5),
+        style: TextStyle(color: UserColor.COLOR_MONSOON, height: 1.5),
         decoration: InputDecoration(
           labelText: '写下你的评论...',
         ),

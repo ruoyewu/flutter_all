@@ -69,6 +69,9 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   void dispose() {
     super.dispose();
     _articleDetailModel.dispose();
+    _articleDetailInfoModel.dispose();
+    _articleCommentModel.dispose();
+    _animationController.dispose();
   }
 
   @override
@@ -106,11 +109,12 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   void startLoadArticle() {
     int startTime = Timeline.now;
     int endTime = startTime + 500000;
-    RemoteData.articleDetail(item.subEntry[0].id, 'raml').then((result) {
+    RemoteData.articleDetail(item.subEntry[0].idString, 'raml').then((result) {
       if (isDisposed) return;
       if (result.isSuccessful) {
         int delay = endTime - Timeline.now;
         Future.delayed(Duration(microseconds: delay), () {
+          if (isDisposed) return;
           _articleDetailModel.articleDetail =
               ArticleDetail.fromJson(result.entityList[0]);
           Future.delayed(Duration(milliseconds: 100), () {
@@ -140,6 +144,7 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   @override
   startLoadComment() {
     RemoteData.artileComment(article, nextComment).then((result) {
+      if (isDisposed) return;
       if (result.successful) {
         ArticleCommentList list = ArticleCommentList.fromJson(result.info);
         nextComment = list.next;
@@ -194,6 +199,7 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   @override
   startSendComment(int parent, String comment,
       {ArticleCommentItemModel model = null}) {
+    if (isDisposed) return;
     if (comment == null || comment.length == 0) {
       view.onResultInfo('评论不能为空');
       return;
@@ -248,6 +254,7 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   @override
   startPraiseComment(ArticleCommentItemModel model) {
     RemoteData.praiseComment(model.articleCommentListItem.id).then((result) {
+      if (isDisposed) return;
       if (result.successful) {
         ArticleCommentListItem item = model.articleCommentListItem;
         item.isPraise = result.info;

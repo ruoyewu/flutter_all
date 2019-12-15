@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 class UIData {
   static const ROUTE_HOME = "/home";
   static const ROUTE_SETTING = "/setting";
@@ -12,11 +10,6 @@ class UIData {
 
   static const SIZE_FAB = 56;
   static const OFFSET_DEFAULT = 16;
-
-  static const COLOR_CRAIL = Color(0xFFB94C40);
-  static const COLOR_MOUNTAIN_MIST = Color(0xFF959595);
-  static const COLOR_MONSOON = Color(0xFF787878);
-  static const COLOR_MERCURY = Color(0xFFE7E5E5);
 
   // net
   static const URL_BASE = "http://all.wuruoye.com/";
@@ -37,13 +30,7 @@ class UIData {
   static const CODE_NOT_LOGIN = 401;
 }
 
-enum ArticleOpenType {
-  NONE,
-  ARTICLE,
-  ORIGINAL_URL,
-  IMAGE,
-  VIDEO
-}
+enum ArticleOpenType { NONE, ARTICLE, ORIGINAL_URL, IMAGE, VIDEO }
 
 enum ArticleItemType {
   NONE,

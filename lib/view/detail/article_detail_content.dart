@@ -1,7 +1,8 @@
 import 'dart:developer';
 
 import 'package:all/model/bean/qingmang_bean.dart';
-import 'package:all/model/ui_data.dart';
+import 'package:all/model/user_color.dart';
+import 'package:all/model/user_theme.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -14,8 +15,9 @@ typedef OnImagePress = void Function(
 
 class ArticleDetailContentWidget extends StatefulWidget {
   ArticleDetailContentWidget(this.articleContent,
-      {this.onLinkPress, this.onImagePress});
+      {this.onLinkPress, this.onImagePress, this.articleId = ''});
 
+  final articleId;
   final articleContent;
   OnLinkPress onLinkPress;
   OnImagePress onImagePress;
@@ -31,6 +33,9 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
   List<String> _imageList;
   Map<String, GlobalKey> _imageKeyMap;
   GlobalKey _globalKey;
+
+  UserColor _userColor;
+  UserTextTheme _userTextTheme;
 
   @override
   void initState() {
@@ -73,6 +78,8 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
 
   @override
   Widget build(BuildContext context) {
+    _userColor = UserColor.auto(context);
+    _userTextTheme = UserTextTheme.auto(context);
     _imageList.clear();
 
     List<Widget> children = List();
@@ -121,6 +128,12 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
         case 'aside':
           children.add(_buildAside(text));
           break;
+        case 'pre':
+          children.add(_buildPre(text));
+          break;
+        case 'big':
+          children.add(_buildBold(text));
+          break;
         default:
           log('not found lineType: ${item.text.lineType}');
       }
@@ -141,6 +154,9 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
           case 'img':
             children.add(
                 _buildImageSpan(markup.source, markup.width, markup.height));
+            break;
+          case 'em':
+            children.add(_buildEm(text.substring(markup.start, markup.end)));
             break;
           default:
             log('not found markup tag: ${markup.tag}');
@@ -167,71 +183,77 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
     }
 
     if (item.li != null) {
-      result = _buildLi(result);
+      result = _buildLi(result, item.li);
     }
 
     if (item.blockQuote != null && item.blockQuote == 1) {
       result = _buildQuote(result);
     }
 
-    return Padding(
+    result = Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       child: result,
     );
+
+    if (item.text.lineType != null && item.text.lineType == 'pre') {
+      result = DecoratedBox(
+        decoration: BoxDecoration(color: Colors.black12),
+        child: result,
+      );
+    }
+
+    if (item.text.alignment != null) {
+      result = _buildAlign(result, item.text.alignment);
+    }
+
+    return result;
   }
 
   InlineSpan _buildNormalText(String info) {
     return TextSpan(
         text: info,
-        style: TextStyle(
-          fontSize: 17,
-          height: 1.5,
-          color: Colors.black87,
-        ));
+        style: _userTextTheme.normal);
+  }
+
+  InlineSpan _buildH1(String info) {
+    return TextSpan(
+        text: info,
+        style: _userTextTheme.h1);
   }
 
   InlineSpan _buildH2(String info) {
     return TextSpan(
         text: info,
-        style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: Colors.black,
-            height: 1.8));
+        style: _userTextTheme.h2);
   }
 
   InlineSpan _buildH3(String info) {
     return TextSpan(
         text: info,
-        style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
-            height: 1.7));
+        style: _userTextTheme.h3);
   }
 
   InlineSpan _buildAside(String info) {
     return TextSpan(
+        text: info, style: _userTextTheme.aside);
+  }
+
+  InlineSpan _buildPre(String info) {
+    return TextSpan(
         text: info,
-        style: TextStyle(color: UIData.COLOR_MONSOON, fontSize: 16));
+        style: _userTextTheme.pre);
   }
 
   InlineSpan _buildBold(String info) {
     return TextSpan(
         text: info,
-        style: TextStyle(
-            fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black87));
+        style: _userTextTheme.bold);
   }
 
   InlineSpan _buildLink(String info, String url) {
     return TextSpan(
         text: info,
-        style: TextStyle(
-            fontSize: 16,
-            color: UIData.COLOR_MOUNTAIN_MIST,
-            fontWeight: FontWeight.bold,
-            decoration: TextDecoration.underline,
-            decorationColor: UIData.COLOR_MOUNTAIN_MIST),
+        style: _userTextTheme.link,
         recognizer: TapGestureRecognizer()
           ..onTap = () {
             if (widget.onLinkPress != null) {
@@ -240,9 +262,16 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
           });
   }
 
+  InlineSpan _buildEm(String info) {
+    return TextSpan(
+      text: info,
+      style: _userTextTheme.em
+    );
+  }
+
   InlineSpan _buildImageSpan(String url, int width, int height) {
     _imageList.add(url);
-    final tag = url + _imageList.length.toString();
+    final tag = _genImageTag(url, _imageList.length-1, widget.articleId);
     final key = _imageKeyMap.containsKey(tag)
         ? _imageKeyMap[tag]
         : GlobalObjectKey(tag);
@@ -264,7 +293,7 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
   Widget _buildImage(ArticleContentItem item) {
     final image = item.image.source;
     _imageList.add(image);
-    final tag = image + _imageList.length.toString();
+    final tag = _genImageTag(image, _imageList.length-1, widget.articleId);
     final key = _imageKeyMap.containsKey(tag)
         ? _imageKeyMap[tag]
         : GlobalObjectKey(tag);
@@ -296,41 +325,38 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
   }
 
   Widget _buildVideo(String url, String cover, String title) {
-    var videoUrl = url.substring(url.lastIndexOf('http'));
-    log('video url is: $videoUrl, url is: $url');
-//    videoUrl = 'https://v.qq.com/iframe/preview.html?width=500&height=375&auto=0&vid=t0507oeieo3';
-
     return Chewie(
       controller: _genController(url, cover),
     );
   }
 
-  Widget _buildLi(Widget widget) {
+  Widget _buildLi(Widget child, Li li) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  width: 2,
-                  color: Colors.blueGrey,
-                )),
-          ),
-        ),
+        li.type == 'ol'
+            ? Text(li.order.toString() + '.')
+            : Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        width: 2,
+                        color: Colors.blueGrey,
+                      )),
+                ),
+              ),
         Expanded(
-          child:
-              Padding(padding: const EdgeInsets.only(left: 8), child: widget),
+          child: Padding(padding: const EdgeInsets.only(left: 8), child: child),
         )
       ],
     );
   }
 
-  Widget _buildQuote(Widget widget) {
+  Widget _buildQuote(Widget child) {
     return Container(
         alignment: Alignment.centerLeft,
         child: IntrinsicHeight(
@@ -338,19 +364,37 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               SizedBox(
-                  width: 6,
+                  width: 5,
                   height: double.infinity,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                        shape: BoxShape.rectangle, color: Colors.blueGrey),
+                        shape: BoxShape.rectangle, color: _userColor.quoteColor),
                   )),
               Expanded(
                 child: Padding(
-                    padding: const EdgeInsets.only(left: 8), child: widget),
+                    padding: const EdgeInsets.only(left: 8), child: child),
               ),
             ],
           ),
         ));
+  }
+
+  Widget _buildAlign(Widget child, String align) {
+    var alignment;
+    switch (align) {
+      case 'center':
+        alignment = Alignment.center;
+        break;
+      default:
+        log('miss alignment $align');
+        alignment = Alignment.centerLeft;
+        break;
+    }
+
+    return Align(
+      alignment: alignment,
+      child: child,
+    );
   }
 
   ChewieController _genController(String url, String cover) {
@@ -382,5 +426,9 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
       _controllerMap[url] = controller;
       return controller;
     }
+  }
+
+  String _genImageTag(image, index, suffix) {
+    return '${image}_${index}_${suffix}';
   }
 }

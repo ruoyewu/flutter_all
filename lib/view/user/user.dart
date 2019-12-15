@@ -1,3 +1,4 @@
+
 import 'dart:ui';
 
 import 'package:all/base/base_state.dart';
@@ -94,8 +95,10 @@ class _UserPageState extends BaseState<UserPage, IUserPresenter>
                     return <Widget>[
                       SliverAppBar(
                         pinned: true,
+                        snap: true,
+                        floating: true,
                         expandedHeight: 300,
-                        title: Text(''),
+                        title: Text('title'),
                         flexibleSpace: FlexibleSpaceBar(
                           key: _key,
                           background: Stack(

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 
 class ArticleListModel with ChangeNotifier {
   List<ArticleListItem> _articleList = List();
+  bool hasMore = true;
 
   List<ArticleListItem> get articleList => _articleList;
 

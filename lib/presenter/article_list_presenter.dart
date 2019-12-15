@@ -6,10 +6,7 @@ import 'package:all/presenter/contract/app_contract.dart';
 class ArticleListPresenter extends IArticleListPresenter {
   ArticleListPresenter(IArticleListView view, this.channel) : super(view);
 
-//  final app;
-//  final category;
   AppChannel channel;
-//  int start = 0;
   String nextUrl;
 
   ArticleListModel _articleListModel;
@@ -32,9 +29,10 @@ class ArticleListPresenter extends IArticleListPresenter {
   Future<void> startLoadMore({bool isRefresh = false}) {
     if (isRefresh || nextUrl == null) {
       return RemoteData.articleList(0, 10, channel.id).then((result) {
-        if (result.hasData) {
-          List<ArticleListItem> list = result.entityList.map((entry) => ArticleListItem.fromJson(entry)).toList();
+        if (result.isSuccessful) {
+          List<ArticleListItem> list = result.hasData ? result.entityList.map((entry) => ArticleListItem.fromJson(entry)).toList() : List();
           _articleListModel.articleList = list;
+          _articleListModel.hasMore = result.hasMore;
           nextUrl = result.nextUrl;
         }
       });
@@ -43,6 +41,7 @@ class ArticleListPresenter extends IArticleListPresenter {
         if (result.isSuccessful) {
           List<ArticleListItem> list = result.entityList.map((entry) => ArticleListItem.fromJson(entry)).toList();
           _articleListModel.addAll(list);
+          _articleListModel.hasMore = result.hasMore;
           if (result.hasMore) {
             nextUrl = result.nextUrl;
           } else {
