@@ -688,6 +688,18 @@ class ArticleListItem {
   String templateType;
   String title;
 
+  bool get hasCover => (subEntry[0].cover != null || subEntry[0].image != null);
+  String get coverImg {
+    if (subEntry[0].cover != null) {
+      return subEntry[0].cover[0].url;
+    } else if (subEntry[0].image != null) {
+      return subEntry[0].image[0].url;
+    }
+    return null;
+  }
+  bool get hasTitle => subEntry[0].title != null;
+  bool get hasAuthor => subEntry[0].author != null;
+
   ArticleListItem({
     this.channel,
     this.contentType,

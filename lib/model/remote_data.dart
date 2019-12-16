@@ -148,6 +148,9 @@ class RemoteData {
   }
 
   static Future<Result> request(String url) async {
+    if (DeviceUtil.isWeb) {
+      url = url.replaceFirst(URL.QINGMANG_HOST, URL.WEB_HOST);
+    }
     final response = await _network.get(url);
     return Result.fromJson(json.decode(response.data));
   }

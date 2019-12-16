@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/user_theme.dart';
 import 'package:all/presenter/contract/home_contract.dart';
@@ -18,7 +16,6 @@ class HomeListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log('build home list');
     _userTextTheme = UserTextTheme.auto(context);
     return ListView.builder(
         itemCount: appItemList?.length?? 0,

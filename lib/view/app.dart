@@ -9,8 +9,10 @@ import 'package:all/view/not_found_page.dart';
 import 'package:all/view/search/recommend_list.dart';
 import 'package:all/view/search/section_list.dart';
 import 'package:all/view/setting/setting.dart';
+import 'package:all/view/test/test.dart';
 import 'package:all/view/user/user.dart';
 import 'package:all/view/web/web.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MyApp extends StatelessWidget {
@@ -20,6 +22,9 @@ class MyApp extends StatelessWidget {
       title: 'All',
       theme: UserTheme.light(),
       darkTheme: UserTheme.dark(),
+//    theme: CupertinoThemeData(
+//
+//    ),
       home: HomePage(),
       routes: <String, WidgetBuilder>{
         UIData.ROUTE_HOME: (context) => HomePage(),
@@ -32,6 +37,7 @@ class MyApp extends StatelessWidget {
         UIData.ROUTE_IMAGE: (context) => ImagePage(),
         UIData.ROUTE_SECTION: (context) => SectionListPage(),
         UIData.ROUTE_RECOMMEND_LIST: (context) => RecommendListPage(),
+        UIData.ROUTE_TEST: (context) => TestPage(),
       },
       onUnknownRoute: (RouteSettings rs) =>
           MaterialPageRoute(builder: (context) => NotFoundPage()),

@@ -8,6 +8,7 @@ class UserSetting {
 	static const AUTO_SHOW_DETAIL_BAR = 'auto_show_detail_bar';
 	static const USER_APP = 'user_app';
 	static const SEARCH_HISTORY = 'search_history';
+	static const ARTICLE_LIST_TYPE = 'article_list_type';
 
 	static UserSetting _sInstance;
 	SharedPreferences _sp;
@@ -70,6 +71,12 @@ class UserSetting {
 
 	set searchHistory(List<String> items) {
 		_sp.setStringList(SEARCH_HISTORY, items);
+	}
+
+	int get articleListType => _sp.getInt(ARTICLE_LIST_TYPE)?? 2;
+
+	set articleListType(int type) {
+		_sp.setInt(ARTICLE_LIST_TYPE, type);
 	}
 
 	static _getSP() async {

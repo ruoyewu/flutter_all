@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:all/base/base_state.dart';
 import 'package:all/model/bean/qingmang_bean.dart' hide ResultIcons;
 import 'package:all/model/model/app_list_model.dart';
@@ -13,6 +11,7 @@ import 'package:all/view/home/home_list.dart';
 import 'package:all/view/search/search.dart';
 import 'package:all/view/user/user.dart';
 import 'package:all/view/widget/widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -37,11 +36,6 @@ class _HomePageState extends BaseState<HomePage, IHomePresenter>
   }
 
   @override
-  void showDialog(String msg) {
-    log(msg);
-  }
-
-  @override
   void onResultInfo(String info) {
     Widgets.showSnackBar(_snackbarContext, info);
   }
@@ -52,6 +46,22 @@ class _HomePageState extends BaseState<HomePage, IHomePresenter>
   @override
   Widget build(BuildContext context) {
     UserColor userColor = UserColor.auto(context);
+//    return CupertinoPageScaffold(
+//      navigationBar: CupertinoNavigationBar(
+//
+//      ),
+//      child: CupertinoTabScaffold(
+//        tabBar: CupertinoTabBar(
+//          backgroundColor: UserColor.COLOR_TRANSPARENT_ALABASTER.withAlpha(220),
+//          items: _bottomItems(),
+//        ),
+//        tabBuilder: (context, index) {
+//          return Material(
+//            child: _buildPages()[index],
+//          );
+//        },
+//      ),
+//    );
     return Scaffold(
         bottomNavigationBar: BottomNavigationBar(
           elevation: 3,
@@ -73,41 +83,33 @@ class _HomePageState extends BaseState<HomePage, IHomePresenter>
             index: _showIndex,
             children: <Widget>[container(context), SearchPage(), UserPage()],
           ),
-//          Align(
-//            alignment: Alignment.bottomCenter,
-//            child: ClipRect(
-//              child: BackdropFilter(
-//                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-//                child: Opacity(
-//                  opacity: 0.8,
-//                  child: BottomNavigationBar(
-//                    currentIndex: _showIndex,
-//                    showUnselectedLabels: false,
-//                    showSelectedLabels: false,
-//                    items: _bottomItems(),
-//                    selectedIconTheme: IconThemeData(
-//                      color: Colors.blueGrey,
-//                    ),
-//                    selectedLabelStyle: TextStyle(color: Colors.blueGrey),
-//                    onTap: (index) {
-//                      setState(() {
-//                        _showIndex = index;
-//                      });
-//                    },
-//                  ),
-//                ),
-//              ),
-//            ),
-//          )
         ]));
   }
 
   Widget container(BuildContext context) {
-    presenter.startRefresh();
-    log('build container');
+//    return ProviderConsumer<AppListModel>(
+//      presenter.homeListModel,
+//        (context, model, _) => HomeListWidget(
+//          presenter,
+//          model.appItemList,
+//          onItemTap: (AppItem item) {
+//            Navigator.pushNamed(context, UIData.ROUTE_APP,
+//              arguments: item);
+//          },
+//        ));
     return Scaffold(
       appBar: AppBar(
         title: Text("ALL"),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, UIData.ROUTE_TEST).then((_) {
+                presenter.startRefresh();
+              });
+            },
+            icon: Icon(Icons.settings),
+          )
+        ],
       ),
       body: ProviderConsumer<AppListModel>(
           presenter.homeListModel,
@@ -130,6 +132,12 @@ class _HomePageState extends BaseState<HomePage, IHomePresenter>
       BottomNavigationBarItem(icon: Icon(Icons.home), title: Text('首页')),
       BottomNavigationBarItem(icon: Icon(Icons.search), title: Text('发现')),
       BottomNavigationBarItem(icon: Icon(Icons.person), title: Text('用户')),
+    ];
+  }
+
+  List<Widget> _buildPages() {
+    return [
+      container(context), SearchPage(), UserPage()
     ];
   }
 

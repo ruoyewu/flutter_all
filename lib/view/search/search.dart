@@ -34,7 +34,10 @@ class _SearchPageState extends BaseState<SearchPage, ISearchPresenter>
 
   @override
   Widget build(BuildContext context) {
-    _userTextTheme = UserTextTheme.auto(context);
+//    _userTextTheme = UserTextTheme.auto(context);
+//    return ListView(
+//      children: <Widget>[_buildRecommend(), _buildSections()],
+//    );
     return Scaffold(
       appBar: AppBar(
         title: Text('发现'),

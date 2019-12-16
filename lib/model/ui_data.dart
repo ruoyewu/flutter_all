@@ -9,6 +9,7 @@ class UIData {
   static const ROUTE_WEB = "/web";
   static const ROUTE_IMAGE = '/img';
   static const ROUTE_LOGIN = '/login';
+  static const ROUTE_TEST = '/test';
 
   static const SIZE_FAB = 56;
   static const OFFSET_DEFAULT = 16;

@@ -1,7 +1,8 @@
 import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/bean/qingmang_result.dart';
-import 'package:all/model/model/article_list.dart';
+import 'package:all/model/model/article_list_model.dart';
 import 'package:all/model/remote_data.dart';
+import 'package:all/model/user_setting.dart';
 import 'package:all/presenter/contract/recommend_contract.dart';
 
 class RecomendPresenter extends IRecommendPresenter {
@@ -15,6 +16,9 @@ class RecomendPresenter extends IRecommendPresenter {
   void initModel() {
     super.initModel();
     _articleListModel = ArticleListModel();
+    UserSetting.sInstance.then((setting) {
+      _articleListModel.type = setting.articleListType;
+    });
   }
 
   @override

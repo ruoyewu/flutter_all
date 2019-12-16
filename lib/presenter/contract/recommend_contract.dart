@@ -1,6 +1,6 @@
 import 'package:all/base/base_presenter.dart';
 import 'package:all/base/base_view.dart';
-import 'package:all/model/model/article_list.dart';
+import 'package:all/model/model/article_list_model.dart';
 
 abstract class IRecommendView extends BaseView {
 

@@ -55,6 +55,8 @@ class UserColor {
   static const Color COLOR_HUNTER_GREEN = Color(0xFF171717);
   static const Color COLOR_ONYX = Color(0xFF0E0E0E);
   static const Color COLOR_BLACK = Color(0xFF000000);
+
+  static const Color COLOR_TRANSPARENT_ALABASTER = Color(0xAAFCFCFC);
   static const Color COLOR_TRANSPARENT_BLACK = Color(0x88000000);
 
   static Color _getColor(BuildContext context, Color light, Color dark) {

@@ -7,7 +7,6 @@ import 'package:all/model/model/home_model.dart';
 import 'package:flutter/material.dart';
 
 abstract class IHomeView extends BaseView {
-  void showDialog(String msg);
   void onResultInfo(String info);
 
   TickerProvider get tickerProvider;

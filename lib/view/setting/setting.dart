@@ -1,66 +1,46 @@
-import 'package:flutter/cupertino.dart';
+import 'package:all/base/base_state.dart';
+import 'package:all/presenter/contract/setting_contract.dart';
+import 'package:all/presenter/setting_presenter.dart';
 import 'package:flutter/material.dart';
 
 class SettingPage extends StatefulWidget {
-	@override
+  @override
   State<StatefulWidget> createState() {
     return _SettingPageState();
   }
 }
 
-class _SettingPageState extends State<SettingPage> {
-	@override
+class _SettingPageState extends BaseState<SettingPage, ISettingPresenter>
+    implements ISettingView {
+
+  @override
+  void initState() {
+    super.initState();
+    presenter = SettingPresenter(this);
+  }
+
+  @override
   Widget build(BuildContext context) {
-		return DefaultTabController(
-			length: 5,
-		  child: Scaffold(
-		  	appBar: AppBar(
-				  bottom: TabBar(
-					  tabs: _buildTabs(5)),
-			  ),
-		  	body: PageView.builder(
-		  		itemCount: 5,
-		  		itemBuilder: (context, index) {
-		  			return _Page();
-		  	}),
-		  ),
-		);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('设置'),
+      ),
+      body: _buildBody(),
+    );
   }
 
-  _buildTabs(int count) {
-		List<Widget> children = List();
-		for (int i = 0; i < count; i++) {
-			children.add(Tab(text: i.toString(),));
-		}
-		return children;
+  Widget _buildBody() {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+
+        ],
+      ),
+    );
   }
-}
 
-class _Page extends StatefulWidget {
-	@override
-  State<StatefulWidget> createState() {
-    return _PageState();
-  }
-}
+  Widget _buildArticleListType() {
 
-class _PageState extends State<_Page> with AutomaticKeepAliveClientMixin {
-
-	@override
-  bool get wantKeepAlive => true;
-
-	@override
-  Widget build(BuildContext context) {
-		super.build(context);
-		return RefreshIndicator(
-			onRefresh: () {
-				return Future.value(true);
-			},
-		  child: ListView.builder(
-		  	itemCount: 50,
-		  	itemBuilder: (context, index) {
-		  		return ListTile(title: Text(index.toString()),);
-		  	},
-		  ),
-		);
   }
 }

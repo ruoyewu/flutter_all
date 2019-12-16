@@ -1,6 +1,6 @@
 import 'package:all/base/base_state.dart';
 import 'package:all/model/bean/qingmang_bean.dart';
-import 'package:all/model/model/article_list.dart';
+import 'package:all/model/model/article_list_model.dart';
 import 'package:all/presenter/article_list_presenter.dart';
 import 'package:all/presenter/contract/app_contract.dart';
 import 'package:all/utils/provider_consumer.dart';
@@ -49,6 +49,7 @@ class _AppListWidgetState
             onArticleItemTap: (item, list) =>
                 widget.onArticleItemTap(item, list),
             onLoadingMore: presenter.startLoadMore,
+            type: model.type,
           );
         }));
   }

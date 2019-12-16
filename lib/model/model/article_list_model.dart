@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class ArticleListModel with ChangeNotifier {
   List<ArticleListItem> _articleList = List();
   bool hasMore = true;
+  int type = 2;
 
   List<ArticleListItem> get articleList => _articleList;
 

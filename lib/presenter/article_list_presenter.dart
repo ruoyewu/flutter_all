@@ -1,6 +1,7 @@
 import 'package:all/model/bean/qingmang_bean.dart';
-import 'package:all/model/model/article_list.dart';
+import 'package:all/model/model/article_list_model.dart';
 import 'package:all/model/remote_data.dart';
+import 'package:all/model/user_setting.dart';
 import 'package:all/presenter/contract/app_contract.dart';
 
 class ArticleListPresenter extends IArticleListPresenter {
@@ -14,6 +15,9 @@ class ArticleListPresenter extends IArticleListPresenter {
   @override
   void initModel() {
     _articleListModel = ArticleListModel();
+    UserSetting.sInstance.then((setting) {
+      _articleListModel.type = setting.articleListType;
+    });
   }
 
   @override

@@ -1,34 +1,45 @@
+import 'package:all/model/user_color.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class TestPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return CupertinoPageScaffold(
-      child: CustomScrollView(
-        slivers: <Widget>[
-          CupertinoSliverNavigationBar(
-            largeTitle: Text('test'),
+    return CupertinoApp(
+      home: CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+
+        ),
+        child: CupertinoTabScaffold(
+          tabBar: CupertinoTabBar(
+            backgroundColor: UserColor.COLOR_TRANSPARENT_ALABASTER.withAlpha(220),
+            items: [
+              BottomNavigationBarItem(icon: Icon(Icons.home), title: Text('首页')),
+              BottomNavigationBarItem(icon: Icon(Icons.search), title: Text('发现')),
+              BottomNavigationBarItem(icon: Icon(Icons.person), title: Text('用户')),
+            ],
           ),
-          CupertinoSliverRefreshControl(
-            onRefresh: () {
-              return Future.delayed(Duration(seconds: 2));
-            },
-          ),
-          SliverSafeArea(
-            top: false,
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                return Text(
-                  index.toString(),
-                  style: TextStyle(color: Colors.black),
-                );
-              }, childCount: 10),
-            ),
-          )
-        ],
-      ),
+          tabBuilder: (context, index) {
+            return ListView.builder(
+              itemCount: 100,
+              itemBuilder: (context, index) {
+              return Material(
+                child: InkWell(
+                  onTap: () {
+
+                  },
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.black,
+                    ),
+                    title: Text(index.toString()),
+                  ),
+                ),
+              );
+            });
+          },
+        ),
+      )
     );
   }
 }

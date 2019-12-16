@@ -152,9 +152,9 @@ class UserTextTheme extends TextTheme {
         color: UserColor.COLOR_MONSOON,
       ),
       itemForward:
-          const TextStyle(fontSize: 15, color: UserColor.COLOR_MINE_SHAFT),
+          const TextStyle(fontSize: 14, color: UserColor.COLOR_MOUNTAIN_MIST),
       itemTime:
-          const TextStyle(fontSize: 13, color: UserColor.COLOR_MOUNTAIN_MIST),
+          const TextStyle(fontSize: 12, color: UserColor.COLOR_MOUNTAIN_MIST),
       itemTag: const TextStyle(fontSize: 14, color: UserColor.COLOR_HOKI));
 
   final TextStyle normal;
