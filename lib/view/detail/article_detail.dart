@@ -20,7 +20,6 @@ import 'package:all/view/detail/article_detail_content.dart';
 import 'package:all/view/image/image.dart';
 import 'package:all/view/widget/heart_loading.dart';
 import 'package:all/view/widget/widget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -226,7 +225,7 @@ class _ArticleDetailState
           : null,
       bottomNavigationBar: _buildBottom(),
       body: Align(
-        alignment: Alignment.center,
+        alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: MAX_WIDTH),
           child: Builder(

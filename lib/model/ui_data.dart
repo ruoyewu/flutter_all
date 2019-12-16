@@ -4,6 +4,8 @@ class UIData {
   static const ROUTE_USER = "/user";
   static const ROUTE_APP = "/app";
   static const ROUTE_ARTICLE_DETAIL = "/article_detail";
+  static const ROUTE_SECTION = '/section';
+  static const ROUTE_RECOMMEND_LIST = '/recomment_list';
   static const ROUTE_WEB = "/web";
   static const ROUTE_IMAGE = '/img';
   static const ROUTE_LOGIN = '/login';

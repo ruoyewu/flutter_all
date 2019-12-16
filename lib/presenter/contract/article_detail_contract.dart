@@ -5,7 +5,7 @@ import 'package:all/model/model/article_comment_item_model.dart';
 import 'package:all/model/model/article_comment_model.dart';
 import 'package:all/model/model/article_detail_info_model.dart';
 import 'package:all/model/model/article_detail_model.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 abstract class IArticleDetailView extends BaseView {
   TickerProvider get tickerProvider;

@@ -1,7 +1,9 @@
 import 'package:all/model/bean/qingmang_bean.dart';
+import 'package:all/model/model/search_all_section_model.dart';
 import 'package:all/model/model/search_app_item_model.dart';
 import 'package:all/model/model/search_app_model.dart';
 import 'package:all/model/model/search_history_model.dart';
+import 'package:all/model/model/search_recommend_model.dart';
 import 'package:all/model/remote_data.dart';
 import 'package:all/model/user_setting.dart';
 import 'package:all/presenter/contract/search_contract.dart';
@@ -11,23 +13,26 @@ class SearchPresenter extends ISearchPresenter {
 
 	SearchAppModel _searchAppModel;
 	SearchHistoryModel _searchHistoryModel;
+	SearchRecommendModel _searchRecommendModel;
+	SearchAllSectionModel _searchAllSectionModel;
 	String _lastSearch;
 
 	@override
   void initModel() {
-    // TODO: implement initModel
-
 		_searchAppModel = SearchAppModel();
 		_searchHistoryModel = SearchHistoryModel();
+		_searchRecommendModel = SearchRecommendModel();
+		_searchAllSectionModel = SearchAllSectionModel();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
 
     _searchHistoryModel.dispose();
     _searchAppModel.dispose();
+    _searchRecommendModel.dispose();
+    _searchAllSectionModel.dispose();
   }
 
 
@@ -37,6 +42,11 @@ class SearchPresenter extends ISearchPresenter {
 	@override
 	SearchHistoryModel get searchHistoryModel => _searchHistoryModel;
 
+	@override
+  SearchRecommendModel get searchRecommendModel => _searchRecommendModel;
+
+	@override
+  SearchAllSectionModel get searchAllSectionModel => _searchAllSectionModel;
 
 	@override
 	startSearch(String search) {
@@ -103,4 +113,40 @@ class SearchPresenter extends ISearchPresenter {
 			_searchHistoryModel.list = [];
 		});
 	}
+
+	@override
+  startLoadRecommend() {
+		RemoteData.recommend().then((result) {
+			if (result.isSuccessful) {
+				List<ResultRecommend> list = result.entityList.map((item) => ResultRecommend.fromJson(item)).toList();
+				_searchRecommendModel.list = list;
+			}
+		});
+  }
+
+  @override
+  startLoadSections() {
+		RemoteData.allSection().then((result) {
+			if (result.isSuccessful) {
+				List<Section> list = result.entityList.map((item) => Section.fromJson(item)).toList();
+				UserSetting.sInstance.then((setting) {
+					Set<String> saved = setting.savedAppItem.toSet();
+					Set<Section> delete = Set();
+					for (Section section in list) {
+						if (section.subEntity == null) {
+							delete.add(section);
+							continue;
+						}
+						for (AppItem item in section.subEntity) {
+							item.userSaved = saved.contains(item.detail.appDetail.packageName);
+						}
+					}
+					for (Section section in delete) {
+						list.remove(section);
+					}
+					_searchAllSectionModel.list = list;
+				});
+			}
+		});
+  }
 }

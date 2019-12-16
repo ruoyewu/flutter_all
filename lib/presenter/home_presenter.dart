@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:all/model/bean/qingmang_bean.dart';
+import 'package:all/model/model/app_list_model.dart';
 import 'package:all/model/model/home_model.dart';
 import 'package:all/model/remote_data.dart';
 import 'package:all/model/ui_data.dart';
@@ -14,7 +15,7 @@ class HomePresenter extends IHomePresenter {
   static const int ANIMATION_DURATION = 300;
 
   HomeFabAnimationModel _homeFabAnimationModel;
-  HomeListModel _homeListModel;
+  AppListModel _homeListModel;
 
   AnimationController _animationFab;
   bool _isAnimationFabForward = true;
@@ -24,7 +25,7 @@ class HomePresenter extends IHomePresenter {
   @override
   void initModel() {
     _homeFabAnimationModel = HomeFabAnimationModel();
-    _homeListModel = HomeListModel();
+    _homeListModel = AppListModel();
   }
 
   @override
@@ -63,7 +64,7 @@ class HomePresenter extends IHomePresenter {
   HomeFabAnimationModel get homeFabAnimationModel => _homeFabAnimationModel;
 
   @override
-  HomeListModel get homeListModel => _homeListModel;
+  AppListModel get homeListModel => _homeListModel;
 
   @override
   void startFabAnimation() {

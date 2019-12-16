@@ -4,7 +4,6 @@ import 'package:all/model/ui_data.dart';
 import 'package:all/model/user_color.dart';
 import 'package:all/presenter/contract/user_contract.dart';
 import 'package:all/utils/provider_consumer.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UserCollectionWidget extends StatelessWidget {

@@ -5,7 +5,6 @@ import 'package:all/presenter/login_presenter.dart';
 import 'package:all/view/login/login_login.dart';
 import 'package:all/view/login/login_register.dart';
 import 'package:all/view/widget/widget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {

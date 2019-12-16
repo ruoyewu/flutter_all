@@ -4,7 +4,6 @@ import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/user_color.dart';
 import 'package:all/model/user_theme.dart';
 import 'package:chewie/chewie.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -210,44 +209,31 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
   }
 
   InlineSpan _buildNormalText(String info) {
-    return TextSpan(
-        text: info,
-        style: _userTextTheme.normal);
+    return TextSpan(text: info, style: _userTextTheme.normal);
   }
 
   InlineSpan _buildH1(String info) {
-    return TextSpan(
-        text: info,
-        style: _userTextTheme.h1);
+    return TextSpan(text: info, style: _userTextTheme.h1);
   }
 
   InlineSpan _buildH2(String info) {
-    return TextSpan(
-        text: info,
-        style: _userTextTheme.h2);
+    return TextSpan(text: info, style: _userTextTheme.h2);
   }
 
   InlineSpan _buildH3(String info) {
-    return TextSpan(
-        text: info,
-        style: _userTextTheme.h3);
+    return TextSpan(text: info, style: _userTextTheme.h3);
   }
 
   InlineSpan _buildAside(String info) {
-    return TextSpan(
-        text: info, style: _userTextTheme.aside);
+    return TextSpan(text: info, style: _userTextTheme.aside);
   }
 
   InlineSpan _buildPre(String info) {
-    return TextSpan(
-        text: info,
-        style: _userTextTheme.pre);
+    return TextSpan(text: info, style: _userTextTheme.pre);
   }
 
   InlineSpan _buildBold(String info) {
-    return TextSpan(
-        text: info,
-        style: _userTextTheme.bold);
+    return TextSpan(text: info, style: _userTextTheme.bold);
   }
 
   InlineSpan _buildLink(String info, String url) {
@@ -263,15 +249,12 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
   }
 
   InlineSpan _buildEm(String info) {
-    return TextSpan(
-      text: info,
-      style: _userTextTheme.em
-    );
+    return TextSpan(text: info, style: _userTextTheme.em);
   }
 
   InlineSpan _buildImageSpan(String url, int width, int height) {
     _imageList.add(url);
-    final tag = _genImageTag(url, _imageList.length-1, widget.articleId);
+    final tag = _genImageTag(url, _imageList.length - 1, widget.articleId);
     final key = _imageKeyMap.containsKey(tag)
         ? _imageKeyMap[tag]
         : GlobalObjectKey(tag);
@@ -293,7 +276,7 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
   Widget _buildImage(ArticleContentItem item) {
     final image = item.image.source;
     _imageList.add(image);
-    final tag = _genImageTag(image, _imageList.length-1, widget.articleId);
+    final tag = _genImageTag(image, _imageList.length - 1, widget.articleId);
     final key = _imageKeyMap.containsKey(tag)
         ? _imageKeyMap[tag]
         : GlobalObjectKey(tag);
@@ -304,19 +287,16 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
         padding: const EdgeInsets.symmetric(vertical: 10),
       );
     } else {
-      return Padding(
+      return GestureDetector(
         key: key,
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: GestureDetector(
-          onTap: () => onImageTap(image),
-          child: SizedBox(
-            width: double.infinity,
-            child: Hero(
-              tag: tag,
-              child: Image.network(
-                image,
-                fit: BoxFit.cover,
-              ),
+        onTap: () => onImageTap(image),
+        child: SizedBox(
+          width: double.infinity,
+          child: Hero(
+            tag: tag,
+            child: Image.network(
+              image,
+              fit: BoxFit.cover,
             ),
           ),
         ),
@@ -368,7 +348,8 @@ class _ArticleDetailContentState extends State<ArticleDetailContentWidget> {
                   height: double.infinity,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                        shape: BoxShape.rectangle, color: _userColor.quoteColor),
+                        shape: BoxShape.rectangle,
+                        color: _userColor.quoteColor),
                   )),
               Expanded(
                 child: Padding(

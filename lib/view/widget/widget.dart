@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class Widgets {
   static BoxDecoration get buttonBoxDecoration => BoxDecoration(
-        border: Border.all(color: Colors.black12, width: 1),
+        border: Border.all(color: UserColor.COLOR_PALE_SLATE, width: 1),
       );
 
   static SnackBar defaultSnackBar(String info) => SnackBar(

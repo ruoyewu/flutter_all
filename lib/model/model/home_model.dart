@@ -1,5 +1,4 @@
-import 'package:all/model/bean/qingmang_bean.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class HomeFabAnimationModel with ChangeNotifier {
   double _offsetSetting = 16;
@@ -25,17 +24,6 @@ class HomeFabAnimationModel with ChangeNotifier {
     _scaleSetting = scaleSetting;
     _offsetSetting = offsetSetting;
     _rotateAdd = rotateAdd;
-    notifyListeners();
-  }
-}
-
-class HomeListModel with ChangeNotifier {
-  List<AppItem> _appItemList = List();
-
-  List<AppItem> get appItemList => _appItemList;
-
-  set appItemList(List<AppItem> value) {
-    _appItemList = value;
     notifyListeners();
   }
 }

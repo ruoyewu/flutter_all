@@ -1,8 +1,9 @@
+import 'dart:developer';
+
 import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/user_theme.dart';
 import 'package:all/presenter/contract/home_contract.dart';
 import 'package:all/view/widget/widget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 typedef OnItemTapCallback = void Function(AppItem item);
@@ -17,9 +18,10 @@ class HomeListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log('build home list');
     _userTextTheme = UserTextTheme.auto(context);
     return ListView.builder(
-        itemCount: appItemList.length,
+        itemCount: appItemList?.length?? 0,
         itemBuilder: (context, index) {
           return item(context, index);
         });

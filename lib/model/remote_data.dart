@@ -130,7 +130,7 @@ class RemoteData {
     return Result.fromJson(json.decode(response.data));
   }
 
-  static Future<Result> articleList(int start, int max, int providerId) async {
+  static Future<Result> articleList(int providerId, {int start = 0, int max = 20}) async {
     final response = await _network.get(DeviceUtil.isWeb ? URL.PROXY_ARTICLE : URL.ARTICLE, query: {
       'start': start,
       'max': max,
@@ -155,6 +155,36 @@ class RemoteData {
   static Future<Result> appDetail(String pns) async {
     final response = await _network.get(DeviceUtil.isWeb ? URL.PROXY_APP_DETAIL : URL.APP_DETAIL, query: {
       'pns': pns
+    });
+    return Result.fromJson(json.decode(response.data));
+  }
+
+  static Future<Result> recommend() async {
+    final response = await _network.get(DeviceUtil.isWeb ? URL.PROXY_RECOMMEND : URL.RECOMMEND);
+    return Result.fromJson(json.decode(response.data));
+  }
+
+  static Future<Result> allSection() async {
+    final response = await _network.get(DeviceUtil.isWeb ? URL.PROXY_ALL_SECTION : URL.ALL_SECTION, query: {
+      'appCount': 8,
+      'max': 20
+    });
+    return Result.fromJson(json.decode(response.data));
+  }
+
+  static Future<Result> section(int id, {int max = 20}) async {
+    final response = await _network.get(DeviceUtil.isWeb ? URL.PROXY_SECTION : URL.SECTION, query: {
+      'sectionId': id,
+      'max': max
+    });
+    return Result.fromJson(json.decode(response.data));
+  }
+
+  static Future<Result> recommendList(String name, {int max = 20, String url = URL.RECOMMEND_LIST}) async {
+    final response = await _network.get((DeviceUtil.isWeb ? URL.WEB_HOST : URL.QINGMANG_HOST) + url, query: {
+//      'enName': name,
+      if (url == URL.RECOMMEND_LIST) 'enName': name,
+      'max': max
     });
     return Result.fromJson(json.decode(response.data));
   }

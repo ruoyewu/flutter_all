@@ -1,5 +1,5 @@
 import 'package:all/model/bean/qingmang_bean.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class ArticleListItemModel extends ChangeNotifier {
 	ArticleListItem _articleListItem;

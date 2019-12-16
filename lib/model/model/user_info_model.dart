@@ -1,5 +1,5 @@
 import 'package:all/model/bean/user_info.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class UserInfoModel extends ChangeNotifier {
 	UserInfoModel() {

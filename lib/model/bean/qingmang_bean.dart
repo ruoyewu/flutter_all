@@ -184,85 +184,6 @@ class IconImage {
   }
 }
 
-class ApplicationDetail {
-  List<AppChannel> channel;
-  String contentType;
-  Detail detail;
-  int followCount;
-  String icon;
-  IconImage iconImage;
-  int id;
-  String idString;
-  bool subscribed;
-  bool supportRipple;
-  String tagLine;
-  String templateType;
-  String title;
-
-  ApplicationDetail(
-      {this.channel,
-      this.contentType,
-      this.detail,
-      this.followCount,
-      this.icon,
-      this.iconImage,
-      this.id,
-      this.idString,
-      this.subscribed,
-      this.supportRipple,
-      this.tagLine,
-      this.templateType,
-      this.title});
-
-  factory ApplicationDetail.fromJson(Map<String, dynamic> json) {
-    return ApplicationDetail(
-      channel: json['channel'] != null
-          ? (json['channel'] as List)
-              .map((i) => AppChannel.fromJson(i))
-              .toList()
-          : null,
-      contentType: json['content_type'],
-      detail: json['detail'] != null ? Detail.fromJson(json['detail']) : null,
-      followCount: json['follow_count'],
-      icon: json['icon'],
-      iconImage: json['icon_image'] != null
-          ? IconImage.fromJson(json['icon_image'])
-          : null,
-      id: json['id'],
-      idString: json['id_string'],
-      subscribed: json['subscribed'],
-      supportRipple: json['support_ripple'],
-      tagLine: json['tag_line'],
-      templateType: json['template_type'],
-      title: json['title'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['content_type'] = this.contentType;
-    data['follow_count'] = this.followCount;
-    data['icon'] = this.icon;
-    data['id'] = this.id;
-    data['id_string'] = this.idString;
-    data['subscribed'] = this.subscribed;
-    data['support_ripple'] = this.supportRipple;
-    data['tag_line'] = this.tagLine;
-    data['template_type'] = this.templateType;
-    data['title'] = this.title;
-    if (this.channel != null) {
-      data['channel'] = this.channel.map((v) => v.toJson()).toList();
-    }
-    if (this.detail != null) {
-      data['detail'] = this.detail.toJson();
-    }
-    if (this.iconImage != null) {
-      data['icon_image'] = this.iconImage.toJson();
-    }
-    return data;
-  }
-}
-
 class Detail {
   AppDetail appDetail;
   IosAppDetail iosAppDetail;
@@ -711,27 +632,6 @@ class ResultImage {
     data['rgbs'] = this.rgbs;
     data['url'] = this.url;
     data['width'] = this.width;
-    return data;
-  }
-}
-
-class Action {
-  int type;
-  String url;
-
-  Action({this.type, this.url});
-
-  factory Action.fromJson(Map<String, dynamic> json) {
-    return Action(
-      type: json['type'],
-      url: json['url'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['type'] = this.type;
-    data['url'] = this.url;
     return data;
   }
 }
@@ -1332,6 +1232,110 @@ class ResultMedia {
         data['cover'] = this.cover;
         data['source'] = this.source;
         data['title'] = this.title;
+        return data;
+    }
+}
+
+class ResultRecommend {
+    Action action;
+    String contentType;
+    List<Cover> cover;
+    int id;
+    String templateType;
+    String title;
+
+    ResultRecommend({this.action, this.contentType, this.cover, this.id, this.templateType, this.title});
+
+    factory ResultRecommend.fromJson(Map<String, dynamic> json) {
+        return ResultRecommend(
+            action: json['action'] != null ? Action.fromJson(json['action']) : null,
+            contentType: json['content_type'],
+            cover: json['cover'] != null ? (json['cover'] as List).map((i) => Cover.fromJson(i)).toList() : null,
+            id: json['id'],
+            templateType: json['template_type'],
+            title: json['title'],
+        );
+    }
+
+    Map<String, dynamic> toJson() {
+        final Map<String, dynamic> data = new Map<String, dynamic>();
+        data['content_type'] = this.contentType;
+        data['id'] = this.id;
+        data['template_type'] = this.templateType;
+        data['title'] = this.title;
+        if (this.action != null) {
+            data['action'] = this.action.toJson();
+        }
+        if (this.cover != null) {
+            data['cover'] = this.cover.map((v) => v.toJson()).toList();
+        }
+        return data;
+    }
+}
+
+class Section {
+    Action action;
+    String contentType;
+    String description;
+    int id;
+    List<AppItem> subEntity;
+    String subTitle;
+    String templateType;
+    String title;
+
+    Section({this.action, this.contentType, this.description, this.id, this.subEntity, this.subTitle, this.templateType, this.title});
+
+    factory Section.fromJson(Map<String, dynamic> json) {
+        return Section(
+            action: json['action'] != null ? Action.fromJson(json['action']) : null,
+            contentType: json['content_type'],
+            description: json['description'],
+            id: json['id'],
+            subEntity: json['sub_entity'] != null ? (json['sub_entity'] as List).map((i) => AppItem.fromJson(i)).toList() : null,
+            subTitle: json['sub_title'],
+            templateType: json['template_type'],
+            title: json['title'],
+        );
+    }
+
+    Map<String, dynamic> toJson() {
+        final Map<String, dynamic> data = new Map<String, dynamic>();
+        data['content_type'] = this.contentType;
+        data['description'] = this.description;
+        data['id'] = this.id;
+        data['sub_title'] = this.subTitle;
+        data['template_type'] = this.templateType;
+        data['title'] = this.title;
+        if (this.action != null) {
+            data['action'] = this.action.toJson();
+        }
+        if (this.subEntity != null) {
+            data['sub_entity'] = this.subEntity.map((v) => v.toJson()).toList();
+        }
+        return data;
+    }
+}
+
+class Action {
+    String intent;
+    String text;
+    String url;
+
+    Action({this.intent, this.text, this.url});
+
+    factory Action.fromJson(Map<String, dynamic> json) {
+        return Action(
+            intent: json['intent'],
+            text: json['text'],
+            url: json['url'],
+        );
+    }
+
+    Map<String, dynamic> toJson() {
+        final Map<String, dynamic> data = new Map<String, dynamic>();
+        data['intent'] = this.intent;
+        data['text'] = this.text;
+        data['url'] = this.url;
         return data;
     }
 }

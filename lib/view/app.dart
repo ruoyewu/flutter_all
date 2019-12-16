@@ -6,10 +6,11 @@ import 'package:all/view/home/home.dart';
 import 'package:all/view/image/image.dart';
 import 'package:all/view/login/login.dart';
 import 'package:all/view/not_found_page.dart';
+import 'package:all/view/search/recommend_list.dart';
+import 'package:all/view/search/section_list.dart';
 import 'package:all/view/setting/setting.dart';
 import 'package:all/view/user/user.dart';
 import 'package:all/view/web/web.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MyApp extends StatelessWidget {
@@ -29,6 +30,8 @@ class MyApp extends StatelessWidget {
         UIData.ROUTE_SETTING: (context) => SettingPage(),
         UIData.ROUTE_LOGIN: (context) => LoginPage(),
         UIData.ROUTE_IMAGE: (context) => ImagePage(),
+        UIData.ROUTE_SECTION: (context) => SectionListPage(),
+        UIData.ROUTE_RECOMMEND_LIST: (context) => RecommendListPage(),
       },
       onUnknownRoute: (RouteSettings rs) =>
           MaterialPageRoute(builder: (context) => NotFoundPage()),

@@ -1,5 +1,5 @@
 import 'package:all/presenter/contract/user_contract.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class UserHistoryWidget extends StatelessWidget {
 	UserHistoryWidget(this.presenter);

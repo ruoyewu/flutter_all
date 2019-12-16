@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:all/base/base_state.dart';
 import 'package:all/model/bean/qingmang_bean.dart' hide ResultIcons;
+import 'package:all/model/model/app_list_model.dart';
 import 'package:all/model/model/home_model.dart';
 import 'package:all/model/ui_data.dart';
 import 'package:all/model/user_color.dart';
@@ -12,7 +13,6 @@ import 'package:all/view/home/home_list.dart';
 import 'package:all/view/search/search.dart';
 import 'package:all/view/user/user.dart';
 import 'package:all/view/widget/widget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -103,11 +103,13 @@ class _HomePageState extends BaseState<HomePage, IHomePresenter>
   }
 
   Widget container(BuildContext context) {
+    presenter.startRefresh();
+    log('build container');
     return Scaffold(
       appBar: AppBar(
         title: Text("ALL"),
       ),
-      body: ProviderConsumer<HomeListModel>(
+      body: ProviderConsumer<AppListModel>(
           presenter.homeListModel,
           (context, model, _) => RefreshIndicator(
                 onRefresh: presenter.startRefresh,

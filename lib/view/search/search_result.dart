@@ -9,8 +9,8 @@ import 'package:all/view/widget/heart_loading.dart';
 import 'package:all/view/widget/widget.dart';
 import 'package:flutter/material.dart';
 
-class HomeSearchWidget extends SearchDelegate<String> {
-  HomeSearchWidget(this.presenter) : super(searchFieldLabel: '请输入搜索内容...');
+class SearchResult extends SearchDelegate<String> {
+  SearchResult(this.presenter) : super(searchFieldLabel: '请输入搜索内容...');
 
   ISearchPresenter presenter;
 
@@ -98,8 +98,8 @@ class HomeSearchWidget extends SearchDelegate<String> {
                                     decoration: Widgets.buttonBoxDecoration,
                                     child: Icon(
                                       itemModel.appItem.userSaved
-                                          ? Icons.clear
-                                          : Icons.check,
+                                          ? Icons.check
+                                          : Icons.add,
                                       color: UserColor.COLOR_MOUNTAIN_MIST,
                                     )),
                               ),

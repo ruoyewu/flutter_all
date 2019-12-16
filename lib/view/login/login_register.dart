@@ -3,7 +3,6 @@ import 'package:all/model/model/login_verify_model.dart';
 import 'package:all/presenter/contract/login_contract.dart';
 import 'package:all/utils/provider_consumer.dart';
 import 'package:all/view/widget/widget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class LoginRegisterWidget extends StatelessWidget {

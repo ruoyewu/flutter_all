@@ -1,5 +1,4 @@
 import 'package:all/view/widget/widget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UserNotLoginWidget extends StatelessWidget {
