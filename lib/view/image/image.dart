@@ -13,6 +13,7 @@ class ImagePage extends StatefulWidget {
 class _ImageWidgetState extends State<ImagePage>
     with SingleTickerProviderStateMixin {
   static const MAX_OFFSET = 80;
+  static const MAX_VELOCITY = 800;
 
   PageController _pageController;
   List<String> _imageList;
@@ -97,7 +98,8 @@ class _ImageWidgetState extends State<ImagePage>
           log('${details.localPosition.dx}');
         },
         onVerticalDragEnd: (details) {
-          if (_translateY.abs() > MAX_OFFSET) {
+          log('velocity: ${details.primaryVelocity}');
+          if (_translateY.abs() > MAX_OFFSET || details.primaryVelocity.abs() > MAX_VELOCITY) {
             Navigator.pop(context);
           } else {
             _startTranslateY = _translateY;

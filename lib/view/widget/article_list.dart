@@ -50,7 +50,7 @@ class ArticleListWidget extends StatelessWidget {
 }
 
 class ArticleListItemWidget extends StatelessWidget {
-  ArticleListItemWidget(this.item, {this.onArticleItemTap, this.type = 2});
+  ArticleListItemWidget(this.item, {this.onArticleItemTap, this.type = 1});
   ArticleListItem item;
   int type;
   GestureTapCallback onArticleItemTap;
@@ -64,9 +64,9 @@ class ArticleListItemWidget extends StatelessWidget {
 
   Widget buildItem(ArticleListItem item, BuildContext context) {
     switch (type) {
-      case 1:
+      case 0:
         return _buildType1(item, context);
-      case 2:
+      case 1:
         return _buildType2(item, context);
     }
   }

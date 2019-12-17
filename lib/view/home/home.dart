@@ -101,14 +101,14 @@ class _HomePageState extends BaseState<HomePage, IHomePresenter>
       appBar: AppBar(
         title: Text("ALL"),
         actions: <Widget>[
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, UIData.ROUTE_TEST).then((_) {
-                presenter.startRefresh();
-              });
-            },
-            icon: Icon(Icons.settings),
-          )
+//          IconButton(
+//            onPressed: () {
+//              Navigator.pushNamed(context, UIData.ROUTE_SETTING).then((_) {
+//                presenter.startRefresh();
+//              });
+//            },
+//            icon: Icon(Icons.settings),
+//          )
         ],
       ),
       body: ProviderConsumer<AppListModel>(

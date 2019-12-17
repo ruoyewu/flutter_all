@@ -116,7 +116,7 @@ class SearchPresenter extends ISearchPresenter {
 
 	@override
   startLoadRecommend() {
-		RemoteData.recommend().then((result) {
+		return RemoteData.recommend().then((result) {
 			if (result.isSuccessful) {
 				List<ResultRecommend> list = result.entityList.map((item) => ResultRecommend.fromJson(item)).toList();
 				_searchRecommendModel.list = list;
@@ -126,7 +126,7 @@ class SearchPresenter extends ISearchPresenter {
 
   @override
   startLoadSections() {
-		RemoteData.allSection().then((result) {
+		return RemoteData.allSection().then((result) {
 			if (result.isSuccessful) {
 				List<Section> list = result.entityList.map((item) => Section.fromJson(item)).toList();
 				UserSetting.sInstance.then((setting) {

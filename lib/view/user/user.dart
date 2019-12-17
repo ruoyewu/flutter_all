@@ -94,10 +94,9 @@ class _UserPageState extends BaseState<UserPage, IUserPresenter>
                     return <Widget>[
                       SliverAppBar(
                         pinned: true,
-                        snap: true,
                         floating: true,
                         expandedHeight: 300,
-                        title: Text('title'),
+                        title: Text(''),
                         flexibleSpace: FlexibleSpaceBar(
                           key: _key,
                           background: Stack(

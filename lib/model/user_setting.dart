@@ -73,7 +73,7 @@ class UserSetting {
 		_sp.setStringList(SEARCH_HISTORY, items);
 	}
 
-	int get articleListType => _sp.getInt(ARTICLE_LIST_TYPE)?? 2;
+	int get articleListType => _sp.getInt(ARTICLE_LIST_TYPE)?? 1;
 
 	set articleListType(int type) {
 		_sp.setInt(ARTICLE_LIST_TYPE, type);
