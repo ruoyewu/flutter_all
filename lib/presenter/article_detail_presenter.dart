@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:math' as math;
 
 import 'package:all/base/base_view.dart';
 import 'package:all/model/bean/article_comment_list.dart';
@@ -12,10 +11,8 @@ import 'package:all/model/model/article_comment_model.dart';
 import 'package:all/model/model/article_detail_info_model.dart';
 import 'package:all/model/model/article_detail_model.dart';
 import 'package:all/model/remote_data.dart';
-import 'package:all/model/ui_data.dart';
 import 'package:all/model/user_setting.dart';
 import 'package:all/presenter/contract/article_detail_contract.dart';
-import 'package:flutter/animation.dart';
 
 class ArticleDetailPresenter extends IArticleDetailPresenter {
   static const ANIMATION_DURATION = 200;
@@ -29,7 +26,6 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   ArticleDetailModel _articleDetailModel;
   ArticleDetailInfoModel _articleDetailInfoModel;
   ArticleCommentModel _articleCommentModel;
-  AnimationController _animationController;
   bool _isAnimationForward = true;
 
   @override
@@ -40,38 +36,11 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
   }
 
   @override
-  void initView() {
-    _animationController = AnimationController(
-        duration: Duration(milliseconds: ANIMATION_DURATION),
-        vsync: view.tickerProvider);
-  }
-
-  @override
-  void initListener() {
-    _animationController.addListener(() {
-      final value = _animationController.value;
-      final offset = UIData.OFFSET_DEFAULT;
-      final height = UIData.SIZE_FAB;
-      final length = offset + height;
-
-      _articleDetailInfoModel.update(
-          value * length + offset,
-          value * length * 2 + offset,
-          value * length * 3 + offset,
-          value * (4 * length + 16) + offset + 13,
-          value * (length * 4 - 20) + offset + 13,
-          value * math.pi * 3 / 4,
-          value * 5);
-    });
-  }
-
-  @override
   void dispose() {
     super.dispose();
     _articleDetailModel.dispose();
     _articleDetailInfoModel.dispose();
     _articleCommentModel.dispose();
-    _animationController.dispose();
   }
 
   @override
@@ -85,48 +54,38 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
 
   @override
   Future<List<String>> commentDialogTitles(ArticleCommentListItem item) async {
-    return UserSetting.sInstance.then((setting) {
-      if (setting.isUserLogin && setting.loginUserId == item.user.id) {
-        return ['复制', '举报', '评论', '删除'];
-      } else {
-        return ['复制', '举报', '评论'];
-      }
-    });
+    if ((await UserSetting.isLogin.value) &&
+        (await UserSetting.loginId.value) == item.user.id) {
+      return ['复制', '举报', '评论', '删除'];
+    } else {
+      return ['复制', '举报', '评论'];
+    }
   }
 
   @override
-  showEditDialog(ArticleCommentListItem parent) {
-    UserSetting.sInstance.then((setting) {
-      if (setting.isUserLogin) {
-        view.onShowEditDialog(setting.loginUserName, parent);
-      } else {
-        view.onResultInfo('LOGIN FIRST', code: 401);
-      }
-    });
+  showEditDialog(ArticleCommentListItem parent) async {
+    if (await UserSetting.isLogin.value) {
+      view.onShowEditDialog(await UserSetting.loginUserName.value, parent);
+    } else {
+      view.onResultInfo('LOGIN FIRST', code: 401);
+    }
   }
 
   @override
-  void startLoadArticle() {
+  void startLoadArticle() async {
     int startTime = Timeline.now;
     int endTime = startTime + 500000;
-    RemoteData.articleDetail(item.subEntry[0].idString, 'raml').then((result) {
-      if (isDisposed) return;
-      if (result.isSuccessful) {
-        int delay = endTime - Timeline.now;
-        Future.delayed(Duration(microseconds: delay), () {
-          if (isDisposed) return;
-          _articleDetailModel.articleDetail =
-              ArticleDetail.fromJson(result.entityList[0]);
-          Future.delayed(Duration(milliseconds: 100), () {
-            UserSetting.sInstance.then((setting) {
-              if (setting.autoShowDetailBar) {
-                startAnimation(isOpen: true);
-              }
-            });
-          });
-        });
-      }
-    });
+    final result =
+        await RemoteData.articleDetail(item.subEntry[0].idString, 'raml');
+    if (isDisposed) return;
+    if (result.isSuccessful) {
+      int delay = endTime - Timeline.now;
+      Future.delayed(Duration(microseconds: delay), () {
+        if (isDisposed) return;
+        _articleDetailModel.articleDetail =
+            ArticleDetail.fromJson(result.entityList[0]);
+      });
+    }
   }
 
   @override
@@ -153,16 +112,6 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
         view.onResultInfo(result.info);
       }
     });
-  }
-
-  @override
-  startAnimation({bool isOpen = false}) {
-    if (_isAnimationForward || isOpen) {
-      _animationController.animateTo(1);
-    } else {
-      _animationController.animateTo(0);
-    }
-    _isAnimationForward = !_isAnimationForward;
   }
 
   @override

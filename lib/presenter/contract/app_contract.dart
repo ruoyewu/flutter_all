@@ -2,14 +2,6 @@ import 'package:all/base/base_presenter.dart';
 import 'package:all/base/base_view.dart';
 import 'package:all/model/model/article_list_model.dart';
 
-abstract class IAppView extends BaseView {
-
-}
-
-abstract class IAppPresenter extends BasePresenter<IAppView> {
-  IAppPresenter(BaseView view) : super(view);
-}
-
 abstract class IArticleListView extends BaseView {
 //  void onItemClick(ArticleListItem item);
 }

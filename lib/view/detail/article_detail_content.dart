@@ -3,14 +3,11 @@ import 'dart:developer';
 import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/user_color.dart';
 import 'package:all/model/user_theme.dart';
+import 'package:all/utils/function.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-
-typedef OnLinkPress = void Function(String url);
-typedef OnImagePress = void Function(
-    List<String> imageList, String image, List<double> imagePositionList);
 
 class ArticleDetailContentWidget extends StatefulWidget {
   ArticleDetailContentWidget(this.articleContent,

@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:all/model/bean/qingmang_bean.dart';
@@ -77,47 +76,40 @@ class HomePresenter extends IHomePresenter {
   }
 
   @override
-  Future<void> startRefresh() {
-    return UserSetting.sInstance.then((setting) {
-      String pns = '';
-      setting.savedAppItem.forEach((item) => pns += item + ',');
-      log('$pns');
-      return RemoteData.appDetail(pns).then((result) {
-        if (result.hasData) {
-          final list =
-              result.entityList.map((item) => AppItem.fromJson(item)).toList();
-          homeListModel.appItemList = list;
-        }
-      });
-    });
+  Future<void> startRefresh() async {
+    String pns = '';
+    (await UserSetting.userApp.value).forEach((item) => pns += item + ',');
+    final result = await RemoteData.appDetail(pns);
+    if (result.hasData) {
+      final list =
+          result.entityList.map((item) => AppItem.fromJson(item)).toList();
+      homeListModel.appItemList = list;
+    }
   }
 
   @override
-  startRemoveAppItem(AppItem item) {
-    UserSetting.sInstance.then((setting) {
-      final list = _homeListModel.appItemList;
-      list.remove(item);
-      _homeListModel.appItemList = list;
-      setting.savedAppItem =
-          list.map((item) => item.detail.appDetail.packageName).toList();
-    });
+  startRemoveAppItem(AppItem item) async {
+    final list = _homeListModel.appItemList;
+    list.remove(item);
+    _homeListModel.appItemList = list;
+    UserSetting.userApp.val =
+        list.map((item) => item.detail.appDetail.packageName).toList();
   }
 
   @override
-  startDefaultLogin() {
-    UserSetting.sInstance.then((setting) {
-      if (setting.isUserLogin) {
-        RemoteData.login(Encrypt.sInstance.encrypt(setting.loginUserId),
-                setting.loginUserPassword)
-            .then((result) {
-          if (!result.successful) {
-            setting.isUserLogin = false;
-            setting.loginUserId = '';
-            setting.loginUserPassword = '';
-          }
-        });
+  startDefaultLogin() async {
+    final isLogin = UserSetting.isLogin;
+    final userId = UserSetting.loginId;
+    final userPassword = UserSetting.loginPassword;
+    if (await isLogin.value) {
+      final result = await RemoteData.login(
+          Encrypt.sInstance.encrypt(await userId.value),
+          await userPassword.value);
+      if (!result.successful) {
+        isLogin.val = false;
+        userId.val = '';
+        userPassword.val = '';
       }
-    });
+    }
   }
-
 }

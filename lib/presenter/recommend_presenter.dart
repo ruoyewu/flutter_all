@@ -13,12 +13,10 @@ class RecomendPresenter extends IRecommendPresenter {
   String _nextUrl;
 
   @override
-  void initModel() {
+  void initModel() async {
     super.initModel();
     _articleListModel = ArticleListModel();
-    UserSetting.sInstance.then((setting) {
-      _articleListModel.type = setting.articleListType;
-    });
+    _articleListModel.type = await UserSetting.articleListType.value;
   }
 
   @override

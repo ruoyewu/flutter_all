@@ -35,7 +35,6 @@ class SearchSectionPresenter extends ISearchSectionPresenter {
         : await RemoteData.request(_nextUrl);
     if (isDisposed) return;
     if (result.isSuccessful) {
-      UserSetting setting = await UserSetting.sInstance;
       List<AppItem> list =
           result.entityList?.map((item) => AppItem.fromJson(item))?.toList() ??
               [];
@@ -45,8 +44,8 @@ class SearchSectionPresenter extends ISearchSectionPresenter {
           delete.add(item);
           continue;
         }
-        item.userSaved =
-            setting.savedAppItem.contains(item.detail.appDetail.packageName);
+        item.userSaved = (await UserSetting.userApp.value)
+            .contains(item.detail.appDetail.packageName);
       }
       for (AppItem item in delete) {
         list.remove(item);
@@ -62,17 +61,15 @@ class SearchSectionPresenter extends ISearchSectionPresenter {
   }
 
   @override
-  startAddAppItem(SearchAppItemModel model) {
-    UserSetting.sInstance.then((setting) {
-      List<String> list = setting.savedAppItem;
-      if (!model.appItem.userSaved) {
-        list.add(model.appItem.detail.appDetail.packageName);
-      } else {
-        list.remove(model.appItem.detail.appDetail.packageName);
-      }
-      setting.savedAppItem = list;
-      model.appItem.userSaved = !model.appItem.userSaved;
-      model.update();
-    });
+  startAddAppItem(SearchAppItemModel model) async {
+    List<String> list = await UserSetting.userApp.value;
+    if (!model.appItem.userSaved) {
+      list.add(model.appItem.detail.appDetail.packageName);
+    } else {
+      list.remove(model.appItem.detail.appDetail.packageName);
+    }
+    UserSetting.userApp.val = list;
+    model.appItem.userSaved = !model.appItem.userSaved;
+    model.update();
   }
 }

@@ -17,7 +17,6 @@ class Network {
         contentType: "application/x-www-form-urlencoded",
         responseType: ResponseType.json));
     _dio.interceptors.add(CookieManager(CookieJar()));
-//    _dio.interceptors.add(_CookieManager());
   }
 
   static Network get sInstance {
@@ -45,41 +44,5 @@ class Network {
   Future<Response> delete(String url, data) async {
     final response = await _dio.delete(url, data: data);
     return response;
-  }
-}
-
-class _CookieManager extends Interceptor {
-  static const cookieHeader = "cookie";
-  static const setCookieHeader = "set-cookie";
-
-  List<String> _cookie = [];
-
-  @override
-  Future onResponse(Response response) {
-    return _saveCookie(response);
-  }
-
-  @override
-  Future onRequest(RequestOptions options) async {
-    if (_cookie != null) {
-      options.headers[cookieHeader] = _cookie;
-      print('getcookie: ' + _cookie.toString());
-    }
-    return options;
-  }
-
-  @override
-  Future onError(DioError err) async {
-    return _saveCookie(err.response);
-  }
-
-  _saveCookie(Response response) async {
-    if (response == null) return;
-    print(response.headers.toString());
-    final setCookie = response.headers[setCookieHeader];
-    if (setCookie == null) return;
-    _cookie.addAll(setCookie);
-    print('setcookie: ' + setCookie.toString());
-    return;
   }
 }

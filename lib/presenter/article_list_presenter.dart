@@ -13,11 +13,9 @@ class ArticleListPresenter extends IArticleListPresenter {
   ArticleListModel _articleListModel;
 
   @override
-  void initModel() {
+  void initModel() async {
     _articleListModel = ArticleListModel();
-    UserSetting.sInstance.then((setting) {
-      _articleListModel.type = setting.articleListType;
-    });
+    _articleListModel.type = await UserSetting.articleListType.value;
   }
 
   @override
@@ -34,7 +32,11 @@ class ArticleListPresenter extends IArticleListPresenter {
     if (isRefresh || nextUrl == null) {
       return RemoteData.articleList(channel.id).then((result) {
         if (result.isSuccessful) {
-          List<ArticleListItem> list = result.hasData ? result.entityList.map((entry) => ArticleListItem.fromJson(entry)).toList() : List();
+          List<ArticleListItem> list = result.hasData
+              ? result.entityList
+                  .map((entry) => ArticleListItem.fromJson(entry))
+                  .toList()
+              : List();
           _articleListModel.articleList = list;
           _articleListModel.hasMore = result.hasMore;
           nextUrl = result.nextUrl;
@@ -43,7 +45,9 @@ class ArticleListPresenter extends IArticleListPresenter {
     } else {
       return RemoteData.request(nextUrl).then((result) {
         if (result.isSuccessful) {
-          List<ArticleListItem> list = result.entityList.map((entry) => ArticleListItem.fromJson(entry)).toList();
+          List<ArticleListItem> list = result.entityList
+              .map((entry) => ArticleListItem.fromJson(entry))
+              .toList();
           _articleListModel.addAll(list);
           _articleListModel.hasMore = result.hasMore;
           if (result.hasMore) {
@@ -55,5 +59,4 @@ class ArticleListPresenter extends IArticleListPresenter {
       });
     }
   }
-
 }

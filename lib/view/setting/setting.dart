@@ -27,6 +27,11 @@ class _SettingPageState extends BaseState<SettingPage, ISettingPresenter>
 
   @override
   Widget build(BuildContext context) {
+    return body(context);
+  }
+
+  @override
+  Widget buildBody(BuildContext context) {
     _userTextTheme = UserTextTheme.auto(context);
     return Scaffold(
       appBar: AppBar(

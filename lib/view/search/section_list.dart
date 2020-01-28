@@ -6,20 +6,36 @@ import 'package:all/model/ui_data.dart';
 import 'package:all/presenter/contract/search_section_contract.dart';
 import 'package:all/presenter/search_section_presenter.dart';
 import 'package:all/utils/provider_consumer.dart';
+import 'package:all/view/app.dart';
 import 'package:all/view/widget/heart_loading.dart';
 import 'package:all/view/widget/widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SectionListPage extends StatefulWidget {
+  SectionListPage(this.type);
+
+  final type;
+
   @override
   State<StatefulWidget> createState() {
-    return _SectionListState();
+    return _SectionListState.type(type);
   }
 }
 
-class _SectionListState
+abstract class _SectionListState
     extends BaseState<SectionListPage, ISearchSectionPresenter>
     implements ISearchSectionView {
+
+  static type(Type type) {
+    switch (type) {
+      case Type.MATERIAL:
+        return _SectionListStateMaterial();
+      case Type.CUPRETINO:
+        return _SectionListStateCupertino();
+    }
+  }
+
   Section _section;
   bool _firstLoad = true;
 
@@ -38,18 +54,15 @@ class _SectionListState
       _firstLoad = false;
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_section.title),
-      ),
-      body: _buildBody(),
-    );
+    return body(context);
   }
 
-  Widget _buildBody() {
+  Widget _buildBody({bool shrink = false}) {
     return ProviderConsumer<SearchSectionModel>(presenter.searchSectionModel,
         (context, model, _) {
       return GridView.builder(
+        shrinkWrap: shrink,
+          physics: shrink ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
           itemCount: model.hasMore
               ? ((model.list?.length ?? 0) + 1)
               : ((model.list?.length ?? 0)),
@@ -123,5 +136,47 @@ class _SectionListState
   Widget _buildLoading() {
     presenter.startLoadSection();
     return HeartLoadingPage();
+  }
+}
+
+class _SectionListStateCupertino extends _SectionListState {
+  @override
+  Widget buildBody(BuildContext context) {
+    Map arguments = ModalRoute.of(context).settings.arguments;
+    final heroTag = arguments['hero'];
+    final lastTitle = arguments['title'];
+    return CupertinoPageScaffold(
+      child: CustomScrollView(
+        slivers: <Widget>[
+          CupertinoSliverNavigationBar(
+            heroTag: heroTag,
+            previousPageTitle: lastTitle,
+            largeTitle: Text(_section.title),
+          ),
+          SliverToBoxAdapter(
+            child: Material(child: _buildBody(shrink: true)),
+          )
+//        SliverList(
+//          delegate: SliverChildBuilderDelegate(
+//            (context, index) {
+//
+//            }
+//          ),
+//        )
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionListStateMaterial extends _SectionListState {
+  @override
+  Widget buildBody(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_section.title),
+      ),
+      body: _buildBody(),
+    );
   }
 }

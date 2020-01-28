@@ -26,6 +26,7 @@ class UserPresenter extends IUserPresenter {
 
   @override
   startPickerImage(int type) async {
+    if (type == null) return Future.value();
     ImagePicker.pickImage(
             source: type == 0 ? ImageSource.gallery : ImageSource.camera,
             maxHeight: 500,
@@ -51,22 +52,20 @@ class UserPresenter extends IUserPresenter {
   }
 
   @override
-  startUserAvatarTap(String id) {
-    UserSetting.sInstance.then((setting) {
-      if (setting.isUserLogin && setting.loginUserId == id) {
-        view.onShowUserDialog();
-      }
-    });
+  startUserAvatarTap(String id) async {
+    if (await UserSetting.isLogin.value &&
+        await UserSetting.loginId.value == id) {
+      view.onShowUserDialog();
+    }
   }
 
   @override
-  startLoadUserInfo({String id = null}) {
+  startLoadUserInfo({String id = null}) async {
     if (id == null) {
-      UserSetting.sInstance.then((setting) {
-        if (setting.isUserLogin) {
-          _startLoadUserInfo(Encrypt.sInstance.encrypt(setting.loginUserId));
-        }
-      });
+      if (await UserSetting.isLogin.value) {
+        _startLoadUserInfo(
+            Encrypt.sInstance.encrypt(await UserSetting.loginId.value));
+      }
     } else {
       _startLoadUserInfo(Encrypt.sInstance.encrypt(id));
     }
@@ -100,12 +99,10 @@ class UserPresenter extends IUserPresenter {
       _userInfoModel.refresh();
       _articleCollectionModel.refresh();
       _nextCollection = 0;
-      UserSetting.sInstance.then((setting) {
-        setting.isUserLogin = false;
-        setting.loginUserId = '';
-        setting.loginUserName = '';
-        setting.loginUserPassword = '';
-      });
+      UserSetting.isLogin.val = false;
+      UserSetting.loginId.val = '';
+      UserSetting.loginUserName.val = '';
+      UserSetting.loginPassword.val = '';
     });
   }
 

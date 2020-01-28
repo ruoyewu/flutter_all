@@ -9,35 +9,30 @@ class SettingPresenter extends ISettingPresenter {
   ArticleListTypeModel _articleListTypeModel;
 
   @override
-  void initModel() {
+  void initModel() async {
     _articleListTypeModel = ArticleListTypeModel();
-    UserSetting.sInstance.then((setting) {
-    	int type = setting.articleListType;
-    	_articleListTypeModel.type = type;
-    	_articleListTypeModel.list = List.filled(2, ArticleListItem(
-				subEntry: [
-					SubEntry(
-						author: Author(
-							name: 'Author'
-						),
-						cover: [
-							Cover(
-								url: '',
-							)
-						],
-						snippet: '这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言',
-						tag: [
-							Tag(
-								tagName: '标签'
-							)
-						],
-						title: '这是一段标题这是一段标题这是一段标题这是一段标题这是一段标题这是一段标题这是一段标题',
-						datePublished: DateTime.now().millisecond,
-					)
-				],
-		    title: '一个',
-	    ));
-    });
+    int type = await UserSetting.articleListType.value;
+    _articleListTypeModel.type = type;
+    _articleListTypeModel.list = List.filled(
+        2,
+        ArticleListItem(
+          subEntry: [
+            SubEntry(
+              author: Author(name: 'Author'),
+              cover: [
+                Cover(
+                  url: '',
+                )
+              ],
+              snippet:
+                  '这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言这是一段前言',
+              tag: [Tag(tagName: '标签')],
+              title: '这是一段标题这是一段标题这是一段标题这是一段标题这是一段标题这是一段标题这是一段标题',
+              datePublished: DateTime.now().millisecond,
+            )
+          ],
+          title: '一个',
+        ));
   }
 
   @override
@@ -51,8 +46,6 @@ class SettingPresenter extends ISettingPresenter {
 
   @override
   startSetArticleListType(int type) async {
-  	UserSetting setting = await UserSetting.sInstance;
-  	setting.articleListType = type;
+    UserSetting.articleListType.val = type;
   }
-
 }

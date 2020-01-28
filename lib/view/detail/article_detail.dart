@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:all/base/base_state.dart';
 import 'package:all/model/bean/article_comment_list_item.dart';
@@ -16,46 +15,52 @@ import 'package:all/presenter/contract/article_detail_contract.dart';
 import 'package:all/utils/date_format.dart';
 import 'package:all/utils/image_util.dart';
 import 'package:all/utils/provider_consumer.dart';
+import 'package:all/view/app.dart';
 import 'package:all/view/detail/article_detail_content.dart';
 import 'package:all/view/image/image.dart';
 import 'package:all/view/widget/heart_loading.dart';
 import 'package:all/view/widget/widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class ArticleDetailListPage extends StatelessWidget {
-  ArticleDetailListPage();
-
-  @override
-  Widget build(BuildContext context) {
-    Map arguments = ModalRoute.of(context).settings.arguments;
-    final list = arguments['list'];
-    final index = arguments['index'];
-
-    return PageView.builder(
-        controller: PageController(initialPage: index),
-        itemCount: list.length,
-        itemBuilder: (context, index) {
-          return ArticleDetailPage(
-            item: list[index],
-          );
-        });
-  }
-}
+//class ArticleDetailListPage extends StatelessWidget {
+//  ArticleDetailListPage(this.type);
+//
+//  final type;
+//
+//  @override
+//  Widget build(BuildContext context) {
+//    Map arguments = ModalRoute.of(context).settings.arguments;
+//    final list = arguments['list'];
+//    final index = arguments['index'];
+//
+//    return PageView.builder(
+//        controller: PageController(initialPage: index),
+//        itemCount: list.length,
+//        itemBuilder: (context, index) {
+//          return ArticleDetailPage(
+//            type,
+//            item: list[index],
+//          );
+//        });
+//  }
+//}
 
 class ArticleDetailPage extends StatefulWidget {
-  ArticleDetailPage({this.item, this.showTitle = true});
+  ArticleDetailPage(this.type, {this.item, this.showTitle = true});
 
+  final type;
   ArticleListItem item;
   bool showTitle;
 
   @override
   State<StatefulWidget> createState() {
-    return _ArticleDetailState();
+    return _ArticleDetailState.type(type);
   }
 }
 
-class _ArticleDetailState
+abstract class _ArticleDetailState
     extends BaseState<ArticleDetailPage, IArticleDetailPresenter>
     with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin
     implements IArticleDetailView {
@@ -68,6 +73,19 @@ class _ArticleDetailState
   BuildContext _snackBarContext;
   bool _firstLoad = true;
   UserColor _userColor;
+  ArticleListItem item;
+  var heroTag;
+  var lastTitle;
+  bool shouldRebuild;
+
+  static type(Type type) {
+    switch (type) {
+      case Type.MATERIAL:
+        return _ArticleDetailStateMaterial();
+      case Type.CUPRETINO:
+        return _ArticleDetailStateCupertino();
+    }
+  }
 
   @override
   bool get wantKeepAlive => true;
@@ -171,8 +189,7 @@ class _ArticleDetailState
     super.build(context);
     _userColor = UserColor.auto(context);
 
-    ArticleListItem item = null;
-    bool shouldRebuild = false;
+    shouldRebuild = false;
     if (widget.item != null) {
       shouldRebuild = true;
       item = widget.item;
@@ -180,6 +197,8 @@ class _ArticleDetailState
       try {
         Map arguments = ModalRoute.of(context).settings.arguments;
         item = arguments["item"];
+        heroTag = arguments['hero'];
+        lastTitle = arguments['title'];
       } catch (e) {
         print(e);
       }
@@ -203,75 +222,8 @@ class _ArticleDetailState
       presenter.startLoadArticleInfo();
       presenter.startLoadComment();
     }
-    log('article id ${item.subEntry[0].id}');
 
-    return Scaffold(
-      appBar: widget.showTitle
-          ? AppBar(
-              title: Text(item.subEntry[0].title ?? item.title),
-              actions: <Widget>[
-//                if (Platform == null || Platform.isAndroid || Platform.isIOS)
-                IconButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, UIData.ROUTE_WEB, arguments: {
-                      'url': item.subEntry[0].action.url,
-                      'title': item.subEntry[0].title
-                    });
-                  },
-                  icon: Icon(Icons.share),
-                )
-              ],
-            )
-          : null,
-      bottomNavigationBar: _buildBottom(),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: MAX_WIDTH),
-          child: Builder(
-            builder: (context) {
-              _snackBarContext = context;
-
-              List<Widget> children = List();
-              children.add(Scrollbar(
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  child: ProviderConsumer<ArticleDetailModel>(
-                      presenter.articleDetailModel, (context, model, _) {
-                    if (model == null || model.articleDetail == null) {
-                      return Column();
-                    }
-                    if (shouldRebuild) {
-                      scrollToPosition(0);
-                    }
-                    return Column(
-                      children: <Widget>[
-                        Column(
-                          key: _articleKey,
-                          children: <Widget>[
-                            _buildHeader(model.articleDetail),
-                            _buildContent(model.articleDetail),
-//                        _buildFooter(item)
-                          ],
-                        ),
-                        ProviderConsumer<ArticleCommentModel>(
-                            presenter.articleCommentModel, (context, model, _) {
-                          return _buildComment(model);
-                        }),
-                      ],
-                    );
-                  }),
-                ),
-              ));
-//              children.add(_buildInfo());
-              return Stack(
-                children: children,
-              );
-            },
-          ),
-        ),
-      ),
-    );
+    return body(context);
   }
 
   Widget _buildHeader(ArticleDetail detail) {
@@ -281,7 +233,9 @@ class _ArticleDetailState
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         child: Text(
           detail.title,
-          style: TextStyle(fontSize: 18,),
+          style: TextStyle(
+            fontSize: 18,
+          ),
         ),
       ));
 
@@ -301,7 +255,9 @@ class _ArticleDetailState
         alignment: Alignment.center,
         child: Text(
           detail.author.name,
-          style: TextStyle(fontSize: 14, ),
+          style: TextStyle(
+            fontSize: 14,
+          ),
         ),
       ));
     }
@@ -349,27 +305,6 @@ class _ArticleDetailState
     );
   }
 
-  Widget _buildFooter(ArticleListItem item) {
-    List<Widget> children = List();
-    if (item.subEntry[0].action != null) {
-      children.add(GestureDetector(
-        onTap: () => onOriginalUrlTap(item),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Text('阅读原文',
-              style: TextStyle(
-                fontSize: 14,
-                color: UserColor.COLOR_MOUNTAIN_MIST,
-              )),
-        ),
-      ));
-    }
-
-    return Column(
-      children: children,
-    );
-  }
-  
   Widget _buildBottom() {
     final userTextTheme = UserTextTheme.auto(context);
     return Material(
@@ -379,212 +314,56 @@ class _ArticleDetailState
         top: false,
         child: Container(
           height: 50,
-          child: ProviderConsumer<ArticleDetailInfoModel> (
-            presenter.articleDetailInfoModel,
-            (context, model, _) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  IconButton(
-                    onPressed: () => presenter.showEditDialog(null),
-                    icon: Icon(
-                      Icons.comment,
-                      color: _userColor.selectColor,
-                    ),
+          child: ProviderConsumer<ArticleDetailInfoModel>(
+              presenter.articleDetailInfoModel, (context, model, _) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                IconButton(
+                  onPressed: () => presenter.showEditDialog(null),
+                  icon: Icon(
+                    Icons.comment,
+                    color: _userColor.selectColor,
                   ),
-                  Text(
-                    model.articleInfo.commentNum.toString(),
+                ),
+                Text(
+                  model.articleInfo.commentNum.toString(),
+                  style: userTextTheme.little,
+                ),
+                IconButton(
+                  onPressed: presenter.startCollect,
+                  icon: Icon(
+                    model.articleInfo.isCollect
+                        ? Icons.bookmark
+                        : Icons.bookmark_border,
+                    color: _userColor.selectColor,
+                  ),
+                ),
+                Text(
+                  model.articleInfo.collectNum.toString(),
+                  style: userTextTheme.little,
+                ),
+                IconButton(
+                  onPressed: presenter.startPraise,
+                  icon: Icon(
+                      model.articleInfo.isPraise
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: _userColor.selectColor),
+                ),
+                SizedBox(
+                  width: 25,
+                  child: Text(
+                    model.articleInfo.praiseNum.toString(),
+                    maxLines: 1,
                     style: userTextTheme.little,
                   ),
-                  IconButton(
-                    onPressed: presenter.startCollect,
-                    icon: Icon(
-                      model.articleInfo.isCollect
-                        ? Icons.bookmark : Icons.bookmark_border,
-                      color: _userColor.selectColor,
-                    ),
-                  ),
-                  Text(
-                    model.articleInfo.collectNum.toString(),
-                    style: userTextTheme.little,
-                  ),
-                  IconButton(
-                    onPressed: presenter.startPraise,
-                    icon: Icon(model.articleInfo.isPraise
-                      ? Icons.favorite : Icons.favorite_border,
-                      color: _userColor.selectColor
-                    ),
-                  ),
-                  SizedBox(
-                    width: 25,
-                    child: Text(
-                      model.articleInfo.praiseNum.toString(),
-                      maxLines: 1,
-                      style: userTextTheme.little,
-                    ),
-                  )
-                ],
-              );
-            }
-          ),
+                )
+              ],
+            );
+          }),
         ),
       ),
-    );
-  }
-
-  Widget _buildInfo() {
-    return SizedBox.expand(
-      child: ProviderConsumer<ArticleDetailInfoModel>(
-          presenter.articleDetailInfoModel, (context, model, _) {
-        return Stack(
-          alignment: Alignment.bottomRight,
-          children: <Widget>[
-            Padding(
-                padding:
-                    EdgeInsets.only(right: 16, bottom: model.offsetFavoriteNum),
-                child: Card(
-                  elevation: model.elevation,
-                  color: Colors.blueGrey,
-                  child: InkWell(
-                    onTap: () {
-                      _scrollController.animateTo(0,
-                          duration: Duration(milliseconds: ANIMATION_DURATION),
-                          curve: Curves.easeInToLinear);
-                    },
-                    child: SizedBox(
-                      width: 50,
-                      height: 25,
-                      child: Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            SizedBox(
-                              width: 15,
-                              height: 15,
-                              child: FittedBox(
-                                child: Icon(
-                                  Icons.favorite,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 5),
-                              child: Text(
-                                model.articleInfo.praiseNum.toString(),
-                                style: TextStyle(
-                                    fontSize: 12, color: Colors.white70),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                )),
-            Padding(
-                padding:
-                    EdgeInsets.only(right: 16, bottom: model.offsetCommentNum),
-                child: Card(
-                  elevation: model.elevation,
-                  color: Colors.blueGrey,
-                  child: InkWell(
-                    onTap: scrollToComment,
-                    child: SizedBox(
-                      width: 50,
-                      height: 25,
-                      child: Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            SizedBox(
-                              width: 15,
-                              height: 15,
-                              child: FittedBox(
-                                child: Icon(
-                                  Icons.edit,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 5),
-                              child: Text(
-                                model.articleInfo.commentNum.toString(),
-                                style: TextStyle(
-                                    fontSize: 12, color: Colors.white70),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                )),
-            Padding(
-              padding: EdgeInsets.only(right: 16, bottom: model.offsetEdit),
-              child: FloatingActionButton(
-                heroTag: 'hero_article_detail_b_${model.hashCode}',
-                onPressed: () => presenter.showEditDialog(null),
-                elevation: model.elevation,
-                child: Icon(
-                  Icons.edit,
-                  color: Colors.white70,
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(right: 16, bottom: model.offsetCollect),
-              child: FloatingActionButton(
-                heroTag: 'hero_article_detail_c_${model.hashCode}',
-                onPressed: presenter.startCollect,
-                elevation: model.elevation,
-                child: Icon(
-                  model.articleInfo.isCollect
-                      ? Icons.bookmark
-                      : Icons.bookmark_border,
-                  color: model.articleInfo.isCollect
-                      ? UserColor.COLOR_CRAIL
-                      : Colors.white70,
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(right: 16, bottom: model.offsetFavorite),
-              child: FloatingActionButton(
-                  heroTag: 'hero_article_detail_d_${model.hashCode}',
-                  onPressed: presenter.startPraise,
-                  elevation: model.elevation,
-                  child: Icon(
-                    model.articleInfo.isPraise
-                        ? Icons.favorite
-                        : Icons.favorite_border,
-                    color: model.articleInfo.isPraise
-                        ? UserColor.COLOR_CRAIL
-                        : Colors.white70,
-                  )),
-            ),
-            Padding(
-              padding: EdgeInsets.only(right: 16, bottom: 16),
-              child: Transform.rotate(
-                angle: model.rotateAdd,
-                child: FloatingActionButton(
-                  heroTag: 'hero_article_detail_add_${model.hashCode}',
-                  onPressed: presenter.startAnimation,
-//                  onPressed: () {
-//                    log(_key.currentContext.size.height.toString());
-//                  },
-//                  elevation: model.elevation,
-                  child: Icon(
-                    Icons.add,
-                    color: Colors.white70,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      }),
     );
   }
 
@@ -672,7 +451,8 @@ class _ArticleDetailState
           ),
           Text(
             DateUtil.formatMillis(item.time, 'YYYY/MM/dd HH:mm:ss'),
-            style: TextStyle(color: UserColor.COLOR_MOUNTAIN_MIST, fontSize: 13),
+            style:
+                TextStyle(color: UserColor.COLOR_MOUNTAIN_MIST, fontSize: 13),
           )
         ],
       ),
@@ -753,7 +533,8 @@ class _ArticleDetailState
                 mainAxisAlignment: MainAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Icon(Icons.edit, color: UserColor.COLOR_MOUNTAIN_MIST, size: 20),
+                  Icon(Icons.edit,
+                      color: UserColor.COLOR_MOUNTAIN_MIST, size: 20),
                   Padding(
                     padding: const EdgeInsets.only(left: 5),
                     child: SizedBox(
@@ -855,6 +636,143 @@ class _ArticleDetailState
         "loading",
         textAlign: TextAlign.center,
         style: TextStyle(fontSize: 15),
+      ),
+    );
+  }
+}
+
+class _ArticleDetailStateCupertino extends _ArticleDetailState {
+  @override
+  Widget buildBody(BuildContext context) {
+    return CupertinoPageScaffold(
+      child: Builder(builder: (context) {
+        _snackBarContext = context;
+        return Column(
+          children: <Widget>[
+            Expanded(
+              child: CupertinoScrollbar(
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  slivers: <Widget>[
+                    if (widget.showTitle)
+                      CupertinoSliverNavigationBar(
+                        // ignore: sdk_version_ui_as_code
+                        heroTag: heroTag,
+                        previousPageTitle: lastTitle,
+                        largeTitle: Text(
+                          item.subEntry[0].title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    SliverToBoxAdapter(
+                      child: ProviderConsumer<ArticleDetailModel>(
+                          presenter.articleDetailModel, (context, model, _) {
+                        if (model == null || model.articleDetail == null) {
+                          return Column();
+                        }
+                        if (shouldRebuild) {
+                          scrollToPosition(0);
+                        }
+                        return Column(
+                          children: <Widget>[
+                            Column(
+                              key: _articleKey,
+                              children: <Widget>[
+                                _buildHeader(model.articleDetail),
+                                _buildContent(model.articleDetail),
+//                        _buildFooter(item)
+                              ],
+                            ),
+                            ProviderConsumer<ArticleCommentModel>(
+                                presenter.articleCommentModel,
+                                (context, model, _) {
+                              return _buildComment(model);
+                            }),
+                          ],
+                        );
+                      }),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            _buildBottom()
+          ],
+        );
+      }),
+    );
+  }
+}
+
+class _ArticleDetailStateMaterial extends _ArticleDetailState {
+  @override
+  Widget buildBody(BuildContext context) {
+    return Scaffold(
+      appBar: widget.showTitle
+          ? AppBar(
+              title: Text(item.subEntry[0].title ?? item.title),
+              actions: <Widget>[
+//                if (Platform == null || Platform.isAndroid || Platform.isIOS)
+                IconButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, UIData.ROUTE_WEB, arguments: {
+                      'url': item.subEntry[0].action.url,
+                      'title': item.subEntry[0].title
+                    });
+                  },
+                  icon: Icon(Icons.share),
+                )
+              ],
+            )
+          : null,
+      bottomNavigationBar: _buildBottom(),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: _ArticleDetailState.MAX_WIDTH),
+          child: Builder(
+            builder: (context) {
+              _snackBarContext = context;
+
+              List<Widget> children = List();
+              children.add(Scrollbar(
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: ProviderConsumer<ArticleDetailModel>(
+                      presenter.articleDetailModel, (context, model, _) {
+                    if (model == null || model.articleDetail == null) {
+                      return Column();
+                    }
+                    if (shouldRebuild) {
+                      scrollToPosition(0);
+                    }
+                    return Column(
+                      children: <Widget>[
+                        Column(
+                          key: _articleKey,
+                          children: <Widget>[
+                            _buildHeader(model.articleDetail),
+                            _buildContent(model.articleDetail),
+//                        _buildFooter(item)
+                          ],
+                        ),
+                        ProviderConsumer<ArticleCommentModel>(
+                            presenter.articleCommentModel, (context, model, _) {
+                          return _buildComment(model);
+                        }),
+                      ],
+                    );
+                  }),
+                ),
+              ));
+//              children.add(_buildInfo());
+              return Stack(
+                children: children,
+              );
+            },
+          ),
+        ),
       ),
     );
   }

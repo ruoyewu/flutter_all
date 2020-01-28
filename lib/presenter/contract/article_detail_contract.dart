@@ -38,8 +38,6 @@ abstract class IArticleDetailPresenter
 
   startLoadComment();
 
-  startAnimation();
-
   startSendComment(int parent, String comment, {ArticleCommentItemModel model = null});
 
   startDeleteComment(int id);

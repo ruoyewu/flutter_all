@@ -9,20 +9,37 @@ import 'package:all/model/user_theme.dart';
 import 'package:all/presenter/contract/search_contract.dart';
 import 'package:all/presenter/search_presenter.dart';
 import 'package:all/utils/provider_consumer.dart';
+import 'package:all/view/app.dart';
 import 'package:all/view/search/search_result.dart';
 import 'package:all/view/widget/widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SearchPage extends StatefulWidget {
+  SearchPage({this.type = Type.MATERIAL});
+
+  final Type type;
+  final heroTag = 'search';
+  final title = '发现';
+
   @override
   State<StatefulWidget> createState() {
-    return _SearchPageState();
+    return _SearchPageState.type(type);
   }
 }
 
-class _SearchPageState extends BaseState<SearchPage, ISearchPresenter>
+abstract class _SearchPageState extends BaseState<SearchPage, ISearchPresenter>
     implements ISearchView {
   UserTextTheme _userTextTheme;
+
+  static type(Type type) {
+    switch (type) {
+      case Type.MATERIAL:
+        return _SearchPageStateMaterial();
+      case Type.CUPRETINO:
+        return _SearchPageStateCupertino();
+    }
+  }
 
   @override
   void initState() {
@@ -35,24 +52,7 @@ class _SearchPageState extends BaseState<SearchPage, ISearchPresenter>
   @override
   Widget build(BuildContext context) {
     _userTextTheme = UserTextTheme.auto(context);
-//    return ListView(
-//      children: <Widget>[_buildRecommend(), _buildSections()],
-//    );
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('发现'),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () {
-              showSearch<String>(
-                  context: context, delegate: SearchResult(presenter));
-            },
-            icon: Icon(Icons.search),
-          ),
-        ],
-      ),
-      body: _buildBody(),
-    );
+    return body(context);
   }
 
   Widget _buildBody() {
@@ -84,9 +84,8 @@ class _SearchPageState extends BaseState<SearchPage, ISearchPresenter>
       padding: EdgeInsets.all(8),
       child: InkWell(
         onTap: () {
-          Navigator.pushNamed(context, UIData.ROUTE_RECOMMEND_LIST, arguments: {
-            'recommend': item
-          });
+          Navigator.pushNamed(context, UIData.ROUTE_RECOMMEND_LIST,
+              arguments: {'recommend': item});
         },
         child: SizedBox(
           width: 120,
@@ -134,9 +133,8 @@ class _SearchPageState extends BaseState<SearchPage, ISearchPresenter>
   Widget _buildSectionItem(Section section) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, UIData.ROUTE_SECTION, arguments: {
-          'section': section
-        });
+        Navigator.pushNamed(context, UIData.ROUTE_SECTION,
+            arguments: {'section': section, 'hero': widget.heroTag, 'title': widget.title});
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -176,7 +174,11 @@ class _SearchPageState extends BaseState<SearchPage, ISearchPresenter>
     SearchAppItemModel appItemModel = SearchAppItemModel(app);
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, UIData.ROUTE_APP, arguments: appItemModel.appItem);
+        Navigator.pushNamed(context, UIData.ROUTE_APP, arguments: {
+          'item': appItemModel.appItem,
+          'title': '发现',
+          'hero': widget.heroTag
+        });
       },
       child: SizedBox(
         width: MediaQuery.of(context).size.width / 4,
@@ -223,6 +225,66 @@ class _SearchPageState extends BaseState<SearchPage, ISearchPresenter>
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SearchPageStateCupertino extends _SearchPageState {
+  @override
+  Widget buildBody(BuildContext context) {
+    return CustomScrollView(
+      slivers: <Widget>[
+        CupertinoSliverRefreshControl(
+          refreshTriggerPullDistance: 120,
+          refreshIndicatorExtent: 100,
+          onRefresh: () => Future.delayed(Duration(seconds: 2)),
+        ),
+        CupertinoSliverNavigationBar(
+          heroTag: widget.heroTag,
+          largeTitle: Text(widget.title),
+          backgroundColor: UserColor.COLOR_TRANSPARENT_ALABASTER,
+          trailing: GestureDetector(
+            onTap: () {
+
+            },
+            child: Icon(CupertinoIcons.search, size: 25,))
+        ),
+        SliverSafeArea(
+            top: false,
+            sliver: SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+              if (index == 0) {
+                return Material(
+                  child: _buildRecommend(),
+                );
+              } else {
+                return Material(
+                  child: _buildSections(),
+                );
+              }
+            }, childCount: 2)))
+      ],
+    );
+  }
+}
+
+class _SearchPageStateMaterial extends _SearchPageState {
+  @override
+  Widget buildBody(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () {
+              showSearch<String>(
+                  context: context, delegate: SearchResult(presenter));
+            },
+            icon: Icon(Icons.search),
+          ),
+        ],
+      ),
+      body: _buildBody(),
     );
   }
 }

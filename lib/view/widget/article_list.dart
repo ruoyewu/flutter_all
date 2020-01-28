@@ -2,42 +2,35 @@ import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/model/article_list_model.dart';
 import 'package:all/model/user_theme.dart';
 import 'package:all/utils/date_format.dart';
+import 'package:all/utils/function.dart';
+import 'package:all/view/app.dart';
 import 'package:flutter/material.dart';
 
 import 'heart_loading.dart';
 
-typedef OnArticleItemTap = Function(
-    ArticleListItem item, List<ArticleListItem> list);
-typedef OnLoadingMore = Function();
-
-class ArticleListWidget extends StatelessWidget {
-  ArticleListWidget(this.model,
+abstract class ArticleListWidget extends StatelessWidget {
+  ArticleListWidget._(this.model,
       {@required this.onArticleItemTap,
       @required this.onLoadingMore,
       this.type = 1});
+
+  // ignore: missing_return
+  factory ArticleListWidget.type(Type type, ArticleListModel model,
+    {OnArticleItemTap onArticleItemTap,
+      OnLoadingMore onLoadingMore,
+      int itemType = 1}) {
+    switch (type) {
+      case Type.MATERIAL:
+        return _ArticleListWidgetMaterial(model, onArticleItemTap: onArticleItemTap, onLoadingMore: onLoadingMore, type: itemType,);
+      case Type.CUPRETINO:
+        return _ArticleListWidgetCupertino(model, onArticleItemTap: onArticleItemTap, onLoadingMore: onLoadingMore, type: itemType,);
+    }
+  }
 
   final ArticleListModel model;
   OnArticleItemTap onArticleItemTap;
   OnLoadingMore onLoadingMore;
   int type;
-
-  UserTextTheme _userTextTheme;
-
-  @override
-  Widget build(BuildContext context) {
-    _userTextTheme = UserTextTheme.auto(context);
-    return ListView.builder(
-        itemCount: model.articleList.length + 1,
-        itemBuilder: (context, index) {
-          if (index < model.articleList.length) {
-            return ArticleListItemWidget(model.articleList[index], type: type, onArticleItemTap: () {
-              this.onArticleItemTap(model.articleList[index], model.articleList);
-            },);
-          } else {
-            return buildLoading(model.hasMore);
-          }
-        });
-  }
 
   Widget buildLoading(bool hasMore) {
     if (hasMore) {
@@ -49,8 +42,73 @@ class ArticleListWidget extends StatelessWidget {
   }
 }
 
+class _ArticleListWidgetCupertino extends ArticleListWidget {
+  _ArticleListWidgetCupertino(ArticleListModel model,
+      {OnArticleItemTap onArticleItemTap,
+      OnLoadingMore onLoadingMore,
+      int type = 1})
+      : super._(model,
+            onArticleItemTap: onArticleItemTap,
+            onLoadingMore: onLoadingMore,
+            type: type);
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate((context, index) {
+        if (index < model.articleList.length) {
+          return Material(
+            child: ArticleListItemWidget(
+              model.articleList[index],
+              type: type,
+              onArticleItemTap: () {
+                this.onArticleItemTap(
+                    model.articleList[index]);
+              },
+            ),
+          );
+        } else {
+          return buildLoading(model.hasMore);
+        }
+      }, childCount: model.articleList.length + 1),
+    );
+  }
+}
+
+class _ArticleListWidgetMaterial extends ArticleListWidget {
+  _ArticleListWidgetMaterial(ArticleListModel model,
+      {OnArticleItemTap onArticleItemTap,
+      OnLoadingMore onLoadingMore,
+      int type = 1})
+      : super._(model,
+            onArticleItemTap: onArticleItemTap,
+            onLoadingMore: onLoadingMore,
+            type: type);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+        itemCount: model.articleList.length + 1,
+        itemBuilder: (context, index) {
+          if (index < model.articleList.length) {
+            return ArticleListItemWidget(
+              model.articleList[index],
+              type: type,
+              onArticleItemTap: () {
+                this.onArticleItemTap(
+                    model.articleList[index]);
+              },
+            );
+          } else {
+            return buildLoading(model.hasMore);
+          }
+        });
+  }
+}
+
 class ArticleListItemWidget extends StatelessWidget {
   ArticleListItemWidget(this.item, {this.onArticleItemTap, this.type = 1});
+
   ArticleListItem item;
   int type;
   GestureTapCallback onArticleItemTap;
@@ -114,10 +172,14 @@ class ArticleListItemWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (item.hasCover) Expanded(flex: 1, child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: _buildBody(item, 1),
-                ),),
+                if (item.hasCover)
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      child: _buildBody(item, 1),
+                    ),
+                  ),
               ],
             ),
             _buildFooter(item)
@@ -134,7 +196,7 @@ class ArticleListItemWidget extends StatelessWidget {
         child: Align(
           alignment: Alignment.center,
           child: Text("-  " + item.subEntry[0].tag[0].tagName + "  -",
-            style: _userTextTheme.itemTag),
+              style: _userTextTheme.itemTag),
         ),
       );
     } else {
@@ -146,17 +208,17 @@ class ArticleListItemWidget extends StatelessWidget {
     List<Widget> children = List();
     if (item.hasTitle) {
       children.add(Text(item.subEntry[0].title,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        style: _userTextTheme.itemTitle));
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: _userTextTheme.itemTitle));
     }
     if (showAuthor && item.hasAuthor) {
       children.add(Text(
-        "- " +
-          (item.subEntry[0].author == null
-            ? ''
-            : item.subEntry[0].author.name),
-        style: _userTextTheme.itemAuthor));
+          "- " +
+              (item.subEntry[0].author == null
+                  ? ''
+                  : item.subEntry[0].author.name),
+          style: _userTextTheme.itemAuthor));
     }
     return children;
   }
@@ -167,12 +229,12 @@ class ArticleListItemWidget extends StatelessWidget {
       return AspectRatio(
         aspectRatio: ratio,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 5),
-          width: double.infinity,
-          child: Ink.image(
-            image: NetworkImage(image),
-            fit: BoxFit.cover,
-          )),
+            padding: EdgeInsets.symmetric(vertical: 5),
+            width: double.infinity,
+            child: Ink.image(
+              image: NetworkImage(image),
+              fit: BoxFit.cover,
+            )),
       );
     } else {
       return SizedBox();
@@ -182,9 +244,9 @@ class ArticleListItemWidget extends StatelessWidget {
   Widget _buildForward(ArticleListItem item) {
     if (item.subEntry[0].snippet != null) {
       return Text(item.subEntry[0].snippet,
-        overflow: TextOverflow.ellipsis,
-        maxLines: 3,
-        style: _userTextTheme.itemForward);
+          overflow: TextOverflow.ellipsis,
+          maxLines: 3,
+          style: _userTextTheme.itemForward);
     } else {
       return SizedBox();
     }
@@ -198,14 +260,13 @@ class ArticleListItemWidget extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              DateUtil.formatMillis(
-                item.subEntry[0].datePublished, 'YYYY/MM/dd HH:mm:ss'),
-              textAlign: TextAlign.end,
-              style: _userTextTheme.itemTime),
+                DateUtil.formatMillis(
+                    item.subEntry[0].datePublished, 'YYYY/MM/dd HH:mm:ss'),
+                textAlign: TextAlign.end,
+                style: _userTextTheme.itemTime),
           )
         ],
       ),
     );
   }
-
 }

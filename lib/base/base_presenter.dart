@@ -5,8 +5,7 @@ abstract class BasePresenter<V extends BaseView> {
   V _v;
   V get view => _v;
 
-  bool _isDisposed;
-  bool get isDisposed => _isDisposed;
+  bool get isDisposed => _v == null;
 
   BasePresenter(V view) {
     attach(view);
@@ -20,7 +19,6 @@ abstract class BasePresenter<V extends BaseView> {
   void attach(V view) {
     assert(view != null);
     _v = view;
-    _isDisposed = false;
   }
 
   void initModel() {}
@@ -31,7 +29,6 @@ abstract class BasePresenter<V extends BaseView> {
   void dispose() {
     if (_v != null) {
       _v = null;
-      _isDisposed = true;
     }
   }
 }

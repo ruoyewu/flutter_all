@@ -21,7 +21,7 @@ class LoginPresenter extends ILoginPresenter {
   LoginVerifyModel get loginVerifyModel => _loginVerifyModel;
 
   @override
-  startLogin(String id, String password) {
+  startLogin(String id, String password) async {
     if (id.length < 6) {
       view.onResultInfo('用户 ID 长度需大于 6');
       return;
@@ -32,41 +32,35 @@ class LoginPresenter extends ILoginPresenter {
     }
     Encrypt encrypt = Encrypt.sInstance;
     password = encrypt.encrypt(password);
-    Future<NetResult> result = RemoteData.login(encrypt.encrypt(id), password);
-    result.then((result) {
-      if (isDisposed) return;
-      if (result.successful) {
-        UserInfo userInfo = UserInfo.fromJson(result.info);
-        view.onLoginOk(userInfo);
-        UserSetting.sInstance.then((setting) {
-          setting.isUserLogin = true;
-          setting.loginUserId = id;
-          setting.loginUserPassword = password;
-          setting.loginUserName = userInfo.name;
-        });
-      } else {
-        view.onResultInfo(result.info);
-      }
-    });
+    final result = await RemoteData.login(encrypt.encrypt(id), password);
+    if (isDisposed) return;
+    if (result.successful) {
+      UserInfo userInfo = UserInfo.fromJson(result.info);
+      view.onLoginOk(userInfo);
+      UserSetting.isLogin.val = true;
+      UserSetting.loginId.val = id;
+      UserSetting.loginPassword.val = password;
+      UserSetting.loginUserName.val = userInfo.name;
+    } else {
+      view.onResultInfo(result.info);
+    }
   }
 
   @override
-  startRegister(
-      String id, String name, String password, String phone, String code) {
+  startRegister(String id, String name, String password, String phone,
+      String code) async {
     Encrypt encrypt = Encrypt.sInstance;
-    Future<NetResult> result = RemoteData.register(
+    final result = await RemoteData.register(
         encrypt.encrypt(id),
         encrypt.encrypt(password),
         encrypt.encrypt(phone),
         encrypt.encrypt(code),
         encrypt.encrypt(name));
-    result.then((result) {
-      if (isDisposed) return;
-      view.onResultInfo(result.info);
-      if (result.successful) {
-        view.onRegisterOk();
-      }
-    });
+    if (isDisposed) return;
+    view.onResultInfo(result.info);
+    if (result.successful) {
+      view.onRegisterOk();
+    }
   }
 
   @override

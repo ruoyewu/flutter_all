@@ -10,6 +10,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class RecommendListPage extends StatefulWidget {
+  RecommendListPage(this.type);
+
+  final type;
+
   @override
   State<StatefulWidget> createState() {
     return _RecommendListState();
@@ -20,23 +24,10 @@ class _RecommendListState
     extends BaseState<RecommendListPage, IRecommendPresenter>
     implements IRecommendView {
   ResultRecommend _recommend;
-  bool _firstLoad = true;
 
   @override
   Widget build(BuildContext context) {
-    if (_firstLoad) {
-      _firstLoad = false;
-      Map arguments = ModalRoute.of(context).settings.arguments;
-      _recommend = arguments['recommend'];
-      presenter = RecomendPresenter(this, _recommend);
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_recommend.title),
-      ),
-      body: _buildBody(),
-    );
+    return body(context);
   }
 
   Widget _buildBody() {
@@ -44,16 +35,31 @@ class _RecommendListState
       onRefresh: () => presenter.startLoadMore(isRefresh: true),
       child: ProviderConsumer<ArticleListModel>(presenter.articleListModel,
           (context, model, _) {
-        return ArticleListWidget(
+        return ArticleListWidget.type(
+          widget.type,
           model,
-          onArticleItemTap: (item, list) {
+          onArticleItemTap: (item) {
             Navigator.pushNamed(context, UIData.ROUTE_ARTICLE_DETAIL,
-                arguments: {'index': list.indexOf(item), 'list': list});
+                arguments: {'item': item});
           },
           onLoadingMore: presenter.startLoadMore,
-          type: model.type,
+          itemType: model.type,
         );
       }),
+    );
+  }
+
+  @override
+  Widget buildBody(BuildContext context) {
+    Map arguments = ModalRoute.of(context).settings.arguments;
+    _recommend = arguments['recommend'];
+    presenter = RecomendPresenter(this, _recommend);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_recommend.title),
+      ),
+      body: _buildBody(),
     );
   }
 }

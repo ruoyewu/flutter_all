@@ -1,27 +1,42 @@
 import 'package:all/model/bean/qingmang_bean.dart';
 import 'package:all/model/user_theme.dart';
 import 'package:all/presenter/contract/home_contract.dart';
+import 'package:all/utils/function.dart';
+import 'package:all/view/app.dart';
 import 'package:all/view/widget/widget.dart';
 import 'package:flutter/material.dart';
 
-typedef OnItemTapCallback = void Function(AppItem item);
-
 class HomeListWidget extends StatelessWidget {
-  HomeListWidget(this.presenter, this.appItemList, {this.onItemTap});
+  HomeListWidget._(this.presenter, this.appItemList, {this.onItemTap});
 
-  IHomePresenter presenter;
+  // ignore: missing_return
+  factory HomeListWidget.type(
+      Type type, IHomePresenter presenter, List<AppItem> appItemList,
+      {OnAppItemTapCallback onItemTap}) {
+    switch (type) {
+      case Type.MATERIAL:
+        return _HomeListWidgetMaterial(
+          presenter,
+          appItemList,
+          onItemTapCallback: onItemTap,
+        );
+      case Type.CUPRETINO:
+        return _HomeListWidgetCupertino(
+          presenter,
+          appItemList,
+          onItemTapCallback: onItemTap,
+        );
+    }
+  }
+
+  final IHomePresenter presenter;
   final List<AppItem> appItemList;
-  final OnItemTapCallback onItemTap;
+  final OnAppItemTapCallback onItemTap;
   UserTextTheme _userTextTheme;
 
   @override
   Widget build(BuildContext context) {
     _userTextTheme = UserTextTheme.auto(context);
-    return ListView.builder(
-        itemCount: appItemList?.length?? 0,
-        itemBuilder: (context, index) {
-          return item(context, index);
-        });
   }
 
   Widget item(BuildContext context, int index) {
@@ -30,7 +45,8 @@ class HomeListWidget extends StatelessWidget {
     return Dismissible(
       key: ValueKey(item),
       confirmDismiss: (_) {
-        return Widgets.showAlertDialog(context, title: '是否删除 ${item.title} ?').then((result) {
+        return Widgets.showAlertDialog(context, title: '是否删除 ${item.title} ?')
+            .then((result) {
           if (result != null && result == 0) {
             return true;
           } else {
@@ -59,11 +75,52 @@ class HomeListWidget extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: ListTile(
-                title: Text(item.title, style: _userTextTheme.title,),
+                title: Text(
+                  item.title,
+                  style: _userTextTheme.title,
+                ),
                 leading: CircleAvatar(
                   backgroundImage: NetworkImage(item.icon),
                 )),
           )),
     );
+  }
+}
+
+class _HomeListWidgetCupertino extends HomeListWidget {
+  _HomeListWidgetCupertino(IHomePresenter presenter, List<AppItem> appItemList,
+      {OnAppItemTapCallback onItemTapCallback})
+      : super._(presenter, appItemList, onItemTap: onItemTapCallback);
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return SliverSafeArea(
+      top: false,
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            return Material(child: item(context, index));
+          },
+          childCount: appItemList?.length ?? 0,
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeListWidgetMaterial extends HomeListWidget {
+  _HomeListWidgetMaterial(IHomePresenter presenter, List<AppItem> appItemList,
+      {OnAppItemTapCallback onItemTapCallback})
+      : super._(presenter, appItemList, onItemTap: onItemTapCallback);
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return ListView.builder(
+        itemCount: appItemList?.length ?? 0,
+        itemBuilder: (context, index) {
+          return item(context, index);
+        });
   }
 }

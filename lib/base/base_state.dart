@@ -14,6 +14,15 @@ abstract class BaseState<T extends StatefulWidget, P extends BasePresenter> exte
     super.initState();
   }
 
+  Widget _body;
+  Widget body(BuildContext context) {
+    if (_body == null) {
+      _body = buildBody(context);
+    }
+    return _body;
+  }
+  Widget buildBody(BuildContext context);
+
   @override
   void dispose() {
     super.dispose();
