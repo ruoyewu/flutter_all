@@ -59,11 +59,6 @@ abstract class _HomeContainerState
     Navigator.pushNamed(context, UIData.ROUTE_APP,
         arguments: {'item': item, 'hero': widget.heroTag, 'title': 'ALL'});
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return body(context);
-  }
 }
 
 class _HomeContainerStateCupertino extends _HomeContainerState {

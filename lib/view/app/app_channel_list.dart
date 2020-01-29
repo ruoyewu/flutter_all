@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:math' show min;
 
 import 'package:all/base/base_state.dart';
@@ -35,15 +34,15 @@ abstract class _AppChannelListState
   UserTextTheme _userTextTheme;
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildBody(BuildContext context) {
     _userTextTheme = UserTextTheme.auto(context);
-    return body(context);
   }
 }
 
 class _AppChannelListStateCupertino extends _AppChannelListState {
   @override
   Widget buildBody(BuildContext context) {
+    super.buildBody(context);
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
         return _buildChannelItem(widget.item.channel[index]);
@@ -90,7 +89,10 @@ class _AppChannelListStateCupertino extends _AppChannelListState {
         (context, model, _) {
       return AppChannelArticleWidget(
         model.articleList,
-        size: Size(MediaQuery.of(context).size.width, 240,),
+        size: Size(
+          MediaQuery.of(context).size.width,
+          240,
+        ),
         onArticleItemTap: widget.onArticleItemTap,
       );
     });
@@ -98,7 +100,8 @@ class _AppChannelListStateCupertino extends _AppChannelListState {
 }
 
 class AppChannelArticleWidget extends StatelessWidget {
-  AppChannelArticleWidget(this.articleList, {this.line = 3, this.size, this.onArticleItemTap});
+  AppChannelArticleWidget(this.articleList,
+      {this.line = 3, this.size, this.onArticleItemTap});
 
   final Size size;
   final int line;
@@ -110,16 +113,11 @@ class AppChannelArticleWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     _userTextTheme = UserTextTheme.auto(context);
     final pageCount = (articleList.length * 1.0 / line).ceil();
-    final pageWidth = size.width * 0.5;
     return SizedBox.fromSize(
       size: size,
       child: PageView.builder(
         itemBuilder: (context, index) {
-          return SizedBox(
-            width: pageWidth,
-            height: size.height,
-            child: _buildChannelItem(articleList, index),
-          );
+          return _buildChannelItem(articleList, index);
         },
         itemCount: pageCount,
       ),
@@ -143,9 +141,14 @@ class AppChannelArticleWidget extends StatelessWidget {
   }
 
   Widget _buildArticleItem(ArticleListItem item) {
-    final title = item.subEntry[0]?.title?? '';
-    final image = item.subEntry[0]?.cover[0]?.url?? item.subEntry[0]?.image[0]?.url?? '';
-    log(item.subEntry[0].cover.length.toString());
+    final title = item.subEntry[0]?.title ?? item.subEntry[0]?.snippet ?? '';
+    final image = (item.subEntry[0]?.cover == null
+            ? null
+            : item.subEntry[0]?.cover[0]?.url) ??
+        (item.subEntry[0]?.image == null
+            ? null
+            : item.subEntry[0]?.image[0]?.url) ??
+        null;
     return Material(
       color: UserColor.COLOR_TRANSPARENT,
       child: InkWell(
@@ -157,18 +160,22 @@ class AppChannelArticleWidget extends StatelessWidget {
           child: Row(
             children: <Widget>[
               Expanded(
-                child: Text(title,
+                child: Text(
+                  title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: _userTextTheme.itemTitle,),
+                  style: _userTextTheme.itemTitle,
+                ),
               ),
-              SizedBox(
-                width: 10,
-              ),
-              CircleAvatar(
-                radius: 30,
-                backgroundImage: ImageUtil.image(image),
-              )
+              if (image != null) ...[
+                SizedBox(
+                  width: 10,
+                ),
+                CircleAvatar(
+                  radius: 30,
+                  backgroundImage: ImageUtil.image(image),
+                )
+              ]
             ],
           ),
         ),

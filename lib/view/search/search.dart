@@ -49,13 +49,8 @@ abstract class _SearchPageState extends BaseState<SearchPage, ISearchPresenter>
     presenter.startLoadSections();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    _userTextTheme = UserTextTheme.auto(context);
-    return body(context);
-  }
-
   Widget _buildBody() {
+    _userTextTheme = UserTextTheme.auto(context);
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -84,8 +79,11 @@ abstract class _SearchPageState extends BaseState<SearchPage, ISearchPresenter>
       padding: EdgeInsets.all(8),
       child: InkWell(
         onTap: () {
-          Navigator.pushNamed(context, UIData.ROUTE_RECOMMEND_LIST,
-              arguments: {'recommend': item});
+          Navigator.pushNamed(context, UIData.ROUTE_RECOMMEND_LIST, arguments: {
+            'recommend': item,
+            'title': widget.title,
+            'hero': widget.heroTag
+          });
         },
         child: SizedBox(
           width: 120,
@@ -133,8 +131,11 @@ abstract class _SearchPageState extends BaseState<SearchPage, ISearchPresenter>
   Widget _buildSectionItem(Section section) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, UIData.ROUTE_SECTION,
-            arguments: {'section': section, 'hero': widget.heroTag, 'title': widget.title});
+        Navigator.pushNamed(context, UIData.ROUTE_SECTION, arguments: {
+          'section': section,
+          'hero': widget.heroTag,
+          'title': widget.title
+        });
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -240,15 +241,15 @@ class _SearchPageStateCupertino extends _SearchPageState {
           onRefresh: () => Future.delayed(Duration(seconds: 2)),
         ),
         CupertinoSliverNavigationBar(
-          heroTag: widget.heroTag,
-          largeTitle: Text(widget.title),
-          backgroundColor: UserColor.COLOR_TRANSPARENT_ALABASTER,
-          trailing: GestureDetector(
-            onTap: () {
-
-            },
-            child: Icon(CupertinoIcons.search, size: 25,))
-        ),
+            heroTag: widget.heroTag,
+            largeTitle: Text(widget.title),
+            backgroundColor: UserColor.COLOR_TRANSPARENT_ALABASTER,
+            trailing: GestureDetector(
+                onTap: () {},
+                child: Icon(
+                  CupertinoIcons.search,
+                  size: 25,
+                ))),
         SliverSafeArea(
             top: false,
             sliver: SliverList(

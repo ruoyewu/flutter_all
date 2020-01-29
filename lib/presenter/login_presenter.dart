@@ -37,10 +37,10 @@ class LoginPresenter extends ILoginPresenter {
     if (result.successful) {
       UserInfo userInfo = UserInfo.fromJson(result.info);
       view.onLoginOk(userInfo);
-      UserSetting.isLogin.val = true;
-      UserSetting.loginId.val = id;
-      UserSetting.loginPassword.val = password;
-      UserSetting.loginUserName.val = userInfo.name;
+      UserSetting.isLogin.value = true;
+      UserSetting.loginId.value = id;
+      UserSetting.loginPassword.value = password;
+      UserSetting.loginUserName.value = userInfo.name;
     } else {
       view.onResultInfo(result.info);
     }

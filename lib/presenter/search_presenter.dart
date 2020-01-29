@@ -54,7 +54,7 @@ class SearchPresenter extends ISearchPresenter {
     _searchAppModel.searchAppList = null;
     final result = await RemoteData.searchApp(search);
     if (result.isSuccessful) {
-      final set = (await UserSetting.userApp.value).toSet();
+      final set = (await UserSetting.userApp.lazy).toSet();
       _searchAppModel.searchAppList = result.hasData
           ? result.entityList.map((entry) {
               AppItem item = AppItem.fromJson(entry);
@@ -67,37 +67,37 @@ class SearchPresenter extends ISearchPresenter {
 
   @override
   startAddAppItem(SearchAppItemModel model) async {
-    final list = await UserSetting.userApp.value;
+    final list = await UserSetting.userApp.lazy;
     if (!model.appItem.userSaved) {
       list.add(model.appItem.detail.appDetail.packageName);
     } else {
       list.remove(model.appItem.detail.appDetail.packageName);
     }
-    UserSetting.userApp.val = list;
+    UserSetting.userApp.value = list;
     model.appItem.userSaved = !model.appItem.userSaved;
     model.update();
   }
 
   @override
   startRefreshSearchHistory() async {
-    _searchHistoryModel.list = await UserSetting.searchHistory.value;
+    _searchHistoryModel.list = await UserSetting.searchHistory.lazy;
   }
 
   @override
   startAddSearchHistory(String search) async {
     if (search == null || search.isEmpty) return;
-    final searchHistory = await UserSetting.searchHistory.value;
+    final searchHistory = await UserSetting.searchHistory.lazy;
     final index = searchHistory.indexOf(search);
     if (index >= 0) {
       searchHistory.removeAt(index);
     }
     searchHistory.insert(0, search);
-    UserSetting.searchHistory.val = searchHistory;
+    UserSetting.searchHistory.value = searchHistory;
   }
 
   @override
   startClearHistory() async {
-    UserSetting.searchHistory.val = [];
+    UserSetting.searchHistory.value = [];
     _searchHistoryModel.list = [];
   }
 
@@ -118,7 +118,7 @@ class SearchPresenter extends ISearchPresenter {
     if (result.isSuccessful) {
       List<Section> list =
           result.entityList.map((item) => Section.fromJson(item)).toList();
-      final saved = (await UserSetting.userApp.value).toSet();
+      final saved = (await UserSetting.userApp.lazy).toSet();
       final delete = Set();
       for (Section section in list) {
         if (section.subEntity == null) {

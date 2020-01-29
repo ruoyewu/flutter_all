@@ -78,7 +78,7 @@ class HomePresenter extends IHomePresenter {
   @override
   Future<void> startRefresh() async {
     String pns = '';
-    (await UserSetting.userApp.value).forEach((item) => pns += item + ',');
+    (await UserSetting.userApp.lazy).forEach((item) => pns += item + ',');
     final result = await RemoteData.appDetail(pns);
     if (result.hasData) {
       final list =
@@ -92,7 +92,7 @@ class HomePresenter extends IHomePresenter {
     final list = _homeListModel.appItemList;
     list.remove(item);
     _homeListModel.appItemList = list;
-    UserSetting.userApp.val =
+    UserSetting.userApp.value =
         list.map((item) => item.detail.appDetail.packageName).toList();
   }
 
@@ -101,14 +101,14 @@ class HomePresenter extends IHomePresenter {
     final isLogin = UserSetting.isLogin;
     final userId = UserSetting.loginId;
     final userPassword = UserSetting.loginPassword;
-    if (await isLogin.value) {
+    if (await isLogin.lazy) {
       final result = await RemoteData.login(
-          Encrypt.sInstance.encrypt(await userId.value),
-          await userPassword.value);
+          Encrypt.sInstance.encrypt(await userId.lazy),
+          await userPassword.lazy);
       if (!result.successful) {
-        isLogin.val = false;
-        userId.val = '';
-        userPassword.val = '';
+        isLogin.value = false;
+        userId.value = '';
+        userPassword.value = '';
       }
     }
   }

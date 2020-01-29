@@ -71,7 +71,6 @@ abstract class _ArticleDetailState
   TextEditingController _commentEditController;
   GlobalKey _articleKey;
   BuildContext _snackBarContext;
-  bool _firstLoad = true;
   UserColor _userColor;
   ArticleListItem item;
   var heroTag;
@@ -209,12 +208,7 @@ abstract class _ArticleDetailState
       );
     }
 
-    if (_firstLoad) {
-      presenter = ArticleDetailPresenter(this, item: item);
-      _firstLoad = false;
-      presenter.startLoadArticle();
-      presenter.startLoadArticleInfo();
-    } else if (shouldRebuild) {
+    if (shouldRebuild) {
       (presenter as ArticleDetailPresenter).item = item;
       (presenter as ArticleDetailPresenter).nextComment = 0;
       presenter.articleCommentModel.articleCommentList.list?.clear();
@@ -224,6 +218,13 @@ abstract class _ArticleDetailState
     }
 
     return body(context);
+  }
+
+
+  Widget buildBody (BuildContext context) {
+    presenter = ArticleDetailPresenter(this, item: item);
+    presenter.startLoadArticle();
+    presenter.startLoadArticleInfo();
   }
 
   Widget _buildHeader(ArticleDetail detail) {
@@ -644,6 +645,7 @@ abstract class _ArticleDetailState
 class _ArticleDetailStateCupertino extends _ArticleDetailState {
   @override
   Widget buildBody(BuildContext context) {
+    super.buildBody(context);
     return CupertinoPageScaffold(
       child: Builder(builder: (context) {
         _snackBarContext = context;
@@ -708,6 +710,7 @@ class _ArticleDetailStateCupertino extends _ArticleDetailState {
 class _ArticleDetailStateMaterial extends _ArticleDetailState {
   @override
   Widget buildBody(BuildContext context) {
+    super.buildBody(context);
     return Scaffold(
       appBar: widget.showTitle
           ? AppBar(

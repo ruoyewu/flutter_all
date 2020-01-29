@@ -16,7 +16,7 @@ class RecomendPresenter extends IRecommendPresenter {
   void initModel() async {
     super.initModel();
     _articleListModel = ArticleListModel();
-    _articleListModel.type = await UserSetting.articleListType.value;
+    _articleListModel.type = await UserSetting.articleListType.lazy;
   }
 
   @override

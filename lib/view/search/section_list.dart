@@ -37,27 +37,17 @@ abstract class _SectionListState
   }
 
   Section _section;
-  bool _firstLoad = true;
 
   @override
   void initState() {
     super.initState();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (_firstLoad) {
-      Map arguments = ModalRoute.of(context).settings.arguments;
-      _section = arguments['section'];
-
-      presenter = SearchSectionPresenter(this, _section.id);
-      _firstLoad = false;
-    }
-
-    return body(context);
-  }
-
   Widget _buildBody({bool shrink = false}) {
+    Map arguments = ModalRoute.of(context).settings.arguments;
+    _section = arguments['section'];
+    presenter = SearchSectionPresenter(this, _section.id);
+
     return ProviderConsumer<SearchSectionModel>(presenter.searchSectionModel,
         (context, model, _) {
       return GridView.builder(

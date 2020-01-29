@@ -47,11 +47,6 @@ abstract class _LoginPageState extends BaseState<LoginPage, ILoginPresenter>
 
   onRegisterTap();
 
-  @override
-  Widget build(BuildContext context) {
-    return body(context);
-  }
-
   List<Widget> _buildPages() {
     return [
       LoginLoginWidget(

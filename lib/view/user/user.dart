@@ -96,11 +96,6 @@ abstract class _UserPageState extends BaseState<UserPage, IUserPresenter>
 
 	GlobalKey _key = GlobalKey(debugLabel: 'test');
 
-	@override
-	Widget build (BuildContext context) {
-		return body(context);
-	}
-
 	List<Widget> _tabView () {
 		return [
 			Tab(

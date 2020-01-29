@@ -14,6 +14,11 @@ abstract class BaseState<T extends StatefulWidget, P extends BasePresenter> exte
     super.initState();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return body(context);
+  }
+
   Widget _body;
   Widget body(BuildContext context) {
     if (_body == null) {

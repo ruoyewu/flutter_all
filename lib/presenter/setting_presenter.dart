@@ -11,7 +11,7 @@ class SettingPresenter extends ISettingPresenter {
   @override
   void initModel() async {
     _articleListTypeModel = ArticleListTypeModel();
-    int type = await UserSetting.articleListType.value;
+    int type = await UserSetting.articleListType.lazy;
     _articleListTypeModel.type = type;
     _articleListTypeModel.list = List.filled(
         2,
@@ -46,6 +46,6 @@ class SettingPresenter extends ISettingPresenter {
 
   @override
   startSetArticleListType(int type) async {
-    UserSetting.articleListType.val = type;
+    UserSetting.articleListType.value = type;
   }
 }

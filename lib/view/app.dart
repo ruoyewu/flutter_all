@@ -3,6 +3,7 @@ import 'package:all/model/user_color.dart';
 import 'package:all/model/user_theme.dart';
 import 'package:all/utils/decive_utils.dart';
 import 'package:all/view/app/app.dart';
+import 'package:all/view/app/app_channel.dart';
 import 'package:all/view/detail/article_detail.dart';
 import 'package:all/view/home/home.dart';
 import 'package:all/view/image/image.dart';
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     type = DeviceUtil.isAndroid ? Type.MATERIAL : Type.CUPRETINO;
-    final _routes = <String, WidgetBuilder>{
+    final routes = <String, WidgetBuilder>{
       UIData.ROUTE_HOME: (context) => HomePage(type),
       UIData.ROUTE_APP: (context) => AppPage.type(type),
       UIData.ROUTE_ARTICLE_DETAIL: (context) => ArticleDetailPage(type),
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
       UIData.ROUTE_IMAGE: (context) => ImagePage(),
       UIData.ROUTE_SECTION: (context) => SectionListPage(type),
       UIData.ROUTE_RECOMMEND_LIST: (context) => RecommendListPage(type),
+      UIData.ROUTE_APP_CHANNEL: (context) => AppChannelPage(type),
       UIData.ROUTE_TEST: (context) => TestPage(),
     };
 
@@ -53,7 +55,7 @@ class MyApp extends StatelessWidget {
           theme: UserTheme.light(),
           darkTheme: UserTheme.dark(),
           home: HomePage(type),
-          routes: _routes,
+          routes: routes,
           onUnknownRoute: _unknownRoute,
         );
         break;
@@ -66,7 +68,7 @@ class MyApp extends StatelessWidget {
             scaffoldBackgroundColor: UserColor.COLOR_ALABASTER,
           ),
           home: HomePage(type),
-          routes: _routes,
+          routes: routes,
           onUnknownRoute: _unknownRoute,
         );
         break;

@@ -15,7 +15,7 @@ class ArticleListPresenter extends IArticleListPresenter {
   @override
   void initModel() async {
     _articleListModel = ArticleListModel();
-    _articleListModel.type = await UserSetting.articleListType.value;
+    _articleListModel.type = await UserSetting.articleListType.lazy;
   }
 
   @override
@@ -28,9 +28,9 @@ class ArticleListPresenter extends IArticleListPresenter {
   ArticleListModel get articleListModel => _articleListModel;
 
   @override
-  Future<void> startLoadMore({bool isRefresh = false}) {
+  Future<void> startLoadMore({bool isRefresh = false}) async {
     if (isRefresh || nextUrl == null) {
-      return RemoteData.articleList(channel.id).then((result) {
+      return RemoteData.articleList(channel.id).then((result) async {
         if (result.isSuccessful) {
           List<ArticleListItem> list = result.hasData
               ? result.entityList
@@ -38,6 +38,7 @@ class ArticleListPresenter extends IArticleListPresenter {
                   .toList()
               : List();
           _articleListModel.articleList = list;
+          _articleListModel.type = await UserSetting.articleListType.lazy;
           _articleListModel.hasMore = result.hasMore;
           nextUrl = result.nextUrl;
         }

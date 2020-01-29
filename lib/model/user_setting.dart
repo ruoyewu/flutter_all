@@ -7,7 +7,7 @@ abstract class UserSetting<T> {
 	static final isLogin          = BoolUserSetting('is_user_login', false);
 	static final userApp          = StringListUserSetting('user_app', []);
 	static final searchHistory    = StringListUserSetting('search_history', []);
-	static final articleListType  = IntUserSetting('article_list_type', 2);
+	static final articleListType  = IntUserSetting('article_list_type', 1);
 	static final userMaterial     = BoolUserSetting('user_material', false);
 
 	static SharedPreferences _sp;
@@ -25,10 +25,11 @@ abstract class UserSetting<T> {
 		return _sp;
 	}
 
-	Future<T> get value async {
-		return await _getValue();
+	Future<T> get lazy async {
+		return await _getValue()?? defaultValue;
 	}
-	set val(T value) {
+
+	set value(T value) {
 		return _setValue(value);
 	}
 

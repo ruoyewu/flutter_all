@@ -54,8 +54,8 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
 
   @override
   Future<List<String>> commentDialogTitles(ArticleCommentListItem item) async {
-    if ((await UserSetting.isLogin.value) &&
-        (await UserSetting.loginId.value) == item.user.id) {
+    if ((await UserSetting.isLogin.lazy) &&
+        (await UserSetting.loginId.lazy) == item.user.id) {
       return ['复制', '举报', '评论', '删除'];
     } else {
       return ['复制', '举报', '评论'];
@@ -64,8 +64,8 @@ class ArticleDetailPresenter extends IArticleDetailPresenter {
 
   @override
   showEditDialog(ArticleCommentListItem parent) async {
-    if (await UserSetting.isLogin.value) {
-      view.onShowEditDialog(await UserSetting.loginUserName.value, parent);
+    if (await UserSetting.isLogin.lazy) {
+      view.onShowEditDialog(await UserSetting.loginUserName.lazy, parent);
     } else {
       view.onResultInfo('LOGIN FIRST', code: 401);
     }

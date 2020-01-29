@@ -44,7 +44,7 @@ class SearchSectionPresenter extends ISearchSectionPresenter {
           delete.add(item);
           continue;
         }
-        item.userSaved = (await UserSetting.userApp.value)
+        item.userSaved = (await UserSetting.userApp.lazy)
             .contains(item.detail.appDetail.packageName);
       }
       for (AppItem item in delete) {
@@ -62,13 +62,13 @@ class SearchSectionPresenter extends ISearchSectionPresenter {
 
   @override
   startAddAppItem(SearchAppItemModel model) async {
-    List<String> list = await UserSetting.userApp.value;
+    List<String> list = await UserSetting.userApp.lazy;
     if (!model.appItem.userSaved) {
       list.add(model.appItem.detail.appDetail.packageName);
     } else {
       list.remove(model.appItem.detail.appDetail.packageName);
     }
-    UserSetting.userApp.val = list;
+    UserSetting.userApp.value = list;
     model.appItem.userSaved = !model.appItem.userSaved;
     model.update();
   }

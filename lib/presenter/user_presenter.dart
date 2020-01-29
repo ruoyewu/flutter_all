@@ -53,8 +53,8 @@ class UserPresenter extends IUserPresenter {
 
   @override
   startUserAvatarTap(String id) async {
-    if (await UserSetting.isLogin.value &&
-        await UserSetting.loginId.value == id) {
+    if (await UserSetting.isLogin.lazy &&
+        await UserSetting.loginId.lazy == id) {
       view.onShowUserDialog();
     }
   }
@@ -62,9 +62,9 @@ class UserPresenter extends IUserPresenter {
   @override
   startLoadUserInfo({String id = null}) async {
     if (id == null) {
-      if (await UserSetting.isLogin.value) {
+      if (await UserSetting.isLogin.lazy) {
         _startLoadUserInfo(
-            Encrypt.sInstance.encrypt(await UserSetting.loginId.value));
+            Encrypt.sInstance.encrypt(await UserSetting.loginId.lazy));
       }
     } else {
       _startLoadUserInfo(Encrypt.sInstance.encrypt(id));
@@ -99,10 +99,10 @@ class UserPresenter extends IUserPresenter {
       _userInfoModel.refresh();
       _articleCollectionModel.refresh();
       _nextCollection = 0;
-      UserSetting.isLogin.val = false;
-      UserSetting.loginId.val = '';
-      UserSetting.loginUserName.val = '';
-      UserSetting.loginPassword.val = '';
+      UserSetting.isLogin.value = false;
+      UserSetting.loginId.value = '';
+      UserSetting.loginUserName.value = '';
+      UserSetting.loginPassword.value = '';
     });
   }
 
